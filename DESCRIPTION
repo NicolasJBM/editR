@@ -29,4 +29,7 @@ Imports:
     shinydashboardPlus,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    ggplot2,
+    patchwork
+
