@@ -92,19 +92,7 @@ edit_server <- function(
     template_files <- shiny::reactive({
       base::list.files(templates_path())
     })
-
-    output_folder <- shiny::reactive({
-      base::switch(
-        doctype,
-        Note = course_paths()$subfolders$blog,
-        Page = course_paths()$subfolders$textbooks,
-        Slide = course_paths()$subfolders$presentations,
-        Video = course_paths()$subfolders$scripts,
-        Game = course_paths()$subfolders$games,
-        Case = course_paths()$subfolders$cases
-      )
-    })
-
+    
 
 
     # Select document ##########################################################
