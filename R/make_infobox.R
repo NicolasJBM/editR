@@ -120,7 +120,7 @@ make_infobox <- function(course_data, selected_file, infotype){
           shinydashboard::valueBox(
             video_views$repetition,
             "Repetition",
-            icon = shiny::icon("redo"),
+            icon = shiny::icon("rotate-right"),
             color = video_views$repetition_color,
             width = 12
           )
@@ -171,7 +171,7 @@ make_infobox <- function(course_data, selected_file, infotype){
           shinydashboard::valueBox(
             document_parameters$discrimination,
             "discrimination",
-            icon = shiny::icon("balance-scale-left"),
+            icon = shiny::icon("scale-unbalanced"),
             color = document_parameters$discrimination_color,
             width = 12
           )
