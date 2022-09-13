@@ -39,7 +39,7 @@ make_infobox <- function(course_data, selected_file, infotype){
           shinydashboard::valueBox(
             page_ratings$average,
             "Average",
-            icon = shiny::icon("star-half-alt"),
+            icon = shiny::icon("star-half-stroke"),
             color = page_ratings$average_color,
             width = 12
           )
@@ -49,7 +49,7 @@ make_infobox <- function(course_data, selected_file, infotype){
           shinydashboard::valueBox(
             page_ratings$dispersion,
             "Dispersion",
-            icon = shiny::icon("arrows-alt-h"),
+            icon = shiny::icon("left-right"),
             color = page_ratings$dispersion_color,
             width = 12
           )
