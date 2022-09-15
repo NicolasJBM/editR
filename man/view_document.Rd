@@ -4,10 +4,12 @@
 \alias{view_document}
 \title{Display a document for view only.}
 \usage{
-view_document(selected, course_data, course_paths)
+view_document(selected, original, course_data, course_paths)
 }
 \arguments{
 \item{selected}{Tibble. Selected document.}
+
+\item{original}{Logical. Whether the document is the original (TRUE) or a translation (FALSE).}
 
 \item{course_data}{Reactive. Function containing all the course data loaded with the course.}
 

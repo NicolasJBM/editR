@@ -171,19 +171,23 @@ edit_server <- function(
 
     # Display document #########################################################
 
-    output$viewdoc <- shiny::renderUI({
-
-      shiny::req(input$selecteddoc)
+    document_to_edit <- shiny::reactive({
       shiny::req(!base::is.null(selection()))
+      shiny::req(input$selecteddoc)
       shiny::req(input$selecteddoc %in% selection()$file)
-
+      to_edit <- selection() |>
+        dplyr::filter(file == input$selecteddoc)
+      to_edit$filepath <- base::paste0(
+        course_paths()$subfolders$original, "/", to_edit$file
+      )
+      to_edit
+    })
+    
+    output$viewdoc <- shiny::renderUI({
+      shiny::req(!base::is.null(document_to_edit()))
       input$savedoc
       input$docrefresh
-      
-      selected <- selection() |>
-        dplyr::filter(file == input$selecteddoc)
-      
-      editR::view_document(selected, course_data, course_paths)
+      editR::view_document(document_to_edit(), TRUE, course_data, course_paths)
     })
 
 
@@ -191,73 +195,61 @@ edit_server <- function(
     # Edit document ############################################################
 
     output$editdoc <- shiny::renderUI({
-      shiny::req(input$selecteddoc)
-      shiny::req(!base::is.null(selection()))
-      input$docrefresh
-      if (input$selecteddoc %in% selection()$file){
-        lines <- base::readLines(base::paste0(
-          course_paths()$subfolders$original, "/", input$selecteddoc
-        ))
-        shinydashboardPlus::box(
-          width = 12, title = "Edition", solidHeader = TRUE,
-          status = "navy", collapsible = FALSE, collapsed = FALSE,
-          height = "750px",
-          shiny::fluidRow(
-            shiny::column(
-              4,
-              shiny::actionButton(
-                ns("savedoc"), "Save", icon = shiny::icon("floppy-disk"),
-                style = "background-color:#006633;color:#FFF;
+      shiny::req(!base::is.null(document_to_edit()))
+      lines <- base::readLines(document_to_edit()$filepath)
+      shinydashboardPlus::box(
+        width = 12, title = "Edition", solidHeader = TRUE,
+        status = "navy", collapsible = FALSE, collapsed = FALSE,
+        height = "750px",
+        shiny::fluidRow(
+          shiny::column(
+            4,
+            shiny::actionButton(
+              ns("savedoc"), "Save", icon = shiny::icon("floppy-disk"),
+              style = "background-color:#006633;color:#FFF;
                 width:100%;margin-bottom:10px;"
-              )
-            ),
-            shiny::column(
-              4,
-              shiny::actionButton(
-                ns("docinrstudio"), "RStudio",
-                icon = shiny::icon("r-project"),
-                style = "background-color:#222222;color:#FFF;
-                width:100%;margin-bottom:10px;"
-              )
-            ),
-            shiny::column(
-              4,
-              shiny::actionButton(
-                ns("docrefresh"), "Refresh",
-                icon = shiny::icon("rotate"),
-                style = "background-color:#003399;color:#FFF;
-                width:100%;margin-bottom:10px;"
-              )
             )
           ),
-          shiny::fluidRow(
-            shiny::column(12, shinyAce::aceEditor(
-              outputId = ns("editeddoc"), value = lines, mode = "markdown",
-              wordWrap = TRUE, debounce = 10, autoComplete = "live",
-              height = "750px"
-            ))
+          shiny::column(
+            4,
+            shiny::actionButton(
+              ns("docinrstudio"), "RStudio",
+              icon = shiny::icon("r-project"),
+              style = "background-color:#222222;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            4,
+            shiny::actionButton(
+              ns("docrefresh"), "Refresh",
+              icon = shiny::icon("rotate"),
+              style = "background-color:#003399;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
           )
+        ),
+        shiny::fluidRow(
+          shiny::column(12, shinyAce::aceEditor(
+            outputId = ns("editeddoc"), value = lines, mode = "markdown",
+            wordWrap = TRUE, debounce = 10, autoComplete = "live",
+            height = "750px"
+          ))
         )
-      } else NULL
+      )
     })
 
     shiny::observeEvent(input$savedoc, {
-      selected_doc <- shiny::isolate({ input$selecteddoc })
-      edited_doc <- shiny::isolate({ input$editeddoc })
-      shiny::req(selected_doc != "")
-      shiny::req(!base::is.null(edited_doc))
-      base::writeLines(
-        input$editeddoc,
-        base::paste0(course_paths()$subfolders$original, "/", selected_doc),
-        useBytes = TRUE
-      )
+      document_to_edit <- shiny::isolate({ document_to_edit() })
+      editeddoc <- shiny::isolate({ input$editeddoc })
+      shiny::req(!base::is.null(editeddoc))
+      base::writeLines(editeddoc, document_to_edit$filepath, useBytes = TRUE)
     })
 
     shiny::observeEvent(input$docinrstudio, {
-      shiny::req(input$selecteddoc != "")
-      rstudioapi::navigateToFile(
-        base::paste0(course_paths()$subfolders$original, "/", input$selecteddoc)
-      )
+      document_to_edit <- shiny::isolate({ document_to_edit() })
+      shiny::req(!base::is.null(document_to_edit))
+      rstudioapi::navigateToFile(document_to_edit$filepath)
     })
 
 
