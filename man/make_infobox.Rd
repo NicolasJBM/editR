@@ -9,7 +9,7 @@ make_infobox(course_data, selected_file, infotype)
 \arguments{
 \item{course_data}{Reactive. Function containing all the course data loaded with the course.}
 
-\item{selected_file}{Character. Nale of the file for which statistics should be displayed.}
+\item{selected_file}{Character. Name of the file for which statistics should be displayed.}
 
 \item{infotype}{Character. Whether the infobox should display statistics about ratings, views, results, or comments.}
 }

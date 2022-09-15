@@ -3,7 +3,7 @@
 #' @author Nicolas Mangin
 #' @description Make infoboxes for ratings, views, results, or comments.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
-#' @param selected_file Character. Nale of the file for which statistics should be displayed.
+#' @param selected_file Character. Name of the file for which statistics should be displayed.
 #' @param infotype Character. Whether the infobox should display statistics about ratings, views, results, or comments.
 #' @return Shinydashboard infoboxes
 #' @importFrom dplyr filter
