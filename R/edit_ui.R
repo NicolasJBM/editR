@@ -41,6 +41,14 @@ edit_ui <- function(id){
     shiny::fluidRow(
       shiny::column(6, shiny::uiOutput(ns("viewdoc"))),
       shiny::column(6, shiny::uiOutput(ns("editdoc")))
+    ),
+    shiny::fluidRow(
+      shiny::column(
+        3,
+        shiny::uiOutput(ns("selectprop")),
+        shiny::plotOutput(ns("displaycurve"))
+      ),
+      shiny::column(9, rhandsontable::rHandsontableOutput(ns("editprop")))
     )
   )
 }

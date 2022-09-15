@@ -9,10 +9,22 @@
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (questions are handled by another module).
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
+#' @importFrom dplyr anti_join
+#' @importFrom dplyr arrange
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr case_when
+#' @importFrom dplyr desc
 #' @importFrom dplyr filter
 #' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate_if
 #' @importFrom dplyr select
-#' @importFrom rmarkdown render
+#' @importFrom rhandsontable hot_col
+#' @importFrom rhandsontable hot_cols
+#' @importFrom rhandsontable hot_context_menu
+#' @importFrom rhandsontable hot_to_r
+#' @importFrom rhandsontable renderRHandsontable
+#' @importFrom rhandsontable rhandsontable
 #' @importFrom rstudioapi navigateToFile
 #' @importFrom shiny actionButton
 #' @importFrom shiny column
@@ -25,22 +37,21 @@
 #' @importFrom shiny NS
 #' @importFrom shiny observeEvent
 #' @importFrom shiny reactive
-#' @importFrom shiny reactiveValues
 #' @importFrom shiny removeModal
 #' @importFrom shiny renderUI
 #' @importFrom shiny req
 #' @importFrom shiny selectInput
 #' @importFrom shiny showModal
+#' @importFrom shiny sliderInput
 #' @importFrom shiny tagList
-#' @importFrom shiny textInput
+#' @importFrom shiny wellPanel
 #' @importFrom shinyAce aceEditor
 #' @importFrom shinyalert shinyalert
-#' @importFrom shinybusy remove_modal_spinner
-#' @importFrom shinybusy show_modal_spinner
 #' @importFrom shinydashboardPlus box
 #' @importFrom stringr str_remove
-#' @importFrom stringr str_remove_all
 #' @importFrom stringr str_replace_all
+#' @importFrom stringr str_split
+#' @importFrom tibble tibble
 #' @export
 
 
@@ -50,19 +61,35 @@ edit_server <- function(
   ns <- shiny::NS(id)
   shiny::moduleServer(id, function(input, output, session) {
 
-    type <- NULL
-    language <- NULL
     section <- NULL
     authors <- NULL
-
+    type <- NULL
+    data <- NULL
+    discrimination <- NULL
+    document <- NULL
+    explanation <- NULL
+    item <- NULL
+    keywords <- NULL
+    language <- NULL
+    modifications <- NULL
+    proposition <- NULL
+    success <- NULL
+    value <- NULL
+    code <- NULL
+    tags <- NULL
 
 
     # Load data ################################################################
 
     selection <- shiny::reactive({
       shiny::req(!base::is.null(filtered()))
-      filtered() |>
-        dplyr::filter(type == doctype)
+      if (doctype == "Question"){
+        filtered() |>
+          dplyr::filter(type %in% c("Statements","Alternatives","Computation","Essay","Problem"))
+      } else {
+        filtered() |>
+          dplyr::filter(type == doctype)
+      }
     })
 
     prefix <- shiny::reactive({
@@ -73,7 +100,8 @@ edit_server <- function(
         Slide = "S",
         Video = "V",
         Game = "G",
-        Case = "C"
+        Case = "C",
+        Question = "Q"
       )
     })
 
@@ -85,7 +113,8 @@ edit_server <- function(
         Slide = course_paths()$subfolders$templates_slide,
         Video = course_paths()$subfolders$templates_video,
         Game = course_paths()$subfolders$templates_game,
-        Case = course_paths()$subfolders$templates_case
+        Case = course_paths()$subfolders$templates_case,
+        Question = course_paths()$subfolders$templates_question
       )
     })
 
@@ -150,175 +179,11 @@ edit_server <- function(
 
       input$savedoc
       input$docrefresh
-
+      
       selected <- selection() |>
         dplyr::filter(file == input$selecteddoc)
-
-      filepath <- base::paste0(
-        course_paths()$subfolders$original, "/", input$selecteddoc
-      )
-      doc <- base::readLines(filepath)
-      doc <- doc[1:(base::match('Meta-information', doc)-1)]
-
-
-      if (doctype == "Note"){
-
-        yaml <- c(
-          '---',
-          base::paste0('title: ', selected$title[1]),
-          'subtitle: <hr>',
-          'output:',
-          '  rmarkdown::html_document:',
-          '    self_contained: false',
-          '    css: ["format/css/notes.css", "format/css/fa.css"]',
-          '    fig_width: 8',
-          '    fig_height: 6',
-          '    fig_caption: true',
-          '    mathjax: default',
-          'csl: format/csl/apa.csl',
-          'bibliography: data/references.bib',
-          '---'
-        )
-
-      } else if (doctype == "Page"){
-
-        yaml <- c(
-          '---',
-          base::paste0('title: ', selected$title[1]),
-          'subtitle: <hr>',
-          'output:',
-          '  rmarkdown::html_document:',
-          '    self_contained: false',
-          '    css: ["format/css/pages.css", "format/css/fa.css"]',
-          '    fig_width: 8',
-          '    fig_height: 6',
-          '    fig_caption: true',
-          '    mathjax: default',
-          'csl: format/csl/apa.csl',
-          'bibliography: data/references.bib',
-          '---'
-        )
-
-      } else if (doctype == "Slide"){
-
-        if ("tag_authors" %in% base::names(selected)){
-          authors <- selected$tag_authors[[1]]
-        } else {
-          authors <- ""
-        }
-
-        yaml <- c(
-          '---',
-          base::paste0('title: <large> ', selected$title[[1]],' </large>'),
-          base::paste0('author: <hr> ', authors),
-          base::paste0('date: ', base::format(base::Sys.time(), '%B %d, %Y')),
-          'output:',
-          '  revealjs::revealjs_presentation:',
-          '    self_contained: false',
-          '    reveal_plugins: ["menu","chalkboard"]',
-          '    incremental: true',
-          '    highlight: pygments',
-          '    center: true',
-          '    transition: slide',
-          '    background_transition: slide',
-          '    reveal_options:',
-          '      showNotes: true',
-          '      slideNumber: true',
-          '      previewLinks: true',
-          '    fig_width: 8',
-          '    fig_height: 6',
-          '    fig_caption: true',
-          '    css: format/css/slides.css',
-          '    mathjax: default',
-          'csl: format/csl/apa.csl',
-          'bibliography: data/references.bib',
-          '---'
-        )
-
-      } else if (doctype == "Video"){
-
-        yaml <- c(
-          '---',
-          base::paste0('title: ', selected$title[1]),
-          'subtitle: <hr>',
-          'output:',
-          '  rmarkdown::html_document:',
-          '    self_contained: false',
-          '    css: ["format/css/videos.css", "format/css/fa.css"]',
-          '    fig_width: 8',
-          '    fig_height: 6',
-          '    fig_caption: true',
-          '    mathjax: default',
-          'csl: format/csl/apa.csl',
-          'bibliography: data/references.bib',
-          '---'
-        )
-
-      } else if (doctype == "Game"){
-
-        yaml <- c(
-          '---',
-          base::paste0('title: ', selected$title[1]),
-          'subtitle: <hr>',
-          'output:',
-          '  rmarkdown::html_document:',
-          '    self_contained: false',
-          '    css: ["format/css/games.css", "format/css/fa.css"]',
-          '    fig_width: 8',
-          '    fig_height: 6',
-          '    fig_caption: true',
-          '    mathjax: default',
-          'csl: format/csl/apa.csl',
-          'bibliography: data/references.bib',
-          '---'
-        )
-
-      } else {
-
-        yaml <- c(
-          '---',
-          base::paste0('title: ', selected$title[1]),
-          'subtitle: <hr>',
-          'output:',
-          '  rmarkdown::html_document:',
-          '    self_contained: false',
-          '    css: ["format/css/cases.css", "format/css/fa.css"]',
-          '    fig_width: 8',
-          '    fig_height: 6',
-          '    fig_caption: true',
-          '    mathjax: default',
-          'csl: format/csl/apa.csl',
-          'bibliography: data/references.bib',
-          '---'
-        )
-
-      }
-
-      doc <- c(yaml, doc)
-
-      rmdpath <- base::paste0(
-        course_paths()$subfolders$course,
-        "/temporary/tmpdoc.Rmd"
-      )
-      base::writeLines(doc, rmdpath, useBytes = TRUE)
-      rmarkdown::render(rmdpath, encoding="UTF-8", quiet = TRUE) |>
-        base::suppressWarnings()
-      title <- selected |>
-        editR::make_title_display(course_data)
-
-      if (doctype == "Slide"){
-        shinydashboardPlus::box(
-          width = 12, title = title, solidHeader = TRUE, status = "primary",
-          collapsible = FALSE, collapsed = FALSE, height = "550px",
-          shiny::tags$iframe(src="temporary/tmpdoc.html", height = 520, width = "100%")
-        )
-      } else {
-        shinydashboardPlus::box(
-          width = 12, title = title, solidHeader = TRUE, status = "primary",
-          collapsible = FALSE, collapsed = FALSE, height = "750px",
-          shiny::tags$iframe(src="temporary/tmpdoc.html", height = 750, width="100%")
-        )
-      }
+      
+      editR::view_document(selected, course_data, course_paths)
     })
 
 
@@ -462,17 +327,203 @@ edit_server <- function(
     })
 
 
+    # Edit propositions ########################################################
+    
+    propositions <- shiny::reactive({
+      shiny::req(doctype == "Question")
+      shiny::req(!base::is.null(selection()))
+      input$refreshprop
+      base::load(course_paths()$databases$propositions)
+      propositions
+    })
+    
+    targeted_documents <- shiny::reactive({
+      shiny::req(doctype == "Question")
+      shiny::req(input$selecteddoc)
+      shiny::req(!base::is.null(selection()))
+      selected_question <- selection() |>
+        dplyr::filter(file == input$selecteddoc)
+      targeted_documents <- selected_question$document[1] |>
+        stringr::str_split(pattern = " ", simplify = TRUE) |>
+        base::unique() |>
+        base::sort()
+      targeted_documents
+    })
+    
+    propositions_for_question <- shiny::reactive({
+      shiny::req(doctype == "Question")
+      shiny::req(!base::is.null(targeted_documents()))
+      shiny::req(base::length(targeted_documents()) > 0)
+      selected_question <- selection() |>
+        dplyr::filter(file == input$selecteddoc)
+      slcttype <- selected_question$type[1]
+      slctlang <- selected_question$language[1]
+      if (slcttype == "Statements"){
+        propositions() |>
+          dplyr::filter(
+            document %in% targeted_documents(),
+            type == slcttype,
+            language == slctlang
+          )
+      } else {
+        propositions() |>
+          dplyr::filter(
+            code == selected_question$code[1],
+            type == slcttype,
+            language == slctlang
+          )
+      }
+    })
+    
+    output$selectprop <- shiny::renderUI({
+      shiny::req(doctype == "Question")
+      shiny::req(base::length(targeted_documents()) > 0)
+      shiny::req(!base::is.null(propositions_for_question()))
+      shiny::wellPanel(
+        shiny::actionButton(
+          ns("saveprop"), "Save propositions",
+          icon = shiny::icon("floppy-disk"),
+          style = "background-color:#009933;color:#FFF;width:100%"
+        ),
+        shiny::tags$hr(),
+        shiny::actionButton(
+          ns("refreshprop"), "Refresh propositions",
+          icon = shiny::icon("floppy-disk"),
+          style = "background-color:#003399;color:#FFF;width:100%"
+        ),
+        shiny::tags$hr(),
+        shiny::selectInput(
+          ns("slctpropdoc"), "Select a document:",
+          choices = base::unique(propositions_for_question()$document),
+          selected = base::unique(propositions_for_question()$document),
+          multiple = TRUE
+        ),
+        shiny::tags$hr(),
+        shiny::sliderInput(
+          ns("slctpropval"), "Select a value range:",
+          min = 0, max = 1, value = c(0,1)
+        )
+      )
+    })
+    
+    propositions_to_edit <- shiny::reactive({
+      shiny::req(doctype == "Question")
+      shiny::req(base::length(targeted_documents()) > 0)
+      shiny::req(!base::is.null(propositions_for_question()))
+      shiny::req(!base::is.null(input$slctpropdoc))
+      shiny::req(!base::is.null(input$slctpropval))
+      propositions_for_question() |>
+        dplyr::filter(
+          document %in% input$slctpropdoc,
+          value >= input$slctpropval[1],
+          value <= input$slctpropval[2]
+        )
+    })
+    
+    output$editprop <- rhandsontable::renderRHandsontable({
+      shiny::req(doctype == "Question")
+      shiny::req(base::length(targeted_documents()) > 0)
+      shiny::req(!base::is.null(propositions()))
+      shiny::req(!base::is.null(propositions_to_edit()))
+      
+      existing_names <- propositions() |>
+        dplyr::select(item) |> base::unlist() |>
+        base::as.character() |> base::unique()
+      newitemid <- editR::name_new_item(existing_names)
+      levellanguage <- propositions_to_edit()$language[1]
+      leveltype <- propositions_to_edit()$type[1]
+      levelcode <- dplyr::case_when(
+        leveltype == "Statements" ~ base::as.character(NA),
+        TRUE ~ propositions_to_edit()$code[1]
+      )
+      levelscale <- c("logical","qualitative","percentage")
+      
+      tmprow <- tibble::tibble(
+        item = newitemid,
+        language = levellanguage,
+        code = levelcode,
+        type = leveltype,
+        document = base::factor(targeted_documents()[1], levels = targeted_documents()),
+        modifications = 1,
+        proposition = base::as.character(NA),
+        value = 0,
+        scale = base::factor("logical", levels = levelscale),
+        explanation = base::as.character(NA),
+        keywords = base::as.character(NA),
+        success = base::as.numeric(NA),
+        discrimination = base::as.numeric(NA)
+      )
+      
+      if (base::nrow(propositions_to_edit()) > 0){
+        itemsublist <- propositions_to_edit() |>
+          dplyr::mutate(
+            code = base::factor(code, levels = levelcode),
+            type = base::factor(type, levels = leveltype),
+            document = base::factor(document, levels = targeted_documents()),
+            scale = base::factor(scale, levels = levelscale)
+          ) |>
+          dplyr::arrange(code, document, dplyr::desc(value), proposition) |>
+          dplyr::left_join(
+            course_data()$item_parameters,
+            by = c("item","language")
+          ) |>
+          dplyr::select(
+            item, language, code, type, document, modifications, proposition,
+            value, scale, explanation, keywords, success, discrimination
+          ) |>
+          dplyr::bind_rows(tmprow)
+      } else {
+        itemsublist <- tmprow
+      }
+      
+      itemsublist |>
+        rhandsontable::rhandsontable(
+          height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
+        ) |>
+        rhandsontable::hot_col(c(1,2,12,13), readOnly = TRUE) |>
+        rhandsontable::hot_cols(
+          colWidths = c(
+            "7%","2%","7%","7%","7%","3%","18%","3%",
+            "5%","25%","10%","3%","3%"
+          )
+        ) |>
+        rhandsontable::hot_context_menu(
+          allowRowEdit = FALSE, allowColEdit = FALSE
+        )
+    })
+    
+    shiny::observeEvent(input$saveprop, {
+      shiny::req(!base::is.null(input$editprop))
+      modified <- rhandsontable::hot_to_r(input$editprop) |>
+        dplyr::mutate_if(base::is.factor, base::as.character)
+      
+      if (base::is.na(modified[base::nrow(modified), "proposition"])){
+        modified <- modified[-base::nrow(modified),]
+      }
+      
+      propositions <- shiny::isolate({ propositions() })
+      
+      modified <- modified |>
+        dplyr::select(base::names(propositions))
+      
+      not_modified <- propositions |>
+        dplyr::anti_join(modified, by = c("item","language"))
+      
+      propositions <- not_modified |>
+        dplyr::bind_rows(modified) |>
+        dplyr::filter(!base::is.na(type), !base::is.na(value)) |>
+        dplyr::arrange(item)
+      
+      base::save(propositions, file = course_paths()$databases$propositions)
+      
+      shinyalert::shinyalert(
+        "Propositions saved!", "Refresh to see changes.",
+        type = "success", inputId = "acknowledgesaveprop"
+      )
+    })
 
-
-
-
-
-
-
-
-
-
-
+    
+    
     # Publish document #########################################################
 
     shiny::observeEvent(input$publishdocs, {
@@ -495,6 +546,8 @@ edit_server <- function(
 
       } else if (doctype == "Case"){
 
+      } else if (doctype == "Question"){
+        
       }
 
     })
