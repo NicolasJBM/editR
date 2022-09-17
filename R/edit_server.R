@@ -196,6 +196,7 @@ edit_server <- function(
 
     output$editdoc <- shiny::renderUI({
       shiny::req(!base::is.null(document_to_edit()))
+      input$docrefresh
       lines <- base::readLines(document_to_edit()$filepath)
       shinydashboardPlus::box(
         width = 12, title = "Edition", solidHeader = TRUE,
