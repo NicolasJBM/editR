@@ -48,8 +48,15 @@ translate_ui <- function(id){
       shiny::column(4, shiny::uiOutput(ns("viewtranslation"))),
       shiny::column(4, shiny::uiOutput(ns("edittranslation")))
     ),
+    shiny::tags$hr(),
     shiny::fluidRow(
-      shiny::uiOutput(ns("translatepropositions"))
+      shiny::actionButton(
+        ns("saveproptranslation"),
+        "Save", icon = shiny::icon("floppy-disk"),
+        style = "background-color:#063;color:#FFF;width:300px;"
+      ),
+      shiny::tags$hr(),
+      rhandsontable::rHandsontableOutput(ns("translatepropositions"))
     )
   )
 }

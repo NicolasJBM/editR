@@ -67,6 +67,7 @@ view_document <- function(selected, original, course_data, course_paths){
       editR::make_title_display(course_data)
     
     base::load(course_paths()$databases$propositions)
+    base::load(course_paths()$databases$translations)
     test_parameters <- NA
     as_latex <- FALSE
     record_version <- FALSE

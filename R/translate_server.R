@@ -49,6 +49,14 @@ translate_server <- function(id, filtered, course_data, course_paths){
     title <- NULL
     translation <- NULL
     type <- NULL
+    document <- NULL
+    explanation <- NULL
+    translated_explanation <- NULL
+    item <- NULL
+    proposition <- NULL
+    translated_proposition <- NULL
+    propositions <- NULL
+    keep <- NULL
     
     languages <- shiny::reactive({
       course_data()$languages
@@ -265,14 +273,75 @@ translate_server <- function(id, filtered, course_data, course_paths){
     
     # Edit propositions ########################################################
     
-    
-    
-    output$translatepropositions <- rhandsontable::renderRHandsontable({
-      
+    selected_propositions <- shiny::reactive({
+      shiny::req(input$slctcode)
+      base::load(course_paths()$databases$propositions)
+      selection <- course_data()$documents |>
+        dplyr::filter(code == input$slctcode) |>
+        dplyr::select(type, code, document) |>
+        base::unique()
+      if (selection$type %in% c("Note","Page","Slide","Video","Game","Case","Statements")){
+        propositions |>
+          dplyr::mutate(keep = purrr::map_lgl(document, function(x,y){
+            stringr::str_detect(y, x)
+          }, selection$document)) |>
+          dplyr::filter(keep == TRUE) |>
+          dplyr::select(-keep)
+      } else {
+        propositions |>
+          dplyr::filter(code == input$slctcode)
+      }
     })
     
+    selected_translations <- shiny::reactive({
+      shiny::req(selected_propositions())
+      shiny::req(input$slctlang)
+      base::load(course_paths()$databases$translations)
+      translations <- translations |>
+        dplyr::mutate_all(base::as.character)|>
+        dplyr::filter(language == input$slctlang)
+      selected_propositions() |>
+        dplyr::select(item, proposition,explanation) |>
+        dplyr::left_join(translations, by = "item") |>
+        tidyr::replace_na(base::list(language = input$slctlang)) |>
+        dplyr::select(
+          item, language,
+          proposition, translated_proposition,
+          explanation, translated_explanation
+        )
+    })
     
+    output$translatepropositions <- rhandsontable::renderRHandsontable({
+      shiny::req(!base::is.null(selected_translations()))
+      selected_translations() |>
+        rhandsontable::rhandsontable(
+          height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
+        ) |>
+        rhandsontable::hot_col(c(1,2,3,5), readOnly = TRUE) |>
+        rhandsontable::hot_cols(
+          colWidths = c("10%","5%","20%","22%","20%","23%")
+        ) |>
+        rhandsontable::hot_context_menu(
+          allowRowEdit = FALSE, allowColEdit = FALSE
+        )
+    })
     
+    shiny::observeEvent(input$saveproptranslation, {
+      shiny::req(!base::is.null(input$translatepropositions))
+      base::load(course_paths()$databases$translations)
+      translated_propositions <- rhandsontable::hot_to_r(input$translatepropositions) |>
+        dplyr::select(item, language, translated_proposition, translated_explanation)
+      not_edited <- translations |>
+        dplyr::anti_join(translated_propositions, by = c("item", "language"))
+      translations <- dplyr::bind_rows(not_edited, translated_propositions) |>
+        dplyr::arrange(item)
+      base::save(translations, file = course_paths()$databases$translations)
+      shinyalert::shinyalert(
+        "Translation saved",
+        "The translations of propositions have been saved. Refresh the question to update it.",
+        "success", TRUE, TRUE
+      )
+    })
     
   })
 }
