@@ -6,6 +6,7 @@
 #' @param original Logical. Whether the document is the original (TRUE) or a translation (FALSE).
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
+#' @param test_parameters Tibble. Test parameters if the document to display is a specific version of a question selected for a test.
 #' @return User interface showing the formatted document.
 #' @importFrom knitr knit2html
 #' @importFrom rmarkdown render
@@ -16,7 +17,7 @@
 #' @importFrom shinydashboardPlus box
 #' @export
 
-view_document <- function(selected, original, course_data, course_paths){
+view_document <- function(selected, original, course_data, course_paths, test_parameters = NA){
   
   doctype <- selected$type[1]
   filepath <- selected$filepath
@@ -68,7 +69,7 @@ view_document <- function(selected, original, course_data, course_paths){
     
     base::load(course_paths()$databases$propositions)
     base::load(course_paths()$databases$translations)
-    test_parameters <- NA
+    test_parameters <- test_parameters
     as_latex <- FALSE
     record_version <- FALSE
     

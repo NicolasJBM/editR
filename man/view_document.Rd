@@ -4,7 +4,13 @@
 \alias{view_document}
 \title{Display a document for view only.}
 \usage{
-view_document(selected, original, course_data, course_paths)
+view_document(
+  selected,
+  original,
+  course_data,
+  course_paths,
+  test_parameters = NA
+)
 }
 \arguments{
 \item{selected}{Tibble. Selected document.}
@@ -14,6 +20,8 @@ view_document(selected, original, course_data, course_paths)
 \item{course_data}{Reactive. Function containing all the course data loaded with the course.}
 
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
+
+\item{test_parameters}{Tibble. Test parameters if the document to display is a specific version of a question selected for a test.}
 }
 \value{
 User interface showing the formatted document.
