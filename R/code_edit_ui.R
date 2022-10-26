@@ -27,7 +27,7 @@ code_edit_ui <- function(id){
           checkIcon = base::list(yes = shiny::icon("check"))
         ),
         shiny::uiOutput(ns("selectsubtype")),
-        shiny::uiOutput(ns("select_code"))
+        shiny::column(12, editR::selection_ui(ns("slctcode")))
       ),
       shiny::column(
         6,

@@ -125,46 +125,37 @@ edit_server <- function(
 
 
     # Select document ##########################################################
-
-    output$selectdoc <- shiny::renderUI({
+    document_list <- shiny::reactive({
       shiny::req(!base::is.null(selection()))
       if (base::length(selection()$title) > 0){
-        doc_list <- c("", selection()$file)
+        doc_list <- c(selection()$file)
         base::names(doc_list) <- c(
-          "", base::paste(selection()$code, " - ", selection()$title)
+          base::paste(selection()$code, " - ", selection()$title)
         )
       }  else doc_list <- ""
-      if (base::length(input$selected) == 0){
-        if (base::length(doc_list) > 1){
-          selection <- doc_list[2]
-        } else selection <- ""
-      } else {
-        selection <- input$selecteddoc
-      }
-      shiny::selectInput(
-        ns("selecteddoc"), "Select a document:", choices = doc_list,
-        selected = selection, width = "100%"
-      )
+      doc_list
     })
 
-
-
+    selected_document <- editR::selection_server("slctdoc", document_list)
+    
+    
+    
     # Display statistics #######################################################
 
     output$ratingsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(input$selecteddoc))
-      shiny::req(input$selecteddoc != "")
-      make_infobox(course_data, input$selecteddoc, "ratings")
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(selected_document() != "")
+      make_infobox(course_data, selected_document(), "ratings")
     })
     output$viewsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(input$selecteddoc))
-      shiny::req(input$selecteddoc != "")
-      make_infobox(course_data, input$selecteddoc, "views")
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(selected_document() != "")
+      make_infobox(course_data, selected_document(), "views")
     })
     output$resultsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(input$selecteddoc))
-      shiny::req(input$selecteddoc != "")
-      make_infobox(course_data, input$selecteddoc, "results")
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(selected_document() != "")
+      make_infobox(course_data, selected_document(), "results")
     })
 
 
@@ -173,10 +164,10 @@ edit_server <- function(
 
     document_to_edit <- shiny::reactive({
       shiny::req(!base::is.null(selection()))
-      shiny::req(input$selecteddoc)
-      shiny::req(input$selecteddoc %in% selection()$file)
+      shiny::req(selected_document())
+      shiny::req(selected_document() %in% selection()$file)
       to_edit <- selection() |>
-        dplyr::filter(file == input$selecteddoc)
+        dplyr::filter(file == selected_document())
       to_edit$filepath <- base::paste0(
         course_paths()$subfolders$original, "/", to_edit$file
       )
@@ -332,10 +323,10 @@ edit_server <- function(
     
     targeted_documents <- shiny::reactive({
       shiny::req(doctype == "Question")
-      shiny::req(input$selecteddoc)
+      shiny::req(selected_document())
       shiny::req(!base::is.null(selection()))
       selected_question <- selection() |>
-        dplyr::filter(file == input$selecteddoc)
+        dplyr::filter(file == selected_document())
       targeted_documents <- selected_question$document[1] |>
         stringr::str_split(pattern = " ", simplify = TRUE) |>
         base::unique() |>
@@ -348,7 +339,7 @@ edit_server <- function(
       shiny::req(!base::is.null(targeted_documents()))
       shiny::req(base::length(targeted_documents()) > 0)
       selected_question <- selection() |>
-        dplyr::filter(file == input$selecteddoc)
+        dplyr::filter(file == selected_document())
       slcttype <- selected_question$type[1]
       slctlang <- selected_question$language[1]
       if (slcttype == "Statements"){
@@ -543,6 +534,34 @@ edit_server <- function(
         
       }
 
+    })
+    
+    
+    # Open folder ##############################################################
+    
+    shiny::observeEvent(input$openfolder, {
+      
+      if (doctype == "Note"){
+        
+      } else if (doctype == "Page"){
+        
+      } else if (doctype == "Slide"){
+        
+      } else if (doctype == "Video"){
+        
+      } else if (doctype == "Game"){
+        
+      } else if (doctype == "Case"){
+        
+      } else if (doctype == "Question"){
+        folder <- course_paths()$subfolders$original
+      }
+      
+      if (.Platform['OS.type'] == "windows"){
+        base::shell.exec(folder)
+      } else {
+        base::system(base::paste(base::Sys.getenv("R_BROWSER"), folder))
+      }
     })
 
 

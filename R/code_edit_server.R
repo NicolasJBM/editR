@@ -84,19 +84,16 @@ code_edit_server <- function(id, course_paths){
       )
     })
     
-    output$select_code <- shiny::renderUI({
+    code_list <- shiny::reactive({
       shiny::req(!base::is.null(folder_path()))
       codelist <- base::list.files(folder_path(), full.names = FALSE)
-      shiny::selectInput(
-        ns("slctcode"), "Select a function", choices = codelist,
-        selected = codelist[1], width = "100%"
-      )
     })
     
+    selected_code <- editR::selection_server("slctcode", code_list)
     
     code_path <- shiny::reactive({
-      shiny::req(!base::is.null(input$slctcode))
-      base::paste0(folder_path(), "/", input$slctcode)
+      shiny::req(!base::is.null(selected_code()))
+      base::paste0(folder_path(), "/", selected_code())
     })
     
     output$editcode <- shiny::renderUI({
@@ -146,7 +143,7 @@ code_edit_server <- function(id, course_paths){
       shinyalert::shinyalert(
         "Are you sure?",
         base::paste0(
-          "Are you sure you want to delete the code ", input$slctcode, "?"
+          "Are you sure you want to delete the code ", selected_code(), "?"
         ),
         type = "warning", closeOnEsc = FALSE, closeOnClickOutside = TRUE,
         inputId = "confirmdeletecode", showCancelButton = TRUE
@@ -168,7 +165,7 @@ code_edit_server <- function(id, course_paths){
     
     shiny::observeEvent(input$newcode, {
       shiny::req(!base::is.null(folder_path()))
-      shiny::req(!base::is.null(input$slctcode))
+      shiny::req(!base::is.null(selected_code()))
       codelist <- base::list.files(folder_path(), full.names = FALSE)
       shiny::showModal(
         shiny::modalDialog(
@@ -179,7 +176,7 @@ code_edit_server <- function(id, course_paths){
           ),
           shiny::selectInput(
             ns("slctcodebasis"), "Based on the following code:",
-            choices = codelist, selected = input$slctcode, width = "100%"
+            choices = codelist, selected = selected_code(), width = "100%"
           ),
           footer = tagList(
             shiny::modalButton("Cancel"),
