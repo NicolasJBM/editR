@@ -161,7 +161,7 @@ publish_textbook <- function(tree, course_paths, languages){
 
 
     # Save references
-    bibfile <- base::paste0(course_paths$subfolders$course, "/temporary/data/references.bib")
+    bibfile <- base::paste0(course_paths$subfolders$temp, "/data/references.bib")
     if (base::file.exists(bibfile)) {
       base::file.copy(
         from = bibfile,

@@ -513,6 +513,8 @@ edit_server <- function(
     shiny::observeEvent(input$publishdocs, {
 
       if (doctype == "Note"){
+        
+        editR::publish_note(selected_document(), course_paths())
 
       } else if (doctype == "Page"){
 
@@ -543,6 +545,8 @@ edit_server <- function(
       
       if (doctype == "Note"){
         
+        folder <- course_paths()$subfolders$blog
+        
       } else if (doctype == "Page"){
         
       } else if (doctype == "Slide"){
@@ -558,9 +562,9 @@ edit_server <- function(
       }
       
       if (.Platform['OS.type'] == "windows"){
-        base::shell.exec(folder)
+        shell.exec(folder)
       } else {
-        base::system(base::paste(base::Sys.getenv("R_BROWSER"), folder))
+        system2("open", folder)
       }
     })
 
