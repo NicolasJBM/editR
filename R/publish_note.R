@@ -4,6 +4,7 @@
 #' @description Function reformating a note as a blog post with adequate tags.
 #' @param selected_document Character. Name of the note destined to be published.
 #' @param course_paths List.
+#' @param translation Logical. Whether the source document is in the folder "translated" rather than "original".
 #' @return Write post in the folder "4_materials/blog".
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
@@ -16,12 +17,18 @@
 
 
 
-publish_note <- function(selected_document, course_paths){
+publish_note <- function(selected_document, course_paths, translation = FALSE){
   
   tag_authors <- NULL
   
+  if (translation){
+    source_folder <- course_paths$subfolders$translated
+  } else {
+    source_folder <- course_paths$subfolders$original
+  }
+  
   # Get information
-  document <- base::paste0(course_paths$subfolders$original, "/", selected_document)
+  document <- base::paste0(source_folder, "/", selected_document)
   
   tags <- editR::get_tags(document)
   

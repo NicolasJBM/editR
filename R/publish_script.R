@@ -4,6 +4,7 @@
 #' @description Function taking only the lines supposed to be uttered and exporting them into a .txt file which can be read by a prompter.
 #' @param selected_document Character. Name of the note destined to be published.
 #' @param course_paths List.
+#' @param translation Logical. Whether the source document is in the folder "translated" rather than "original".
 #' @return Write post in the folder "4_materials/blog".
 #' @importFrom shinyalert shinyalert
 #' @importFrom stringr str_detect
@@ -12,10 +13,16 @@
 
 
 
-publish_script <- function(selected_document, course_paths){
+publish_script <- function(selected_document, course_paths, translation = FALSE){
+  
+  if (translation){
+    source_folder <- course_paths$subfolders$translated
+  } else {
+    source_folder <- course_paths$subfolders$original
+  }
   
   # Write post
-  document <- base::paste0(course_paths$subfolders$original, "/", selected_document)
+  document <- base::paste0(source_folder, "/", selected_document)
   
   tags <- editR::get_tags(document)
   

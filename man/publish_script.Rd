@@ -4,12 +4,14 @@
 \alias{publish_script}
 \title{Format a video as a script}
 \usage{
-publish_script(selected_document, course_paths)
+publish_script(selected_document, course_paths, translation = FALSE)
 }
 \arguments{
 \item{selected_document}{Character. Name of the note destined to be published.}
 
 \item{course_paths}{List.}
+
+\item{translation}{Logical. Whether the source document is in the folder "translated" rather than "original".}
 }
 \value{
 Write post in the folder "4_materials/blog".
