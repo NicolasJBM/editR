@@ -20,10 +20,10 @@ publish_note <- function(selected_document, course_paths){
   
   tag_authors <- NULL
   
-  # Write post
+  # Get information
   document <- base::paste0(course_paths$subfolders$original, "/", selected_document)
+  
   tags <- editR::get_tags(document)
-  tags <- tags |> dplyr::mutate(tag_trial1 = "yo", tag_trial2 = "man")
   
   title <- tags$title[[1]]
   date <- base::as.character(base::Sys.Date())
@@ -32,8 +32,11 @@ publish_note <- function(selected_document, course_paths){
   } else {
     authors <- ""
   }
-  categories <- selected_document |>
-    stringr::str_remove_all(".Rmd$") |>
+  
+  filename <- selected_document |>
+    stringr::str_remove_all(".Rmd$")
+  
+  categories <- filename |>
     stringr::str_extract("..$")
   
   lines <- base::readLines(document)
@@ -44,6 +47,14 @@ publish_note <- function(selected_document, course_paths){
   if ("tag_authors" %in% base::names(tags)) tags <- dplyr::select(tags, -tag_authors)
   tags <- base::paste('"', base::as.character(tags[1,]), '"', sep = "") |>
     base::paste(collapse = ", ")
+  
+  # Remove prior publication
+  
+  to_remove <- base::list.files(course_paths$subfolders$blog, full.names = TRUE)
+  to_remove <- to_remove[stringr::str_detect(to_remove, filename)]
+  if (base::length(to_remove) > 0) base::file.remove(to_remove)
+  
+  # Write post
   
   post <- c(
     '---',
@@ -60,9 +71,12 @@ publish_note <- function(selected_document, course_paths){
   )
   
   # Save post
+  filename <- base::paste0(
+    filename, " - ", date, " - ", title, ".Rmd"
+  )
   base::writeLines(
     post,
-    base::paste0(course_paths$subfolders$blog,  "/", selected_document),
+    base::paste0(course_paths$subfolders$blog,  "/", filename),
     useBytes = TRUE
   )
   
@@ -83,8 +97,6 @@ publish_note <- function(selected_document, course_paths){
       to = base::paste0(course_paths$subfolders$blog, "/references.bib")
     )
   }
-  
-  shinybusy::remove_modal_spinner()
   
   shinyalert::shinyalert(
     title = "Blog post published!",

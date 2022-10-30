@@ -511,60 +511,69 @@ edit_server <- function(
     # Publish document #########################################################
 
     shiny::observeEvent(input$publishdocs, {
-
       if (doctype == "Note"){
-        
         editR::publish_note(selected_document(), course_paths())
-
       } else if (doctype == "Page"){
-
-        editR::publish_textbook(
-          tree(),
-          course_paths(),
-          course_data()$languages
-        )
-
+        editR::publish_textbook(tree(), course_paths(), course_data()$languages)
       } else if (doctype == "Slide"){
-
+        editR::publish_presentation(tree(), selected_document(), course_paths())
       } else if (doctype == "Video"){
-
+        editR::publish_script(selected_document(), course_paths())
       } else if (doctype == "Game"){
 
       } else if (doctype == "Case"){
 
       } else if (doctype == "Question"){
-        
+        shinyalert::shinyalert(
+          "Go to test", "Questions can only be published in tests.",
+          type = "warning"
+        )
       }
-
     })
     
     
     # Open folder ##############################################################
     
     shiny::observeEvent(input$openfolder, {
-      
       if (doctype == "Note"){
-        
         folder <- course_paths()$subfolders$blog
-        
       } else if (doctype == "Page"){
-        
+        folder <- base::paste0(
+          course_paths()$subfolders$textbooks,
+          "/", tree()$course$tree[[1]]
+        )
       } else if (doctype == "Slide"){
-        
+        if (base::length(tree()$course) > 1){
+          folder <- base::paste0(
+            course_paths()$subfolders$presentations,
+            "/", tree()$course$tree[[1]]
+          )
+        } else {
+          folder <- base::paste0(
+            course_paths()$subfolders$presentations,
+            "/no_selected_tree"
+          )
+        }
       } else if (doctype == "Video"){
-        
+        folder <- course_paths()$subfolders$scripts
       } else if (doctype == "Game"){
-        
+        folder <- course_paths()$subfolders$games
       } else if (doctype == "Case"){
-        
+        folder <- course_paths()$subfolders$cases
       } else if (doctype == "Question"){
         folder <- course_paths()$subfolders$original
       }
-      
-      if (.Platform['OS.type'] == "windows"){
-        shell.exec(folder)
+      if (base::dir.exists(folder)){
+        if (.Platform['OS.type'] == "windows"){
+          shell.exec(folder)
+        } else {
+          system2("open", folder)
+        }
       } else {
-        system2("open", folder)
+        shinyalert::shinyalert(
+          "Non-existing folder", "It seems that the folder you are trying to open does not exist. Did you already export files in it?",
+          type = "error"
+        )
       }
     })
 

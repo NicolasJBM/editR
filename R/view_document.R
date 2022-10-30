@@ -39,7 +39,7 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     
     rmdpath <- base::paste0(
       course_paths()$subfolders$course,
-      "/temporary/tmpdoc.Rmd"
+      "/temporary/index.Rmd"
     )
     base::writeLines(doc, rmdpath, useBytes = TRUE)
     rmarkdown::render(rmdpath, encoding="UTF-8", quiet = TRUE) |>
@@ -51,13 +51,13 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
         collapsible = FALSE, collapsed = FALSE, height = "550px",
-        shiny::tags$iframe(src="temporary/tmpdoc.html", height = 520, width = "100%")
+        shiny::tags$iframe(src="temporary/index.html", height = 520, width = "100%")
       )
     } else {
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
         collapsible = FALSE, collapsed = FALSE, height = "750px",
-        shiny::tags$iframe(src="temporary/tmpdoc.html", height = 750, width="100%")
+        shiny::tags$iframe(src="temporary/index.html", height = 750, width="100%")
       )
     }
     
