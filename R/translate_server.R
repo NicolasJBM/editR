@@ -5,6 +5,7 @@
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param filtered Reactive. List of pre-selected documents.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
+#' @param tree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @return Create and save documents' translations in a dedicated folder.
 #' @importFrom dplyr filter
@@ -38,7 +39,7 @@
 #' @export
 
 
-translate_server <- function(id, filtered, course_data, course_paths){
+translate_server <- function(id, filtered, course_data, tree, course_paths){
   ns <- shiny::NS(id)
   shiny::moduleServer(id, function(input, output, session) {
     
@@ -117,17 +118,24 @@ translate_server <- function(id, filtered, course_data, course_paths){
       )
     })
     
-    output$newtranslation <- shiny::renderUI({
+    output$translationaction <- shiny::renderUI({
       shiny::req(!base::is.null(input$slctlang))
       shiny::req(!base::is.null(language_status()))
       missing <- language_status() |>
         dplyr::filter(status == "Missing")
-      shiny::req(input$slctlang %in% missing$langiso)
-      shiny::actionButton(
-        ns("createnewtranslation"),"New",
-        icon = shiny::icon("wand-magic-sparkles"),
-        style = "background-color:#003366; color:#FFF; width:100%; margin-top:25px;"
-      )
+      if (input$slctlang %in% missing$langiso){
+        shiny::actionButton(
+          ns("createnewtranslation"),"New",
+          icon = shiny::icon("wand-magic-sparkles"),
+          style = "background-color:#003366; color:#FFF; width:100%; margin-top:25px;"
+        )
+      } else {
+        shiny::actionButton(
+          ns("publishtranslation"), "Publish", icon = shiny::icon("print"),
+          style = "background-color:#330066;color:#FFF;
+          width:100%;margin-top:25px;"
+        )
+      }
     })
     
     document_to_translate <- shiny::reactive({
@@ -267,6 +275,80 @@ translate_server <- function(id, filtered, course_data, course_paths){
         "Update documents and reload the course to edit it.",
         "success", TRUE, TRUE
       )
+    })
+    
+    
+    # Publish translation ######################################################
+    shiny::observeEvent(input$publishtranslation, {
+      selected_document <- translated_document()$file[1]
+      if (translated_document()$type == "Note"){
+        editR::publish_note(selected_document, course_paths(), translation = TRUE)
+      } else if (translated_document()$type[1] == "Page"){
+        shinyalert::shinyalert(
+          "Go to design!", "All languages in multi-language textbooks are published at once with the main version.",
+          type = "warning"
+        )
+      } else if (translated_document()$type[1] == "Slide"){
+        editR::publish_presentation(tree(), selected_document, course_paths(), translation = TRUE)
+      } else if (translated_document()$type[1] == "Video"){
+        editR::publish_script(selected_document, course_paths(), translation = TRUE)
+      } else if (translated_document()$type[1] == "Game"){
+        
+      } else if (translated_document()$type[1] == "Case"){
+        
+      } else {
+        shinyalert::shinyalert(
+          "Go to test!", "Questions can only be published in tests.",
+          type = "warning"
+        )
+      }
+      
+    })
+    
+    
+    # Open publication folder ##################################################
+    shiny::observeEvent(input$opentransfolder, {
+      doctype <- translated_document()$type[1]
+      if (doctype == "Note"){
+        folder <- course_paths()$subfolders$blog
+      } else if (doctype == "Page"){
+        folder <- base::paste0(
+          course_paths()$subfolders$textbooks,
+          "/", tree()$course$tree[[1]]
+        )
+      } else if (doctype == "Slide"){
+        if (base::length(tree()$course) > 1){
+          folder <- base::paste0(
+            course_paths()$subfolders$presentations,
+            "/", tree()$course$tree[[1]]
+          )
+        } else {
+          folder <- base::paste0(
+            course_paths()$subfolders$presentations,
+            "/no_selected_tree"
+          )
+        }
+      } else if (doctype == "Video"){
+        folder <- course_paths()$subfolders$scripts
+      } else if (doctype == "Game"){
+        folder <- course_paths()$subfolders$games
+      } else if (doctype == "Case"){
+        folder <- course_paths()$subfolders$cases
+      } else if (doctype == "Question"){
+        folder <- course_paths()$subfolders$original
+      }
+      if (base::dir.exists(folder)){
+        if (.Platform['OS.type'] == "windows"){
+          shell.exec(folder)
+        } else {
+          system2("open", folder)
+        }
+      } else {
+        shinyalert::shinyalert(
+          "Non-existing folder", "It seems that the folder you are trying to open does not exist. Did you already export files in it?",
+          type = "error"
+        )
+      }
     })
     
     

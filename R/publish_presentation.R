@@ -5,6 +5,7 @@
 #' @param tree List.
 #' @param selected_document Character. Name of the note destined to be published.
 #' @param course_paths List.
+#' @param translation Logical. Whether the file is a translation and should thus be published in a dedicated language subfolder.
 #' @return Write presentation in the folder "4_materials/presentation".
 #' @importFrom shinyalert shinyalert
 #' @importFrom dplyr filter
@@ -18,12 +19,16 @@
 
 
 
-publish_presentation <- function(tree, selected_document, course_paths){
+publish_presentation <- function(tree, selected_document, course_paths, translation = FALSE){
   
   position <- NULL
   title <- NULL
   
   origin <- course_paths$subfolders$temp
+  
+  language <- selected_document |>
+    stringr::str_remove_all(".Rmd$") |>
+    stringr::str_extract("..$")
   
   if (base::length(tree$course) > 1){
     folder <- base::paste0(
@@ -45,6 +50,13 @@ publish_presentation <- function(tree, selected_document, course_paths){
       date, " - ", stringr::str_remove(selected_document, ".Rmd$")
     )
   }
+  
+  if (!base::dir.exists(folder)) base::dir.create(folder)
+  if (translation){
+    folder <- base::paste0(folder, "/", language)
+    if (!base::dir.exists(folder)) base::dir.create(folder)
+  }
+  
   destination <- base::paste0(
     folder, "/", presentation_name
   )

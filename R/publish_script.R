@@ -31,7 +31,17 @@ publish_script <- function(selected_document, course_paths, translation = FALSE)
   filename <- selected_document |>
     stringr::str_remove_all(".Rmd$")
   
-  to_remove <- base::list.files(course_paths$subfolders$scripts, full.names = TRUE)
+  language <- stringr::str_extract(filename, "..$")
+  if (translation){
+    destination_folder <- base::paste0(
+      course_paths$subfolders$scripts, "/", language
+    )
+  } else {
+    destination_folder <- course_paths$subfolders$scripts
+  }
+  if (!base::dir.exists(destination_folder)) base::dir.create(destination_folder)
+  
+  to_remove <- base::list.files(destination_folder, full.names = TRUE)
   to_remove <- to_remove[stringr::str_detect(to_remove, filename)]
   if (base::length(to_remove) > 0) base::file.remove(to_remove)
   
@@ -48,7 +58,7 @@ publish_script <- function(selected_document, course_paths, translation = FALSE)
   )
   base::writeLines(
     script,
-    base::paste0(course_paths$subfolders$scripts,  "/", filename),
+    base::paste0(destination_folder,  "/", filename),
     useBytes = TRUE
   )
   

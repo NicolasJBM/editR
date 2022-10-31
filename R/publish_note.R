@@ -43,8 +43,15 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   filename <- selected_document |>
     stringr::str_remove_all(".Rmd$")
   
-  categories <- filename |>
-    stringr::str_extract("..$")
+  language <- stringr::str_extract(filename, "..$")
+  if (translation){
+    destination_folder <- base::paste0(
+      course_paths$subfolders$blog, "/", language
+    )
+  } else {
+    destination_folder <- course_paths$subfolders$blog
+  }
+  if (!base::dir.exists(destination_folder)) base::dir.create(destination_folder)
   
   lines <- base::readLines(document)
   lines <- lines[1:(base::match('Meta-information', lines)-1)]
@@ -57,7 +64,7 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   
   # Remove prior publication
   
-  to_remove <- base::list.files(course_paths$subfolders$blog, full.names = TRUE)
+  to_remove <- base::list.files(destination_folder, full.names = TRUE)
   to_remove <- to_remove[stringr::str_detect(to_remove, filename)]
   if (base::length(to_remove) > 0) base::file.remove(to_remove)
   
@@ -68,7 +75,7 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
     base::paste0('title: "', title, '"'),
     base::paste0('author: "', authors, '"'),
     base::paste0('date: "', date, '"'),
-    base::paste0('categories: ["', categories,'"]'),
+    base::paste0('categories: ["', language,'"]'),
     base::paste0('tags: [', tags,']'),
     'csl: apa.csl',
     'bibliography: references.bib',
@@ -83,7 +90,7 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   )
   base::writeLines(
     post,
-    base::paste0(course_paths$subfolders$blog,  "/", filename),
+    base::paste0(destination_folder,  "/", filename),
     useBytes = TRUE
   )
   
@@ -92,7 +99,7 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   if (base::file.exists(cslfile)) {
     base::file.copy(
       from = cslfile,
-      to = base::paste0(course_paths$subfolders$blog, "/apa.csl")
+      to = base::paste0(destination_folder, "/apa.csl")
     )
   }
   
@@ -101,7 +108,7 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   if (base::file.exists(bibfile)) {
     base::file.copy(
       from = bibfile,
-      to = base::paste0(course_paths$subfolders$blog, "/references.bib")
+      to = base::paste0(destination_folder, "/references.bib")
     )
   }
   

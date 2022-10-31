@@ -35,12 +35,20 @@ translate_ui <- function(id){
         )
       ),
       shiny::column(
-        3,
+        2,
         shiny::uiOutput(ns("slctlanguage"))
       ),
       shiny::column(
-        3,
-        shiny::uiOutput(ns("newtranslation"))
+        2,
+        shiny::uiOutput(ns("translationaction"))
+      ),
+      shiny::column(
+        2,
+        shiny::actionButton(
+          ns("opentransfolder"), "Open folder", icon = shiny::icon("folder-open"),
+          style = "background-color:#660033;color:#FFF;
+          width:100%;margin-top:25px;"
+        )
       )
     ),
     shiny::fluidRow(
