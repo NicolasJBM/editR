@@ -43,6 +43,9 @@ selection_server <- function(id, selection_base){
       })
       
       output$progression <- shiny::renderUI({
+        shiny::req(!base::is.null(selection_base()))
+        shiny::req(!base::is.null(modrval$rank))
+        shiny::req(!base::is.na(modrval$rank))
         shiny::req(base::length(selection_base()) > 1)
         shiny::req(base::length(modrval$rank) > 0)
         shinyWidgets::progressBar(
