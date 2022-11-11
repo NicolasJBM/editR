@@ -5,7 +5,6 @@
 #' @param tree List.
 #' @param selected_document Character. Name of the note destined to be published.
 #' @param course_paths List.
-#' @param translation Logical. Whether the file is a translation and should thus be published in a dedicated language subfolder.
 #' @return Write presentation in the folder "4_materials/presentation".
 #' @importFrom shinyalert shinyalert
 #' @importFrom dplyr filter
@@ -19,50 +18,43 @@
 
 
 
-publish_presentation <- function(tree, selected_document, course_paths, translation = FALSE){
+publish_presentation <- function(tree, selected_document, course_paths){
   
   position <- NULL
-  title <- NULL
+  code <- NULL
   
+  document <- stringr::str_remove_all(selected_document, ".Rmd$")
+  language <- stringr::str_extract(document, "..$")
+  slctcode <- stringr::str_remove_all(document, "_..$")
   origin <- course_paths$subfolders$temp
   
-  language <- selected_document |>
-    stringr::str_remove_all(".Rmd$") |>
-    stringr::str_extract("..$")
-  
   if (base::length(tree$course) > 1){
-    folder <- base::paste0(
-      course_paths$subfolders$presentations,
-      "/", tree$course$tree[[1]]
-    )
-    presentation_name <- tree$tbltree |>
-      dplyr::filter(file == selected_document) |>
-      dplyr::select(position, title) |>
-      tidyr::unite(presentation_name, position, title, sep = " - ")
-    presentation_name <- presentation_name$presentation_name
+    coursename <- stringr::str_remove(tree$course$tree[[1]], ".RData$")
+    prefix <- tree$tbltree |>
+      dplyr::filter(code == slctcode) |>
+      dplyr::select(position)
+    position <- prefix$position[1]
   } else {
-    folder <- base::paste0(
-      course_paths$subfolders$presentations,
-      "/no_selected_tree"
-    )
-    date = base::as.character(base::Sys.Date())
-    presentation_name <- base::paste0(
-      date, " - ", stringr::str_remove(selected_document, ".Rmd$")
-    )
+    coursename <- "/no_selected_tree"
+    position <- ""
   }
   
+  folder <- base::paste0(course_paths$subfolders$presentations, "/", coursename)
   if (!base::dir.exists(folder)) base::dir.create(folder)
-  if (translation){
-    folder <- base::paste0(folder, "/", language)
-    if (!base::dir.exists(folder)) base::dir.create(folder)
-  }
   
-  destination <- base::paste0(
-    folder, "/", presentation_name
-  )
+  folder <- base::paste0(folder, "/", language)
   if (!base::dir.exists(folder)) base::dir.create(folder)
+  
+  title <- base::readLines(base::paste0(course_paths$subfolders$temp, "/index.Rmd"))
+  title <- title[2] |>
+    stringr::str_remove("title: <large>") |>
+    stringr::str_remove("</large>") |>
+    stringr::str_remove_all("[:punct:]") |>
+    base::trimws() |>
+    stringr::str_replace_all(" ", "_")
+  
+  destination <- base::paste0(folder, "/", position, "_", title)
   if (base::dir.exists(destination)) fs::dir_delete(destination)
-  
   fs::dir_copy(origin, destination)
   
   shinyalert::shinyalert(

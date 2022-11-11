@@ -519,6 +519,8 @@ edit_server <- function(
         editR::publish_presentation(tree(), selected_document(), course_paths())
       } else if (doctype == "Video"){
         editR::publish_script(selected_document(), course_paths())
+      } else if (doctype == "Tutorial"){
+        
       } else if (doctype == "Game"){
 
       } else if (doctype == "Case"){
@@ -538,24 +540,13 @@ edit_server <- function(
       if (doctype == "Note"){
         folder <- course_paths()$subfolders$blog
       } else if (doctype == "Page"){
-        folder <- base::paste0(
-          course_paths()$subfolders$textbooks,
-          "/", tree()$course$tree[[1]]
-        )
+        folder <- course_paths()$subfolders$textbooks
       } else if (doctype == "Slide"){
-        if (base::length(tree()$course) > 1){
-          folder <- base::paste0(
-            course_paths()$subfolders$presentations,
-            "/", tree()$course$tree[[1]]
-          )
-        } else {
-          folder <- base::paste0(
-            course_paths()$subfolders$presentations,
-            "/no_selected_tree"
-          )
-        }
+        folder <- course_paths()$subfolders$presentations
       } else if (doctype == "Video"){
         folder <- course_paths()$subfolders$scripts
+      } else if (doctype == "Tutorial"){
+        folder <- course_paths()$subfolders$tutorials
       } else if (doctype == "Game"){
         folder <- course_paths()$subfolders$games
       } else if (doctype == "Case"){

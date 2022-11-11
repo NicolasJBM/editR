@@ -4,12 +4,7 @@
 \alias{publish_presentation}
 \title{Export a slide presentation}
 \usage{
-publish_presentation(
-  tree,
-  selected_document,
-  course_paths,
-  translation = FALSE
-)
+publish_presentation(tree, selected_document, course_paths)
 }
 \arguments{
 \item{tree}{List.}
@@ -17,8 +12,6 @@ publish_presentation(
 \item{selected_document}{Character. Name of the note destined to be published.}
 
 \item{course_paths}{List.}
-
-\item{translation}{Logical. Whether the file is a translation and should thus be published in a dedicated language subfolder.}
 }
 \value{
 Write presentation in the folder "4_materials/presentation".
