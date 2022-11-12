@@ -71,7 +71,7 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     base::load(course_paths()$databases$translations)
     test_parameters <- test_parameters
     as_latex <- FALSE
-    record_version <- FALSE
+    record_solution <- FALSE
     
     ui <- shinydashboardPlus::box(
       width = 12, title = title, solidHeader = TRUE,
