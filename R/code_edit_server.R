@@ -196,7 +196,7 @@ code_edit_server <- function(id, course_paths){
       shiny::req(!base::is.null(input$newcodename))
       shiny::req(input$newcodename != "")
       codelist <- base::list.files(folder_path(), full.names = FALSE)
-      newcodename <- base::paste0(input$newcodename, ".R")
+      newcodename <- input$newcodename
       if (newcodename %in% codelist){
         shinyalert::shinyalert(
           "Name already used!",
