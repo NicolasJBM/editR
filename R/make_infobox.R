@@ -171,7 +171,7 @@ make_infobox <- function(course_data, selected_file, infotype){
           shinydashboard::valueBox(
             document_parameters$discrimination,
             "discrimination",
-            icon = shiny::icon("scale-unbalanced"),
+            icon = shiny::icon("circle-half-stroke"),
             color = document_parameters$discrimination_color,
             width = 12
           )
