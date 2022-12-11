@@ -22,17 +22,15 @@ add_meme <- function(
     transdata = "fade"
 ) {
   properties <- base::paste0(
-      '## {data-transition="', transdata,
-      '" data-background-transition="', transback,
-      '" data-background-color="#222"}'
-  )
-  background <- base::paste0(
-    '<div class="meme" style="background-image: url(\'', image,
-    '\');font-size: ', font_size, 'em;" >'
+    '## {data-transition="', transdata,
+    '" data-background-transition="', transback,
+    '" data-background-color="#222',
+    '" data-background="', image,
+    '"}'
   )
   lines <- c(
     properties,
-    background,
+    base::paste0('<div class="meme" style="font-size: ', font_size, 'em;" >'),
     '  <p class="top">', text_above,'</p>',
     '  <p class="bottom">', text_below,'</p>',
     '</div>'
