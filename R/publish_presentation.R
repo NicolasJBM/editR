@@ -54,6 +54,11 @@ publish_presentation <- function(tree, selected_document, course_paths){
     stringr::str_replace_all(" ", "_")
   
   destination <- base::paste0(folder, "/", position, "_", title)
+  
+  if (.Platform['OS.type'] == "windows" & base::nchar(destination) > 259){
+    destination <- base::paste0(folder, "/", position)
+  }
+  
   if (base::dir.exists(destination)) fs::dir_delete(destination)
   fs::dir_copy(origin, destination)
   
