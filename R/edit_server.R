@@ -519,10 +519,10 @@ edit_server <- function(
         editR::publish_presentation(tree(), selected_document(), course_paths())
       } else if (doctype == "Video"){
         editR::publish_script(selected_document(), course_paths())
-      } else if (doctype == "Tutorial"){
-        
       } else if (doctype == "Game"){
 
+      } else if (doctype == "Tutorial"){
+        
       } else if (doctype == "Case"){
 
       } else if (doctype == "Question"){
