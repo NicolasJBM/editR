@@ -57,8 +57,8 @@ make_yaml <- function(selected, doctype){
     yaml <- c(
       '---',
       base::paste0('title: <large> ', selected$title[[1]],' </large>'),
-      base::paste0('author: <hr> ', authors),
-      base::paste0('date: ', base::format(base::Sys.time(), '%B %d, %Y')),
+      base::paste0('author: ', authors),
+      base::paste0('date: ', base::format(base::Sys.time(), format = "%Y-%m-%d")),
       'output:',
       '  revealjs::revealjs_presentation:',
       '    self_contained: false',
