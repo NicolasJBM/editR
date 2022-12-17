@@ -14,7 +14,7 @@ Encoding: UTF-8
 License: GPL-3 | file LICENSE
 Depends: R (>= 3.6)
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports:
   knitr,
   dplyr,
@@ -35,4 +35,3 @@ Imports:
   ggplot2,
   patchwork,
   fs
-

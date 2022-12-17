@@ -10,6 +10,7 @@ add_slide(
   colorback = "#FFFFFF",
   image = "",
   video = "",
+  webpage = "",
   transback = "slide",
   transdata = "fade",
   state = "dimbg100"
@@ -25,6 +26,8 @@ add_slide(
 \item{image}{Character. Address of the background image.}
 
 \item{video}{Character. Address of the background video.}
+
+\item{webpage}{Character. Address of the background website.}
 
 \item{transback}{Character. Type of transition for the background: fade, slide, convex, concave, or zoom.}
 

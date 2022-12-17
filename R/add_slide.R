@@ -7,6 +7,7 @@
 #' @param colorback Character. Background color.
 #' @param image Character. Address of the background image.
 #' @param video Character. Address of the background video.
+#' @param webpage Character. Address of the background website.
 #' @param transback Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
 #' @param transdata Character. Type of transition for data: fade, slide, convex, concave, or zoom.
 #' @param state Character. "dimbg140" to "dimbg20" (20 by 20) for a decreasing brightness and "blurbg5" for a blur effect.
@@ -21,6 +22,7 @@ add_slide <- function(
     colorback = "#FFFFFF",
     image = "",
     video = "",
+    webpage="",
     transback = "slide",
     transdata = "fade",
     state = "dimbg100"
@@ -30,13 +32,22 @@ add_slide <- function(
     TRUE ~ base::paste0("## ", text)
   )
   properties <- dplyr::case_when(
+    image != "" & webpage != "" ~ base::paste0(
+      ' {data-transition="', transdata,
+      '" data-background-transition="', transback,
+      '" data-background-color="', colorback,
+      '" data-background="', image,
+      '" data-background-iframe="', webpage,
+      '" data-state="', state,
+      '" data-background-size="cover"}'
+    ),
     image != "" ~ base::paste0(
       ' {data-transition="', transdata,
       '" data-background-transition="', transback,
       '" data-background-color="', colorback,
       '" data-background="', image,
       '" data-state="', state,
-      '"}'
+      '" data-background-size="cover"}'
     ),
     video != "" ~ base::paste0(
       ' {data-transition="', transdata,
@@ -44,7 +55,15 @@ add_slide <- function(
       '" data-background-color="', colorback,
       '" data-background-video="', video,
       '" data-state="', state,
-      '"}'
+      '" data-background-size="cover"}'
+    ),
+    webpage != "" ~ base::paste0(
+      ' {data-transition="', transdata,
+      '" data-background-transition="', transback,
+      '" data-background-color="', colorback,
+      '" data-background-iframe="', webpage,
+      '" data-state="', state,
+      '" data-background-size="cover"}'
     ),
     TRUE ~ base::paste0(
       ' {data-transition="', transdata,
