@@ -38,8 +38,8 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     doc <- c(yaml, doc)
     
     rmdpath <- base::paste0(
-      course_paths()$subfolders$course,
-      "/temporary/index.Rmd"
+      course_paths()$subfolders$edit,
+      "/index.Rmd"
     )
     base::writeLines(doc, rmdpath, useBytes = TRUE)
     rmarkdown::render(rmdpath, encoding="UTF-8", quiet = TRUE) |>
@@ -47,17 +47,22 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     title <- selected |>
       editR::make_title_display(course_data)
     
+    htmlpath <- stringr::str_remove(
+      base::paste0(course_paths()$subfolders$edit, "/index.html"),
+      base::paste0(course_paths()$subfolders$course, "/")
+    )
+    
     if (doctype == "Slide"){
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
         collapsible = FALSE, collapsed = FALSE, height = "550px",
-        shiny::tags$iframe(src="temporary/index.html", height = 520, width = "100%")
+        shiny::tags$iframe(src=htmlpath, height = 520, width = "100%")
       )
     } else {
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
         collapsible = FALSE, collapsed = FALSE, height = "750px",
-        shiny::tags$iframe(src="temporary/index.html", height = 750, width="100%")
+        shiny::tags$iframe(src=htmlpath, height = 750, width="100%")
       )
     }
     
