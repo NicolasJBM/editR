@@ -15,6 +15,7 @@
 #' @importFrom shiny HTML
 #' @importFrom shiny withMathJax
 #' @importFrom shinydashboardPlus box
+#' @importFrom fs dir_delete
 #' @export
 
 view_document <- function(selected, original, course_data, course_paths, test_parameters = NA){
@@ -22,7 +23,16 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
   doctype <- selected$type[1]
   filepath <- selected$filepath
   
-  if (doctype %in% c("Note","Page","Slide","Video","Game","Case")){
+  if (doctype %in% c("Note","Page","Slide","Video","Game","Tutorial","Case")){
+    
+    qmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.qmd")
+    if (base::file.exists(qmdpath)) base::file.remove(qmdpath)
+    
+    htmlpath <- stringr::str_remove(
+      base::paste0(course_paths()$subfolders$edit, "/index.html"),
+      base::paste0(course_paths()$subfolders$course, "/")
+    )
+    if (base::file.exists(htmlpath)) base::file.remove(htmlpath)
     
     doc <- base::readLines(filepath)
     
@@ -37,20 +47,11 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     yaml <- editR::make_yaml(selected, doctype)
     doc <- c(yaml, doc)
     
-    rmdpath <- base::paste0(
-      course_paths()$subfolders$edit,
-      "/index.Rmd"
-    )
-    base::writeLines(doc, rmdpath, useBytes = TRUE)
-    rmarkdown::render(rmdpath, encoding="UTF-8", quiet = TRUE) |>
+    base::writeLines(doc, qmdpath, useBytes = TRUE)
+    rmarkdown::render(qmdpath, encoding="UTF-8", quiet = TRUE) |>
       base::suppressWarnings()
     title <- selected |>
       editR::make_title_display(course_data)
-    
-    htmlpath <- stringr::str_remove(
-      base::paste0(course_paths()$subfolders$edit, "/index.html"),
-      base::paste0(course_paths()$subfolders$course, "/")
-    )
     
     if (doctype == "Slide"){
       ui <- shinydashboardPlus::box(

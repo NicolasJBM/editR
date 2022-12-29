@@ -1,7 +1,7 @@
 #' @name make_yaml
 #' @title Create yaml for various documents
 #' @author Nicolas Mangin
-#' @description Make YAML to be inserted at the beginning of the document to knit.
+#' @description Make YAML to be inserted at the beginning of the document to render via quarto.
 #' @param selected Tibble. Document for which the de YAML should be created.
 #' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (Questions have no YAML).
 #' @return YAML as a character vector.
@@ -106,21 +106,26 @@ make_yaml <- function(selected, doctype){
     yaml <- c(
       '---',
       base::paste0('title: ', selected$title[1]),
-      'subtitle: <hr>',
-      'output:',
-      '  rmarkdown::html_document:',
-      '    self_contained: false',
-      '    css: ["format/css/games.css", "format/css/fa.css"]',
-      '    fig_width: 8',
-      '    fig_height: 6',
-      '    fig_caption: true',
-      '    mathjax: default',
-      'csl: format/csl/apa.csl',
-      'bibliography: data/references.bib',
       '---'
     )
     
-  } else {
+  } else if (doctype == "Tutorial"){
+    
+    yaml <- c(
+      '---',
+      base::paste0('title: ', selected$title[1]),
+      '---'
+    )
+    
+  } else if (doctype == "Case"){
+    
+    yaml <- c(
+      '---',
+      base::paste0('title: ', selected$title[1]),
+      '---'
+    )
+    
+  } else { # Analysis
     
     yaml <- c(
       '---',
