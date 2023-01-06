@@ -58,13 +58,12 @@ publish_textbook <- function(tree, course_paths, languages){
       '  type: website',
       '  render: ',
       '    - "*.qmd"',
-      '    - "!data/"',
-      '    - "!format/"',
+      '    - "!template/"',
       '',
       'website:',
       base::paste0('  title: "', tree$course$course[1],'"'),
       '  navbar:',
-      '    logo: logo.png',
+      '    logo: template/logo.png',
       '    search: true',
       '    pinned: true',
       '    background: dark',
@@ -116,9 +115,9 @@ publish_textbook <- function(tree, course_paths, languages){
       '    border: true',
       '    background: dark',
       '',
-      'bibliography: references.bib',
+      'bibliography: template/references.bib',
       '',
-      'csl: apa.csl',
+      'csl: template/apa.csl',
       '',
       'format:',
       '  html:',
@@ -126,11 +125,11 @@ publish_textbook <- function(tree, course_paths, languages){
       '    footnotes-hover: true',
       '    anchor-sections: true',
       '    smooth-scroll: true',
-      '    css: pages.css',
+      '    css: template/pages.css',
       '    include-in-header:',
-      '      - in_header.txt',
+      '      - template/in_header.txt',
       '    include-after-body:',
-      '      - after_body.txt',
+      '      - template/after_body.txt',
       '',
       'toc: true',
       ''
@@ -154,8 +153,6 @@ publish_textbook <- function(tree, course_paths, languages){
       text = "Publishing textbook..."
     )
 
-
-
     # Create the textbook folder structure
     textbook <- textbook |>
       dplyr::mutate(
@@ -163,11 +160,13 @@ publish_textbook <- function(tree, course_paths, languages){
         translated_path = base::paste0(translated_path, "/", file),
         folder = base::paste0(textbooks_path, "/", folder)
       )
+    
     for (folder in textbook$folder){
       if (!base::dir.exists(folder)) base::dir.create(folder)
     }
-
-
+    template_folder <- base::paste0(textbook$folder[1], "/template")
+    if (!base::dir.exists(template_folder)) base::dir.create(template_folder)
+    
 
     # Fill in the textbook for the original language
     for (i in base::seq_len(base::nrow(textbook))){
@@ -195,28 +194,31 @@ publish_textbook <- function(tree, course_paths, languages){
       newlines <- c(header, core)
       base::writeLines(newlines, to, useBytes = TRUE)
     }
-
-
-    # Publish other languages files
-
     
-
-
-
-    # Save textbook structure
+    # Make a project
+     
+    rprojfile <- base::paste0(course_paths$subfolders$textbooks, "/template/textbook.Rproj")
+    base::file.copy(
+      from = rprojfile,
+      to = base::paste0(textbook$folder[1], "/textbook.Rproj")
+    )
+    
+    base::writeLines(yaml, base::paste0(textbook$folder[1], "_quarto.yml"))
+    
+    
+    
+    # Import references and formatting files
+    
     base::save(
       textbook,
-      file = base::paste0(textbook$folder[1], "/textbook.RData")
+      file = base::paste0(textbook$folder[1], "/template/textbook.RData")
     )
-
-
-
-    # Import references and formatting files
+    
     bibfile <- base::paste0(course_paths$subfolders$edit, "/data/references.bib")
     if (base::file.exists(bibfile)) {
       base::file.copy(
         from = bibfile,
-        to = base::paste0(textbook$folder[1], "/references.bib")
+        to = base::paste0(textbook$folder[1], "/template/references.bib")
       )
     }
     
@@ -224,7 +226,7 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(cslfile)) {
       base::file.copy(
         from = cslfile,
-        to = base::paste0(textbook$folder[1], "/apa.csl")
+        to = base::paste0(textbook$folder[1], "/template/apa.csl")
       )
     }
     
@@ -232,51 +234,50 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(cssfile)) {
       base::file.copy(
         from = cssfile,
-        to = base::paste0(textbook$folder[1], "/pages.css")
+        to = base::paste0(textbook$folder[1], "/template/pages.css")
       )
     }
     
-    
-    # Make a project
-    logofile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/logo.png")
+    logofile <- base::paste0(course_paths$subfolders$textbooks, "/template/logo.png")
     base::file.copy(
       from = logofile,
-      to = base::paste0(textbook$folder[1], "/logo.png")
+      to = base::paste0(textbook$folder[1], "/template/logo.png")
     )
     
-    rprojfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/textbook.Rproj")
-    base::file.copy(
-      from = rprojfile,
-      to = base::paste0(textbook$folder[1], "/textbook.Rproj")
-    )
-    
-    ratingfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/rating.js")
+    ratingfile <- base::paste0(course_paths$subfolders$textbooks, "/template/rating.js")
     base::file.copy(
       from = ratingfile,
-      to = base::paste0(textbook$folder[1], "/rating.js")
+      to = base::paste0(textbook$folder[1], "/template/rating.js")
     )
     
-    commentingfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/commenting.js")
+    commentingfile <- base::paste0(course_paths$subfolders$textbooks, "/template/commenting.js")
     base::file.copy(
       from = commentingfile,
-      to = base::paste0(textbook$folder[1], "/commenting.js")
+      to = base::paste0(textbook$folder[1], "/template/commenting.js")
     )
     
-    headerfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/in_header.txt")
+    headerfile <- base::paste0(course_paths$subfolders$textbooks, "/template/in_header.txt")
     base::file.copy(
       from = headerfile,
-      to = base::paste0(textbook$folder[1], "/in_header.txt")
+      to = base::paste0(textbook$folder[1], "/template/in_header.txt")
     )
     
-    afterbodyfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/after_body.txt")
+    afterbodyfile <- base::paste0(course_paths$subfolders$textbooks, "/template/after_body.txt")
     base::file.copy(
       from = afterbodyfile,
-      to = base::paste0(textbook$folder[1], "/after_body.txt")
+      to = base::paste0(textbook$folder[1], "/template/after_body.txt")
     )
     
     
-    base::writeLines(yaml, base::paste0(textbook$folder[1], "_quarto.yml"))
-
+    
+    
+    
+    # Publish other languages files
+    
+    
+    
+    
+    
     shinybusy::remove_modal_spinner()
 
     shinyalert::shinyalert(
