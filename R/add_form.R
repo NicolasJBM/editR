@@ -12,7 +12,7 @@
 add_form <- function(
   sourcename,
   filename,
-  message = "If you have questions or comments about this page, please tell me below:"
+  message = "Please let us know below if you have questions or comments about this page:  "
 ){
   base::writeLines(
     c(

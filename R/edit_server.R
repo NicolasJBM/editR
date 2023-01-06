@@ -113,6 +113,7 @@ edit_server <- function(
         Slide = course_paths()$subfolders$templates_slide,
         Video = course_paths()$subfolders$templates_video,
         Game = course_paths()$subfolders$templates_game,
+        tutorial = course_paths()$subfolders$templates_tutorial,
         Case = course_paths()$subfolders$templates_case,
         Question = course_paths()$subfolders$templates_question
       )

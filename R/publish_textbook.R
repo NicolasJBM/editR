@@ -32,9 +32,12 @@ publish_textbook <- function(tree, course_paths, languages){
   language <- NULL
   path <- NULL
   prefix <- NULL
-  weight <- NULL
+  order <- NULL
   tags <- NULL
   code <- NULL
+  
+  section <- NULL
+  translated_path <- NULL
 
   if (base::length(tree$textbook) == 1){
 
@@ -45,14 +48,102 @@ publish_textbook <- function(tree, course_paths, languages){
     )
 
   } else {
+    
+    textbook <- tree$textbook
+    
+    main_sections <- dplyr::filter(textbook, base::nchar(section) == 1)
+    
+    quarto_yaml1 <- c(
+      'project:',
+      '  type: website',
+      '  render: ',
+      '    - "*.qmd"',
+      '    - "!data/"',
+      '    - "!format/"',
+      '',
+      'website:',
+      base::paste0('  title: "', tree$course$course[1],'"'),
+      '  navbar:',
+      '    logo: logo.png',
+      '    search: true',
+      '    pinned: true',
+      '    background: dark',
+      '    left:'
+    )
+    
+    quarto_yaml2 <- c()
+    for (i in 1:(base::nrow(main_sections))){
+      add <- c(
+        base::paste0('      - text: "', main_sections$title[i], '"'),
+        base::paste0('        file: section', i, '/index.qmd')
+      )
+      quarto_yaml2 <- c(quarto_yaml2, add)
+    }
+    
+    quarto_yaml3 <- c( 
+      '    right: ',
+      '      - icon: github',
+      '        url: https://github.com/NicolasJBM',
+      '  sidebar:'
+    )
+    
+    quarto_yaml4 <- c(
+      base::paste0('    - id: section', main_sections$section[1]),
+      base::paste0('      title: "', main_sections$title[1], '"'),
+      base::paste0('      href: section1/index.qmd'),
+      '      search: true',
+      '      style: floating',
+      '      background: light',
+      '      collapse-level: 2',
+      base::paste0('      contents: section', main_sections$section[1])
+    )
+    
+    for (i in 2:(base::nrow(main_sections))){
+      add <- c(
+        base::paste0('    - id: section', main_sections$section[i]),
+        base::paste0('      title: "', main_sections$title[i], '"'),
+        base::paste0('      href: section', i, '/index.qmd'),
+        base::paste0('      contents: section', main_sections$section[i])
+      )
+      quarto_yaml4 <- c(quarto_yaml4, add)
+    }
+    
+    quarto_yaml5 <- c(
+      '  page-navigation: true',
+      '  reader-mode: true',
+      '  page-footer:',
+      base::paste0('    center: "', tree$course$authors, ' (', tree$course$year, ') ', tree$course$course[1], ' ', '"'),
+      '    border: true',
+      '    background: dark',
+      '',
+      'bibliography: references.bib',
+      '',
+      'csl: apa.csl',
+      '',
+      'format:',
+      '  html:',
+      '    citations-hover: true',
+      '    footnotes-hover: true',
+      '    anchor-sections: true',
+      '    smooth-scroll: true',
+      '    css: pages.css',
+      '    include-in-header:',
+      '      - in_header.txt',
+      '    include-after-body:',
+      '      - after_body.txt',
+      '',
+      'toc: true',
+      ''
+    )
+    
+    
+    yaml <- c(quarto_yaml1, quarto_yaml2, quarto_yaml3, quarto_yaml4, quarto_yaml5)
+    
 
     textbook <- tree$textbook
     orginal_path <- course_paths$subfolders$original
-    translated_path <- course_paths$subfolders$translated
     textbooks_path <- course_paths$subfolders$textbooks
     tree2compile <- stringr::str_remove(tree$course$tree[1], ".RData$")
-    bibliography <- tree$course$bib[1]
-    csl <- tree$course$csl[1]
     other_languages <- languages |>
       dplyr::filter(langiso != textbook$language[1]) |>
       dplyr::select(language = langiso) |>
@@ -70,7 +161,7 @@ publish_textbook <- function(tree, course_paths, languages){
       dplyr::mutate(
         original_path = base::paste0(orginal_path, "/", file),
         translated_path = base::paste0(translated_path, "/", file),
-        folder = paste0(textbooks_path, "/", folder)
+        folder = base::paste0(textbooks_path, "/", folder)
       )
     for (folder in textbook$folder){
       if (!base::dir.exists(folder)) base::dir.create(folder)
@@ -78,28 +169,27 @@ publish_textbook <- function(tree, course_paths, languages){
 
 
 
-    # Fill in the textbook with the main language
+    # Fill in the textbook for the original language
     for (i in base::seq_len(base::nrow(textbook))){
       from = textbook$original_path[i]
       to = base::paste0(
-        textbook$folder[i], "/_index.", textbook$languageweb[i],".Rmd"
+        textbook$folder[i], "/index.qmd"
       )
       lines <- base::readLines(from)
       core <- lines[1:(base::match('Meta-information', lines)-1)]
 
       core <- stringr::str_replace_all(core, "SOURCENAME", tree2compile)
+      
+      if (textbook$section[i] != ""){
+        section_number <- base::paste0(textbook$section[i], ' - ')
+      } else section_number <- ""
 
       header <- c(
         '---',
-        base::paste0('date: "', base::Sys.Date(), '"'),
-        base::paste0('pre: <b>', textbook$prefix[i], '. </b>'),
-        base::paste0('title: ', textbook$title[i]),
-        base::paste0("weight: ", textbook$weight[i]),
-        base::paste0('bibliography: ', bibliography),
-        base::paste0('csl: ', csl),
+        base::paste0('title: ', section_number, textbook$title[i]),
+        base::paste0("order: ", textbook$order[i]),
         '---',
-        '<hr>',
-        '<br>'
+        '<hr>'
       )
 
       newlines <- c(header, core)
@@ -109,46 +199,7 @@ publish_textbook <- function(tree, course_paths, languages){
 
     # Publish other languages files
 
-    translations <- tibble::tibble(
-      path = list.files(course_paths$subfolders$translated, full.names = TRUE),
-      file = list.files(course_paths$subfolders$translated, full.names = FALSE)
-    ) |>
-      dplyr::mutate(tags = purrr::map(path, editR::get_tags)) |>
-      tidyr::unnest(tags) |>
-      tidyr::separate(file, into = c("code","language"), sep = "_") |>
-      dplyr::mutate(language = stringr::str_remove_all(language, ".Rmd")) |>
-      dplyr::left_join(other_languages, by = "language") |>
-      dplyr::inner_join(
-        dplyr::select(textbook, code, folder, prefix, weight),
-        by = "code"
-      )
-
-    for (i in base::seq_len(base::nrow(translations))){
-      from = translations$path[i]
-      to = base::paste0(
-        translations$folder[i], "/_index.", translations$languageweb[i],".Rmd"
-      )
-      lines <- base::readLines(from)
-      core <- lines[1:(base::match('Meta-information', lines)-1)]
-
-      core <- stringr::str_replace_all(core, "SOURCENAME", tree2compile)
-
-      header <- c(
-        '---',
-        base::paste0('date: "', base::Sys.Date(), '"'),
-        base::paste0('pre: <b>', translations$prefix[i], '. </b>'),
-        base::paste0('title: ', translations$title[i]),
-        base::paste0("weight: ", translations$weight[i]),
-        base::paste0('bibliography: ', bibliography),
-        base::paste0('csl: ', csl),
-        '---',
-        '<hr>',
-        '<br>'
-      )
-
-      newlines <- c(header, core)
-      base::writeLines(newlines, to, useBytes = TRUE)
-    }
+    
 
 
 
@@ -160,16 +211,71 @@ publish_textbook <- function(tree, course_paths, languages){
 
 
 
-    # Save references
-    bibfile <- base::paste0(course_paths$subfolders$temp, "/data/references.bib")
+    # Import references and formatting files
+    bibfile <- base::paste0(course_paths$subfolders$edit, "/data/references.bib")
     if (base::file.exists(bibfile)) {
       base::file.copy(
         from = bibfile,
-        to = base::paste0(textbook$folder[1], "/", tree2compile,".bib")
+        to = base::paste0(textbook$folder[1], "/references.bib")
       )
     }
-
-
+    
+    cslfile <- base::paste0(course_paths$subfolders$edit, "/format/csl/apa.csl")
+    if (base::file.exists(cslfile)) {
+      base::file.copy(
+        from = cslfile,
+        to = base::paste0(textbook$folder[1], "/apa.csl")
+      )
+    }
+    
+    cssfile <- base::paste0(course_paths$subfolders$edit, "/format/css/pages.css")
+    if (base::file.exists(cssfile)) {
+      base::file.copy(
+        from = cssfile,
+        to = base::paste0(textbook$folder[1], "/pages.css")
+      )
+    }
+    
+    
+    # Make a project
+    logofile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/logo.png")
+    base::file.copy(
+      from = logofile,
+      to = base::paste0(textbook$folder[1], "/logo.png")
+    )
+    
+    rprojfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/textbook.Rproj")
+    base::file.copy(
+      from = rprojfile,
+      to = base::paste0(textbook$folder[1], "/textbook.Rproj")
+    )
+    
+    ratingfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/rating.js")
+    base::file.copy(
+      from = ratingfile,
+      to = base::paste0(textbook$folder[1], "/rating.js")
+    )
+    
+    commentingfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/commenting.js")
+    base::file.copy(
+      from = commentingfile,
+      to = base::paste0(textbook$folder[1], "/commenting.js")
+    )
+    
+    headerfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/in_header.txt")
+    base::file.copy(
+      from = headerfile,
+      to = base::paste0(textbook$folder[1], "/in_header.txt")
+    )
+    
+    afterbodyfile <- base::paste0(course_paths$subfolders$textbooks, "/textbook/after_body.txt")
+    base::file.copy(
+      from = afterbodyfile,
+      to = base::paste0(textbook$folder[1], "/after_body.txt")
+    )
+    
+    
+    base::writeLines(yaml, base::paste0(textbook$folder[1], "_quarto.yml"))
 
     shinybusy::remove_modal_spinner()
 

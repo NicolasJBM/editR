@@ -7,7 +7,8 @@
 add_rating(
   sourcename,
   filename,
-  message = "Please indicate how clear and understandable this page was for you: "
+  message =
+    "Please let us know below how clear and understandable this page was for you:  "
 )
 }
 \arguments{

@@ -26,7 +26,6 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
   if (doctype %in% c("Note","Page","Slide","Video","Game","Tutorial","Case")){
     
     qmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.qmd")
-    if (base::file.exists(qmdpath)) base::file.remove(qmdpath)
     
     htmlpath <- stringr::str_remove(
       base::paste0(course_paths()$subfolders$edit, "/index.html"),

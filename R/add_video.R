@@ -12,7 +12,7 @@ add_video <- function(vid, host = "Youtube"){
   if (host == "Youtube"){
     iframe <- c(
       '<br>',
-      '<div align="center">',
+      '<div class="video">',
       base::paste0(
         '  <iframe width="560" height="315" src="https://www.youtube.com/embed/',
         vid,

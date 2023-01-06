@@ -12,7 +12,7 @@
 add_rating <- function(
   sourcename,
   filename,
-  message = "Please indicate how clear and understandable this page was for you: "
+  message = "Please let us know below how clear and understandable this page was for you:  "
 ){
   base::writeLines(
     c(
