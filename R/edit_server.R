@@ -139,6 +139,10 @@ edit_server <- function(
 
     selected_document <- editR::selection_server("slctdoc", document_list)
     
+    output$pathintree <- shiny::renderText({
+      editR::make_tree_path(selected_document(), tree()$tbltree)
+    })
+    
     
     
     # Display statistics #######################################################

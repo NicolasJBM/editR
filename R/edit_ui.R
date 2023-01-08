@@ -43,6 +43,7 @@ edit_ui <- function(id){
     shiny::uiOutput(ns("viewsstatistics")),
     shiny::uiOutput(ns("resultsstatistics")),
     shiny::fluidRow(
+      shiny::column(12, align="center", shiny::h3(shiny::textOutput(ns("pathintree")))),
       shiny::column(6, shiny::uiOutput(ns("viewdoc"))),
       shiny::column(6, shiny::uiOutput(ns("editdoc")))
     ),
