@@ -100,6 +100,7 @@ edit_server <- function(
         Slide = "S",
         Video = "V",
         Game = "G",
+        Tutorial = "T",
         Case = "C",
         Question = "Q"
       )
@@ -128,6 +129,7 @@ edit_server <- function(
     # Select document ##########################################################
     document_list <- shiny::reactive({
       shiny::req(!base::is.null(selection()))
+      shiny::req(nrow(selection()) > 0)
       if (base::length(selection()$title) > 0){
         doc_list <- c(selection()$file)
         base::names(doc_list) <- c(
@@ -140,6 +142,8 @@ edit_server <- function(
     selected_document <- editR::selection_server("slctdoc", document_list)
     
     output$pathintree <- shiny::renderText({
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(nrow(selected_document()) > 0)
       editR::make_tree_path(selected_document(), tree()$tbltree)
     })
     
@@ -319,55 +323,52 @@ edit_server <- function(
     # Edit propositions ########################################################
     
     propositions <- shiny::reactive({
-      shiny::req(doctype == "Question")
-      shiny::req(!base::is.null(selection()))
+      shiny::req(doctype %in% c("Note","Page","Slide","Video","Question"))
       input$refreshprop
       base::load(course_paths()$databases$propositions)
       propositions
     })
     
     targeted_documents <- shiny::reactive({
-      shiny::req(doctype == "Question")
+      shiny::req(!base::is.null(propositions()))
       shiny::req(selected_document())
       shiny::req(!base::is.null(selection()))
-      selected_question <- selection() |>
+      selected_document <- selection() |>
         dplyr::filter(file == selected_document())
-      targeted_documents <- selected_question$document[1] |>
+      targeted_documents <- selected_document$document[1] |>
         stringr::str_split(pattern = " ", simplify = TRUE) |>
         base::unique() |>
         base::sort()
       targeted_documents
     })
     
-    propositions_for_question <- shiny::reactive({
-      shiny::req(doctype == "Question")
+    propositions_for_document <- shiny::reactive({
+      shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(targeted_documents()))
-      shiny::req(base::length(targeted_documents()) > 0)
-      selected_question <- selection() |>
+      selected_document <- selection() |>
         dplyr::filter(file == selected_document())
-      slcttype <- selected_question$type[1]
-      slctlang <- selected_question$language[1]
+      slctcode <- selected_document$code
+      slcttype <- selected_document$type
       if (slcttype == "Statements"){
         propositions() |>
           dplyr::filter(
             document %in% targeted_documents(),
-            type == slcttype,
-            language == slctlang
+            type == slcttype
           )
+      } else if (slcttype %in% c("Note","Page","Slide","Video")) {
+        propositions() |> dplyr::filter(document %in% targeted_documents())
       } else {
-        propositions() |>
-          dplyr::filter(
-            code == selected_question$code[1],
-            type == slcttype,
-            language == slctlang
-          )
+        propositions() |> dplyr::filter(code == slctcode)
       }
     })
     
     output$selectprop <- shiny::renderUI({
-      shiny::req(doctype == "Question")
       shiny::req(base::length(targeted_documents()) > 0)
-      shiny::req(!base::is.null(propositions_for_question()))
+      shiny::req(!base::is.null(propositions_for_document()))
+      tgtdoc <- c(
+        targeted_documents(),
+        base::unique(propositions_for_document()$document)
+      )
       shiny::wellPanel(
         shiny::actionButton(
           ns("saveprop"), "Save propositions",
@@ -383,8 +384,8 @@ edit_server <- function(
         shiny::tags$hr(),
         shiny::selectInput(
           ns("slctpropdoc"), "Select a document:",
-          choices = base::unique(propositions_for_question()$document),
-          selected = base::unique(propositions_for_question()$document),
+          choices = tgtdoc,
+          selected = tgtdoc,
           multiple = TRUE
         ),
         shiny::tags$hr(),
@@ -396,12 +397,10 @@ edit_server <- function(
     })
     
     propositions_to_edit <- shiny::reactive({
-      shiny::req(doctype == "Question")
-      shiny::req(base::length(targeted_documents()) > 0)
-      shiny::req(!base::is.null(propositions_for_question()))
+      shiny::req(!base::is.null(propositions_for_document()))
       shiny::req(!base::is.null(input$slctpropdoc))
       shiny::req(!base::is.null(input$slctpropval))
-      propositions_for_question() |>
+      propositions_for_document() |>
         dplyr::filter(
           document %in% input$slctpropdoc,
           value >= input$slctpropval[1],
@@ -410,7 +409,7 @@ edit_server <- function(
     })
     
     output$editprop <- rhandsontable::renderRHandsontable({
-      shiny::req(doctype == "Question")
+      
       shiny::req(base::length(targeted_documents()) > 0)
       shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(propositions_to_edit()))
@@ -419,24 +418,32 @@ edit_server <- function(
         dplyr::select(item) |> base::unlist() |>
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_names)
-      levellanguage <- propositions_to_edit()$language[1]
-      leveltype <- propositions_to_edit()$type[1]
-      levelcode <- dplyr::case_when(
-        leveltype == "Statements" ~ base::as.character(NA),
-        TRUE ~ propositions_to_edit()$code[1]
-      )
+      
+      if (base::nrow(propositions_to_edit()) > 0){
+        levellanguage <- base::unique(propositions_to_edit()$language)
+        levelcode <- base::unique(propositions_to_edit()$code)
+        leveltype <- base::unique(propositions_to_edit()$type)
+        leveldocs <- base::unique(c(targeted_documents(), propositions_to_edit()$document))
+      } else {
+        selected_document <- selection() |>
+          dplyr::filter(file == selected_document())
+        levellanguage <- selected_document$language
+        levelcode <- selected_document$code
+        leveltype <- selected_document$type
+        leveldocs <- targeted_documents()
+      }
       levelscale <- c("logical","qualitative","percentage")
       
       tmprow <- tibble::tibble(
         item = newitemid,
-        language = levellanguage,
-        code = levelcode,
-        type = leveltype,
-        document = base::factor(targeted_documents()[1], levels = targeted_documents()),
+        language = base::factor(levellanguage[1], levels = levellanguage),
+        code = base::factor(levelcode[1], levels = levelcode),
+        type = base::factor(leveltype[1], levels = leveltype),
+        document = base::factor(leveldocs[1], levels = leveldocs),
         modifications = 1,
         proposition = base::as.character(NA),
         value = 0,
-        scale = base::factor("logical", levels = levelscale),
+        scale = base::factor(levelscale[1], levels = levelscale),
         explanation = base::as.character(NA),
         keywords = base::as.character(NA),
         success = base::as.numeric(NA),
@@ -448,7 +455,7 @@ edit_server <- function(
           dplyr::mutate(
             code = base::factor(code, levels = levelcode),
             type = base::factor(type, levels = leveltype),
-            document = base::factor(document, levels = targeted_documents()),
+            document = base::factor(document, levels = leveldocs),
             scale = base::factor(scale, levels = levelscale)
           ) |>
           dplyr::arrange(code, document, dplyr::desc(value), proposition) |>
