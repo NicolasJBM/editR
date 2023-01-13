@@ -37,20 +37,12 @@ publish_presentation <- function(tree, selected_document, course_paths){
   coursename <- stringr::str_remove(tree$course$tree[[1]], ".RData$")
     coursefolder <- base::paste0(course_paths$subfolders$presentations, "/", coursename)
   if (!base::dir.exists(coursefolder)) base::dir.create(coursefolder)
-  folderinfo <- tree$tbltree |>
+  position <- tree$tbltree |>
     dplyr::filter(code == slctcode) |>
     dplyr::select(position, title) |>
-    dplyr::mutate(
-      position = stringr::str_remove_all(stringr::str_remove_all(position, "\\."), "[0]+$"),
-      title = base::tolower(stringr::str_replace_all(stringr::str_remove_all(title, "[[:punct:]]"), " ", "_"))
-    )
-  folder <- base::paste0(
-    coursefolder, "/", folderinfo$position[1], "_", folderinfo$title[1]
-  )
-  if (.Platform['OS.type'] == "windows" & base::nchar(folder) > 259){
-    folder <- base::paste0(coursefolder, "/", folderinfo$position[1])
-  }
-  if (!base::dir.exists(folder)) base::dir.create(folder)
+    dplyr::mutate(position = stringr::str_remove_all(stringr::str_remove_all(position, "\\."), "[0]+$")) |>
+    dplyr::select(position)
+  position <- position$position[1]
   
   # Populate with common files
   bibfile <- base::paste0(course_paths$subfolders$edit, "/data/references.bib")
@@ -82,17 +74,10 @@ publish_presentation <- function(tree, selected_document, course_paths){
     stringr::str_extract_all(allversions, "(?<=_)[A-Z]{2}(?=\\.Rmd$)")
   )))
   
-  print(alllanguages)
-  
   for (lang in alllanguages){
-    subfolder <- base::paste0(folder, "/", lang)
-    
-    print(subfolder)
-    
+    subfolder <- base::paste0(coursefolder, "/", lang)
     if (!base::dir.exists(subfolder)) base::dir.create(subfolder)
     filepath <- allversions[stringr::str_detect(allversions, base::paste0(slctcode, "_", base::toupper(lang), ".Rmd$"))]
-    
-    print(filepath)
     
     doc <- base::readLines(filepath)
     doctitle <- doc[stringr::str_detect(doc, "^exextra\\[title\\]:")]
@@ -100,6 +85,16 @@ publish_presentation <- function(tree, selected_document, course_paths){
     docauthor <- doc[stringr::str_detect(doc, "^exextra\\[tag_authors\\]:")]
     docauthor <- base::trimws(stringr::str_remove(docauthor, "^exextra\\[tag_authors\\]:"))
     doccontent <- doc[1:(base::match('Meta-information', doc)-1)]
+    
+    qmdfolder <- base::paste0(
+      subfolder, "/", position, "_",
+      base::tolower(stringr::str_replace_all(stringr::str_remove_all(doctitle, "[[:punct:]]"), " ", "_"))
+    )
+    if (.Platform['OS.type'] == "windows" & base::nchar(qmdfolder) > 249){
+      qmdfolder <- base::paste0(subfolder, "/", position)
+    }
+    if (!base::dir.exists(qmdfolder)) base::dir.create(qmdfolder)
+    qmdpath <- base::paste0(qmdfolder, "/index.qmd")
     
     yaml <- c(
       '---',
@@ -113,7 +108,11 @@ publish_presentation <- function(tree, selected_document, course_paths){
       '    incremental: true',
       '    highlight: pygments',
       '    center: true',
+      '    menu:',
+      '      side: left',
+      '      width: wide',
       '    slide-number: true',
+      '    progress: true',
       '    show-notes: true',
       '    chalkboard: true',
       '    html-math-method:',
@@ -129,12 +128,9 @@ publish_presentation <- function(tree, selected_document, course_paths){
     )
     
     presentation <- c(yaml, doccontent)
-    
-    presentation_file <- base::paste0(subfolder, "/index.qmd")
-    
-    base::writeLines(presentation, presentation_file, useBytes = TRUE)
-    
+    base::writeLines(presentation, qmdpath, useBytes = TRUE)
   }
+  
   shinyalert::shinyalert(
     title = "Presentation published!",
     text = "You can now access the files in the course materials folder.",
