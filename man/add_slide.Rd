@@ -5,41 +5,65 @@
 \title{Insert a slide}
 \usage{
 add_slide(
-  text = "",
-  format = "titled",
-  colorback = "#FFFFFF",
-  image = "",
-  video = "",
-  webpage = "",
-  transback = "slide",
-  transdata = "fade",
-  state = "dimbg100"
+  text = NA,
+  section = FALSE,
+  color = "#FFFFFF",
+  size = "cover",
+  opacity = 1,
+  trans_data = "fade",
+  trans_back = "slide",
+  image_url = NA,
+  image_position = "center",
+  image_repeat = "no-repeat",
+  video_url = NA,
+  video_loop = "false",
+  video_mute = "true",
+  iframe_url = NA,
+  iframe_interactive = "false",
+  classes = NA,
+  visible = TRUE
 )
 }
 \arguments{
-\item{text}{Character. Text of the slide.}
+\item{text}{Character. Title of the slide. If NA, the slide does not include separation.}
 
-\item{format}{Character. "section" for a section, "titled" for a slide with title, and "untitled" for a slide without title.}
+\item{section}{Logical. True if this is a section-title slide.}
 
-\item{colorback}{Character. Background color.}
+\item{color}{Character. Background color.}
 
-\item{image}{Character. Address of the background image.}
+\item{size}{Character. Whether the background should be "contain", "cover", or a specific size (e.g. "100px")}
 
-\item{video}{Character. Address of the background video.}
+\item{opacity}{Integer. From 0 for totally transparent to 1 for totally opaque}
 
-\item{webpage}{Character. Address of the background website.}
+\item{trans_data}{Character. Type of transition for data: fade, slide, convex, concave, or zoom.}
 
-\item{transback}{Character. Type of transition for the background: fade, slide, convex, concave, or zoom.}
+\item{trans_back}{Character. Type of transition for the background: fade, slide, convex, concave, or zoom.}
 
-\item{transdata}{Character. Type of transition for data: fade, slide, convex, concave, or zoom.}
+\item{image_url}{Character. URL of the background image or css specification for complex backgrounds.}
 
-\item{state}{Character. "dimbg140" to "dimbg20" (20 by 20) for a decreasing brightness and "blurbg5" for a blur effect.}
+\item{image_position}{Character. Whether the background should be displayed at the "top", "right", "bottom", "left", "center", a=or another position.}
+
+\item{image_repeat}{Character. Whether the image should "no-repeat", "repeat", "repeat-x" or repeat-y".}
+
+\item{video_url}{Character. URL of the background video.}
+
+\item{video_loop}{Character. "true" if the video should loop, "false" otherwise.}
+
+\item{video_mute}{Character. "true" if the video should be muted, "false" otherwise.}
+
+\item{iframe_url}{Character. URL of the background website.}
+
+\item{iframe_interactive}{Character. "true" if the iframe should be interactive, "false" otherwise.}
+
+\item{classes}{Character vector. Specifiy the names of other formatting classes which should be applied to the slide.}
+
+\item{visible}{Logical. FALSE if the slide should be hidden.}
 }
 \value{
-Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.
+Character. Write the first rows of a RevealJS slide formatted for quarto.
 }
 \description{
-Function writing a revealjs slide according to the user specifications.
+Function writing a quarto revealjs slide according to the user specifications.
 }
 \author{
 Nicolas Mangin

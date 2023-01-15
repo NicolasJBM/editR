@@ -2,30 +2,31 @@
 #' @title Insert a slide
 #' @author Nicolas Mangin
 #' @description Function writing a revealjs slide according to the user specifications.
-#' @param text_above Character. Sentence written above the image or video.
-#' @param image Character. Address of the background image.
-#' @param text_below Character. Sentence written below the image or video. 
+#' @param text_above Character. Sentence written above the image_url or video.
+#' @param image_url Character. Address of the background image_url.
+#' @param text_below Character. Sentence written below the image_url or video. 
 #' @param font_size Numeric. Size of the font in "em".
-#' @param transback Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
-#' @param transdata Character. Type of transition for data: fade, slide, convex, concave, or zoom.
+#' @param trans_back Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
+#' @param trans_data Character. Type of transition for data: fade, slide, convex, concave, or zoom.
 #' @return Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.
 #' @importFrom dplyr case_when
 #' @export
 
 
+
 add_meme <- function(
     text_above = "",
-    image = "",
+    image_url = "",
     text_below = "",
     font_size = 2.5,
-    transback = "slide",
-    transdata = "fade"
+    trans_back = "slide",
+    trans_data = "fade"
 ) {
   properties <- base::paste0(
-    '## {data-transition="', transdata,
-    '" data-background-transition="', transback,
+    '## {data-transition="', trans_data,
+    '" data-background-transition="', trans_back,
     '" data-background-color="#222',
-    '" data-background="', image,
+    '" data-background="', image_url,
     '"}'
   )
   lines <- c(

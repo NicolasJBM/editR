@@ -7,21 +7,16 @@
 #' @param languages Tibble
 #' @return Write folders and pages to disk in the folder "4_materials/textbooks".
 #' @importFrom dplyr filter
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom purrr map
+#' @importFrom purrr safely
+#' @importFrom quarto quarto_render
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinybusy remove_modal_spinner
 #' @importFrom shinybusy show_modal_spinner
 #' @importFrom stringr str_remove
-#' @importFrom stringr str_remove_all
 #' @importFrom stringr str_replace_all
 #' @importFrom stringr str_to_lower
-#' @importFrom tibble tibble
-#' @importFrom tidyr separate
-#' @importFrom tidyr unnest
 #' @export
 
 
@@ -35,9 +30,7 @@ publish_textbook <- function(tree, course_paths, languages){
   order <- NULL
   tags <- NULL
   code <- NULL
-  
   section <- NULL
-  translated_path <- NULL
 
   if (base::length(tree$textbook) == 1){
 
@@ -49,8 +42,13 @@ publish_textbook <- function(tree, course_paths, languages){
 
   } else {
     
-    textbook <- tree$textbook
+    shinybusy::show_modal_spinner(
+      spin = "orbit",
+      text = "Publishing textbook..."
+    )
     
+    # Create quarto YAML
+    textbook <- tree$textbook
     main_sections <- dplyr::filter(textbook, base::nchar(section) == 1)
     
     quarto_yaml1 <- c(
@@ -135,38 +133,36 @@ publish_textbook <- function(tree, course_paths, languages){
       ''
     )
     
-    
     yaml <- c(quarto_yaml1, quarto_yaml2, quarto_yaml3, quarto_yaml4, quarto_yaml5)
     
-
-    textbook <- tree$textbook
+    # define useful paths
+    datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
+    formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
+    templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/textbooks")
+    textbookfolder <- course_paths$subfolders$textbooks
     orginal_path <- course_paths$subfolders$original
-    textbooks_path <- course_paths$subfolders$textbooks
-    tree2compile <- stringr::str_remove(tree$course$tree[1], ".RData$")
+    translated_path <- course_paths$subfolders$translated
+    coursename <- stringr::str_remove(tree$course$tree[1], ".RData$")
+    coursefolder <- base::paste0(textbookfolder, "/", coursename)
+    
     other_languages <- languages |>
       dplyr::filter(langiso != textbook$language[1]) |>
       dplyr::select(language = langiso) |>
       dplyr::mutate(languageweb = stringr::str_to_lower(language))
-
-    shinybusy::show_modal_spinner(
-      spin = "orbit",
-      text = "Publishing textbook..."
-    )
 
     # Create the textbook folder structure
     textbook <- textbook |>
       dplyr::mutate(
         original_path = base::paste0(orginal_path, "/", file),
         translated_path = base::paste0(translated_path, "/", file),
-        folder = base::paste0(textbooks_path, "/", folder)
+        folder = base::paste0(textbookfolder, "/", folder)
       )
     
     for (folder in textbook$folder){
       if (!base::dir.exists(folder)) base::dir.create(folder)
     }
-    template_folder <- base::paste0(textbook$folder[1], "/template")
+    template_folder <- base::paste0(coursefolder, "/template")
     if (!base::dir.exists(template_folder)) base::dir.create(template_folder)
-    
 
     # Fill in the textbook for the original language
     for (i in base::seq_len(base::nrow(textbook))){
@@ -177,7 +173,7 @@ publish_textbook <- function(tree, course_paths, languages){
       lines <- base::readLines(from)
       core <- lines[1:(base::match('Meta-information', lines)-1)]
 
-      core <- stringr::str_replace_all(core, "SOURCENAME", tree2compile)
+      core <- stringr::str_replace_all(core, "SOURCENAME", coursename)
       
       if (textbook$section[i] != ""){
         section_number <- base::paste0(textbook$section[i], ' - ')
@@ -195,84 +191,87 @@ publish_textbook <- function(tree, course_paths, languages){
       base::writeLines(newlines, to, useBytes = TRUE)
     }
     
-    # Make a project
-     
-    rprojfile <- base::paste0(course_paths$subfolders$textbooks, "/template/textbook.Rproj")
-    base::file.copy(
-      from = rprojfile,
-      to = base::paste0(textbook$folder[1], "/textbook.Rproj")
-    )
     
-    base::writeLines(yaml, base::paste0(textbook$folder[1], "_quarto.yml"))
-    
-    
-    
-    # Import references and formatting files
-    
+    # Write YAML and course 
+    yamlpath <- base::paste0(coursefolder, "/_quarto.yml")
+    base::writeLines(yaml, yamlpath)
     base::save(
       textbook,
-      file = base::paste0(textbook$folder[1], "/template/textbook.RData")
+      file = base::paste0(coursefolder, "/template/textbook.RData")
     )
     
-    bibfile <- base::paste0(course_paths$subfolders$edit, "/data/references.bib")
+    # Retrieve files from data
+    bibfile <- base::paste0(datafolder, "/references.bib")
     if (base::file.exists(bibfile)) {
       base::file.copy(
         from = bibfile,
-        to = base::paste0(textbook$folder[1], "/template/references.bib")
+        to = base::paste0(coursefolder, "/template/references.bib")
       )
     }
     
-    cslfile <- base::paste0(course_paths$subfolders$edit, "/format/csl/apa.csl")
+    # Retrieve files from format
+    cslfile <- base::paste0(formatfolder, "/csl/apa.csl")
     if (base::file.exists(cslfile)) {
       base::file.copy(
         from = cslfile,
-        to = base::paste0(textbook$folder[1], "/template/apa.csl")
+        to = base::paste0(coursefolder, "/template/apa.csl")
       )
     }
     
-    cssfile <- base::paste0(course_paths$subfolders$edit, "/format/css/pages.css")
+    cssfile <- base::paste0(formatfolder, "/css/pages.css")
     if (base::file.exists(cssfile)) {
       base::file.copy(
         from = cssfile,
-        to = base::paste0(textbook$folder[1], "/template/pages.css")
+        to = base::paste0(coursefolder, "/template/pages.css")
       )
     }
     
-    logofile <- base::paste0(course_paths$subfolders$textbooks, "/template/logo.png")
+    # Retrieve files from template
+    rprojfile <- base::paste0(templatefolder, "/textbook.Rproj")
+    base::file.copy(
+      from = rprojfile,
+      to = base::paste0(coursefolder, "/textbook.Rproj")
+    )
+    
+    logofile <- base::paste0(templatefolder, "/logo.png")
     base::file.copy(
       from = logofile,
-      to = base::paste0(textbook$folder[1], "/template/logo.png")
+      to = base::paste0(coursefolder, "/template/logo.png")
     )
     
-    ratingfile <- base::paste0(course_paths$subfolders$textbooks, "/template/rating.js")
+    ratingfile <- base::paste0(templatefolder, "/rating.js")
     base::file.copy(
       from = ratingfile,
-      to = base::paste0(textbook$folder[1], "/template/rating.js")
+      to = base::paste0(coursefolder, "/template/rating.js")
     )
     
-    commentingfile <- base::paste0(course_paths$subfolders$textbooks, "/template/commenting.js")
+    commentingfile <- base::paste0(templatefolder, "/commenting.js")
     base::file.copy(
       from = commentingfile,
-      to = base::paste0(textbook$folder[1], "/template/commenting.js")
+      to = base::paste0(coursefolder, "/template/commenting.js")
     )
     
-    headerfile <- base::paste0(course_paths$subfolders$textbooks, "/template/in_header.txt")
+    headerfile <- base::paste0(templatefolder, "/in_header.txt")
     base::file.copy(
       from = headerfile,
-      to = base::paste0(textbook$folder[1], "/template/in_header.txt")
+      to = base::paste0(coursefolder, "/template/in_header.txt")
     )
     
-    afterbodyfile <- base::paste0(course_paths$subfolders$textbooks, "/template/after_body.txt")
+    afterbodyfile <- base::paste0(templatefolder, "/after_body.txt")
     base::file.copy(
       from = afterbodyfile,
-      to = base::paste0(textbook$folder[1], "/template/after_body.txt")
+      to = base::paste0(coursefolder, "/template/after_body.txt")
     )
     
+    purrr::safely(quarto::quarto_render(yamlpath, quiet = TRUE))
     
     
     
     
-    # Publish other languages files
+    
+    # Publish other languages files:
+    # copy textbook in new folder and
+    # replace original files by translated files when exists.
     
     
     

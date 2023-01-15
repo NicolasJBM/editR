@@ -4,10 +4,12 @@
 \alias{add_video}
 \title{Embed video}
 \usage{
-add_video(vid, host = "Youtube")
+add_video(vid, start = 0, host = "Youtube")
 }
 \arguments{
 \item{vid}{Character. ID of the video.}
+
+\item{start}{Numeric. Time at which the video should start.}
 
 \item{host}{Character. Name of the hosting platform. For now, only "Youtube" is supported.}
 }

@@ -1,79 +1,100 @@
 #' @name add_slide
 #' @title Insert a slide
 #' @author Nicolas Mangin
-#' @description Function writing a revealjs slide according to the user specifications.
-#' @param text Character. Text of the slide.
-#' @param format Character. "section" for a section, "titled" for a slide with title, and "untitled" for a slide without title.
-#' @param colorback Character. Background color.
-#' @param image Character. Address of the background image.
-#' @param video Character. Address of the background video.
-#' @param webpage Character. Address of the background website.
-#' @param transback Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
-#' @param transdata Character. Type of transition for data: fade, slide, convex, concave, or zoom.
-#' @param state Character. "dimbg140" to "dimbg20" (20 by 20) for a decreasing brightness and "blurbg5" for a blur effect.
-#' @return Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.
+#' @description Function writing a quarto revealjs slide according to the user specifications.
+#' @param text Character. Title of the slide. If NA, the slide does not include separation.
+#' @param section Logical. True if this is a section-title slide.
+#' @param color Character. Background color.
+#' @param size Character. Whether the background should be "contain", "cover", or a specific size (e.g. "100px")
+#' @param opacity Integer. From 0 for totally transparent to 1 for totally opaque
+#' @param trans_data Character. Type of transition for data: fade, slide, convex, concave, or zoom.
+#' @param trans_back Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
+#' @param image_url Character. URL of the background image or css specification for complex backgrounds.
+#' @param image_position Character. Whether the background should be displayed at the "top", "right", "bottom", "left", "center", a=or another position.
+#' @param image_repeat Character. Whether the image should "no-repeat", "repeat", "repeat-x" or repeat-y".
+#' @param video_url Character. URL of the background video.
+#' @param video_loop Character. "true" if the video should loop, "false" otherwise.
+#' @param video_mute Character. "true" if the video should be muted, "false" otherwise.
+#' @param iframe_url Character. URL of the background website.
+#' @param iframe_interactive Character. "true" if the iframe should be interactive, "false" otherwise.
+#' @param classes Character vector. Specifiy the names of other formatting classes which should be applied to the slide.
+#' @param visible Logical. FALSE if the slide should be hidden.
+#' @return Character. Write the first rows of a RevealJS slide formatted for quarto.
 #' @importFrom dplyr case_when
 #' @export
 
 
+
 add_slide <- function(
-    text = "",
-    format = "titled",
-    colorback = "#FFFFFF",
-    image = "",
-    video = "",
-    webpage="",
-    transback = "slide",
-    transdata = "fade",
-    state = "dimbg100"
-) {
+    text = NA,
+    section = FALSE,
+    color = "#FFFFFF",
+    size = "cover",
+    opacity = 1,
+    trans_data = "fade",
+    trans_back = "slide",
+    image_url = NA,
+    image_position = "center",
+    image_repeat = "no-repeat",
+    video_url = NA,
+    video_loop = "false",
+    video_mute = "true",
+    iframe_url = NA,
+    iframe_interactive = "false",
+    classes = NA, # .scrollable .smaller
+    visible = TRUE
+){
+  
   head <- dplyr::case_when(
-    format == "section" ~ base::paste0("# ", text),
-    TRUE ~ base::paste0("## ", text)
+    !base::is.na(text) & section ~ base::paste0("# ", text),
+    !base::is.na(text) ~ base::paste0("## ", text),
+    TRUE ~ base::paste0("##")
   )
-  properties <- dplyr::case_when(
-    image != "" & webpage != "" ~ base::paste0(
-      ' {data-transition="', transdata,
-      '" data-background-transition="', transback,
-      '" data-background-color="', colorback,
-      '" data-background="', image,
-      '" data-background-iframe="', webpage,
-      '" data-state="', state,
-      '" data-background-size="cover"}'
-    ),
-    image != "" ~ base::paste0(
-      ' {data-transition="', transdata,
-      '" data-background-transition="', transback,
-      '" data-background-color="', colorback,
-      '" data-background="', image,
-      '" data-state="', state,
-      '" data-background-size="cover"}'
-    ),
-    video != "" ~ base::paste0(
-      ' {data-transition="', transdata,
-      '" data-background-transition="', transback,
-      '" data-background-color="', colorback,
-      '" data-background-video="', video,
-      '" data-state="', state,
-      '" data-background-size="cover"}'
-    ),
-    webpage != "" ~ base::paste0(
-      ' {data-transition="', transdata,
-      '" data-background-transition="', transback,
-      '" data-background-color="', colorback,
-      '" data-background-iframe="', webpage,
-      '" data-state="', state,
-      '" data-background-size="cover"}'
-    ),
-    TRUE ~ base::paste0(
-      ' {data-transition="', transdata,
-      '" data-background-transition="', transback,
-      '" data-background-color="', colorback,
-      '"}'
+  
+  start <- base::paste0(
+    ' {background-color="', color,
+    '" background-size="', size,
+    '" background-opacity=', opacity,
+    ' transition="', trans_data,
+    '" background-transition="', trans_back
+  )
+  
+  if (!base::is.na(image_url)){
+    content <- base::paste0(
+      '" background-image="', image_url,
+      '" background-position="', image_position,
+      '" background-repeat="', image_repeat,
+      '"'
     )
-  )
-  text_to_write <- base::paste0(head, properties)
-  if (format == "titled"){
+  } else if (!base::is.na(video_url)){
+    content <- base::paste0(
+      '" background-video="', video_url,
+      '" background-video-loop="', video_loop,
+      '" background-video-muted="', video_mute,
+      '"'
+    )
+  } else if (!base::is.na(iframe_url)){
+    content <- base::paste0(
+      '" background-iframe="', iframe_url,
+      '" background-interactive="', iframe_interactive,
+      '"'
+    )
+  } else {
+    content <- '"'
+  }
+  
+  if (!base::is.na(classes)){
+    classes <- base::paste(classes, sep = " .")
+    classes <- base::paste0(' .', classes)
+  } else classes <- ''
+  if (visible){
+    hide <- ''
+  } else hide <- ' visibility="hidden"'
+  
+  end <- base::paste0(classes, hide, "}")
+  
+  text_to_write <- base::paste0(head, start, content, end)
+  if (!base::is.na(text) & !section){
     base::writeLines(c(text_to_write, "<hr>"))
   } else {
     base::writeLines(text_to_write)

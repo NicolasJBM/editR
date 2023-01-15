@@ -6,25 +6,25 @@
 \usage{
 add_meme(
   text_above = "",
-  image = "",
+  image_url = "",
   text_below = "",
   font_size = 2.5,
-  transback = "slide",
-  transdata = "fade"
+  trans_back = "slide",
+  trans_data = "fade"
 )
 }
 \arguments{
-\item{text_above}{Character. Sentence written above the image or video.}
+\item{text_above}{Character. Sentence written above the image_url or video.}
 
-\item{image}{Character. Address of the background image.}
+\item{image_url}{Character. Address of the background image_url.}
 
-\item{text_below}{Character. Sentence written below the image or video.}
+\item{text_below}{Character. Sentence written below the image_url or video.}
 
 \item{font_size}{Numeric. Size of the font in "em".}
 
-\item{transback}{Character. Type of transition for the background: fade, slide, convex, concave, or zoom.}
+\item{trans_back}{Character. Type of transition for the background: fade, slide, convex, concave, or zoom.}
 
-\item{transdata}{Character. Type of transition for data: fade, slide, convex, concave, or zoom.}
+\item{trans_data}{Character. Type of transition for data: fade, slide, convex, concave, or zoom.}
 }
 \value{
 Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.

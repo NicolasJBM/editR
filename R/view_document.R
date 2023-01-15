@@ -16,6 +16,7 @@
 #' @importFrom shiny withMathJax
 #' @importFrom shinydashboardPlus box
 #' @importFrom fs dir_delete
+#' @importFrom quarto quarto_render
 #' @export
 
 view_document <- function(selected, original, course_data, course_paths, test_parameters = NA){
@@ -25,7 +26,7 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
   
   if (doctype %in% c("Note","Page","Slide","Video","Game","Tutorial","Case")){
     
-    rmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.rmd")
+    qmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.qmd")
     
     htmlpath <- stringr::str_remove(
       base::paste0(course_paths()$subfolders$edit, "/index.html"),
@@ -46,9 +47,10 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     yaml <- editR::make_yaml(selected, doctype)
     doc <- c(yaml, doc)
     
-    base::writeLines(doc, rmdpath, useBytes = TRUE)
-    rmarkdown::render(rmdpath, encoding="UTF-8", quiet = TRUE) |>
-      base::suppressWarnings()
+    base::writeLines(doc, qmdpath, useBytes = TRUE)
+    
+    quarto::quarto_render(qmdpath, quiet = TRUE)
+    
     title <- selected |>
       editR::make_title_display(course_data)
     
