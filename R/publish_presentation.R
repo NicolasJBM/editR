@@ -16,7 +16,6 @@
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_remove_all
 #' @importFrom quarto quarto_render
-#' @importFrom purrr safely
 #' @export
 
 
@@ -65,14 +64,6 @@ publish_presentation <- function(tree, selected_document, course_paths){
     base::file.copy(
       from = cslfile,
       to = base::paste0(coursefolder, "/apa.csl")
-    )
-  }
-  
-  cssfile <- base::paste0(formatfolder, "/css/slides.css")
-  if (base::file.exists(cssfile)) {
-    base::file.copy(
-      from = cssfile,
-      to = base::paste0(coursefolder, "/slides.css")
     )
   }
   
@@ -164,7 +155,7 @@ publish_presentation <- function(tree, selected_document, course_paths){
       '    reference-location: document',
       base::paste0('    footer: "', doctitle, " - ", docauthor, " - ", docdate,'"'),
       '    css:',
-      '      - ../../slides.css',
+      '      - slides.css',
       '      - "https://cdn.jsdelivr.net/npm/reveal.js-plugins/menu/font-awesome/css/fontawesome.css"',
       'bibliography: ../../references.bib',
       'csl: ../../apa.csl',
@@ -175,7 +166,15 @@ publish_presentation <- function(tree, selected_document, course_paths){
     presentation <- c(yaml, doccontent)
     base::writeLines(presentation, qmdpath, useBytes = TRUE)
     
-    purrr::safely(quarto::quarto_render(qmdpath, quiet = TRUE))
+    cssfile <- base::paste0(formatfolder, "/css/slides.css")
+    if (base::file.exists(cssfile)) {
+      base::file.copy(
+        from = cssfile,
+        to = base::paste0(qmdfolder, "/slides.css")
+      )
+    }
+    
+    quarto::quarto_render(qmdpath, quiet = TRUE)
   }
   
   shinybusy::remove_modal_spinner()

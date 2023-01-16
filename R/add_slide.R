@@ -2,7 +2,7 @@
 #' @title Insert a slide
 #' @author Nicolas Mangin
 #' @description Function writing a quarto revealjs slide according to the user specifications.
-#' @param text Character. Title of the slide. If NA, the slide does not include separation.
+#' @param title Character. Title of the slide. If NA, the slide does not include separation.
 #' @param section Logical. True if this is a section-title slide.
 #' @param color Character. Background color.
 #' @param size Character. Whether the background should be "contain", "cover", or a specific size (e.g. "100px")
@@ -26,7 +26,7 @@
 
 
 add_slide <- function(
-    text = NA,
+    title = NA,
     section = FALSE,
     color = "#FFFFFF",
     size = "cover",
@@ -46,8 +46,8 @@ add_slide <- function(
 ){
   
   head <- dplyr::case_when(
-    !base::is.na(text) & section ~ base::paste0("# ", text),
-    !base::is.na(text) ~ base::paste0("## ", text),
+    !base::is.na(title) & section ~ base::paste0("# ", title),
+    !base::is.na(title) ~ base::paste0("## ", title),
     TRUE ~ base::paste0("##")
   )
   
@@ -94,7 +94,7 @@ add_slide <- function(
   end <- base::paste0(classes, hide, "}")
   
   text_to_write <- base::paste0(head, start, content, end)
-  if (!base::is.na(text) & !section){
+  if (!base::is.na(title) & !section){
     base::writeLines(c(text_to_write, "<hr>"))
   } else {
     base::writeLines(text_to_write)

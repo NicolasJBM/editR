@@ -5,7 +5,7 @@
 \title{Insert a slide}
 \usage{
 add_slide(
-  text = NA,
+  title = NA,
   section = FALSE,
   color = "#FFFFFF",
   size = "cover",
@@ -25,7 +25,7 @@ add_slide(
 )
 }
 \arguments{
-\item{text}{Character. Title of the slide. If NA, the slide does not include separation.}
+\item{title}{Character. Title of the slide. If NA, the slide does not include separation.}
 
 \item{section}{Logical. True if this is a section-title slide.}
 
