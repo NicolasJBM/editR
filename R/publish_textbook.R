@@ -1,7 +1,7 @@
 #' @name publish_textbook
 #' @title Compile a textbook
 #' @author Nicolas Mangin
-#' @description Function loading a tree and compiling the corresponding textbook. Pages are formated and organized so that they can then be added to a blogdown project based in the hugo theme "learn"
+#' @description Function loading a tree and compiling the corresponding textbook. Pages are formatted and organized so that they can then be added to a quarto website.
 #' @param tree List.
 #' @param course_paths List.
 #' @param languages Tibble
@@ -9,7 +9,6 @@
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom purrr safely
 #' @importFrom quarto quarto_render
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinybusy remove_modal_spinner
@@ -54,9 +53,18 @@ publish_textbook <- function(tree, course_paths, languages){
     quarto_yaml1 <- c(
       'project:',
       '  type: website',
+      '  pre-render: prepare.R',
       '  render: ',
       '    - "*.qmd"',
       '    - "!template/"',
+      '',
+      'execute:',
+      '  eval: true',
+      '  echo: false',
+      '  output: asis',
+      '  warning: false',
+      '  error: false',
+      '  include: true',
       '',
       'website:',
       base::paste0('  title: "', tree$course$course[1],'"'),
@@ -80,7 +88,9 @@ publish_textbook <- function(tree, course_paths, languages){
     quarto_yaml3 <- c( 
       '    right: ',
       '      - icon: github',
-      '        url: https://github.com/NicolasJBM',
+      '        url: https://github.com',
+      '      - icon: linkedin',
+      '        url: https://www.linkedin.com',
       '  sidebar:'
     )
     
@@ -119,11 +129,17 @@ publish_textbook <- function(tree, course_paths, languages){
       '',
       'format:',
       '  html:',
+      '    theme: ',
+      '      light: flatly',
+      '      dark: darkly',
+      '    highlight-style: dracula',
       '    citations-hover: true',
       '    footnotes-hover: true',
       '    anchor-sections: true',
       '    smooth-scroll: true',
-      '    css: template/pages.css',
+      '    css:',
+      '      - template/pages.css',
+      '      - template/all.css',
       '    include-in-header:',
       '      - template/in_header.txt',
       '    include-after-body:',
@@ -136,8 +152,8 @@ publish_textbook <- function(tree, course_paths, languages){
     yaml <- c(quarto_yaml1, quarto_yaml2, quarto_yaml3, quarto_yaml4, quarto_yaml5)
     
     # define useful paths
-    datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
     formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
+    datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
     templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/textbooks")
     textbookfolder <- course_paths$subfolders$textbooks
     orginal_path <- course_paths$subfolders$original
@@ -163,6 +179,8 @@ publish_textbook <- function(tree, course_paths, languages){
     }
     template_folder <- base::paste0(coursefolder, "/template")
     if (!base::dir.exists(template_folder)) base::dir.create(template_folder)
+    data_folder <- base::paste0(coursefolder, "/data")
+    if (!base::dir.exists(data_folder)) base::dir.create(data_folder)
 
     # Fill in the textbook for the original language
     for (i in base::seq_len(base::nrow(textbook))){
@@ -197,15 +215,23 @@ publish_textbook <- function(tree, course_paths, languages){
     base::writeLines(yaml, yamlpath)
     base::save(
       textbook,
-      file = base::paste0(coursefolder, "/template/textbook.RData")
+      file = base::paste0(data_folder, "/textbook.RData")
     )
     
     # Retrieve files from data
+    envfile <- base::paste0(datafolder, "/environment.RData")
+    if (base::file.exists(envfile)) {
+      base::file.copy(
+        from = envfile,
+        to = base::paste0(data_folder, "/environment.RData")
+      )
+    }
+    
     bibfile <- base::paste0(datafolder, "/references.bib")
     if (base::file.exists(bibfile)) {
       base::file.copy(
         from = bibfile,
-        to = base::paste0(coursefolder, "/template/references.bib")
+        to = base::paste0(data_folder, "/references.bib")
       )
     }
     
@@ -214,17 +240,31 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(cslfile)) {
       base::file.copy(
         from = cslfile,
-        to = base::paste0(coursefolder, "/template/apa.csl")
+        to = base::paste0(template_folder, "/apa.csl")
       )
     }
     
-    cssfile <- base::paste0(formatfolder, "/css/pages.css")
-    if (base::file.exists(cssfile)) {
+    csspagefile <- base::paste0(formatfolder, "/css/pages.css")
+    if (base::file.exists(csspagefile)) {
       base::file.copy(
-        from = cssfile,
-        to = base::paste0(coursefolder, "/template/pages.css")
+        from = csspagefile,
+        to = base::paste0(template_folder, "/pages.css")
       )
     }
+    
+    cssallfile <- base::paste0(formatfolder, "/css/all.css")
+    if (base::file.exists(cssallfile)) {
+      base::file.copy(
+        from = cssallfile,
+        to = base::paste0(template_folder, "/all.css")
+      )
+    }
+    
+    jsscriptsfile <- base::paste0(formatfolder, "/js/scripts.js")
+    base::file.copy(
+      from = jsscriptsfile,
+      to = base::paste0(template_folder, "/scripts.js")
+    )
     
     # Retrieve files from template
     rprojfile <- base::paste0(templatefolder, "/textbook.Rproj")
@@ -233,39 +273,33 @@ publish_textbook <- function(tree, course_paths, languages){
       to = base::paste0(coursefolder, "/textbook.Rproj")
     )
     
+    preparefile <- base::paste0(templatefolder, "/prepare.R")
+    base::file.copy(
+      from = preparefile,
+      to = base::paste0(coursefolder, "/prepare.R")
+    )
+    
     logofile <- base::paste0(templatefolder, "/logo.png")
     base::file.copy(
       from = logofile,
-      to = base::paste0(coursefolder, "/template/logo.png")
-    )
-    
-    ratingfile <- base::paste0(templatefolder, "/rating.js")
-    base::file.copy(
-      from = ratingfile,
-      to = base::paste0(coursefolder, "/template/rating.js")
-    )
-    
-    commentingfile <- base::paste0(templatefolder, "/commenting.js")
-    base::file.copy(
-      from = commentingfile,
-      to = base::paste0(coursefolder, "/template/commenting.js")
+      to = base::paste0(template_folder, "/logo.png")
     )
     
     headerfile <- base::paste0(templatefolder, "/in_header.txt")
     base::file.copy(
       from = headerfile,
-      to = base::paste0(coursefolder, "/template/in_header.txt")
+      to = base::paste0(template_folder, "/in_header.txt")
     )
     
     afterbodyfile <- base::paste0(templatefolder, "/after_body.txt")
     base::file.copy(
       from = afterbodyfile,
-      to = base::paste0(coursefolder, "/template/after_body.txt")
+      to = base::paste0(template_folder, "/after_body.txt")
     )
     
-    purrr::safely(quarto::quarto_render(yamlpath, quiet = TRUE))
-    
-    
+    base::try(base::suppressWarnings(
+      quarto::quarto_render(yamlpath, quiet = TRUE)
+    )) 
     
     
     

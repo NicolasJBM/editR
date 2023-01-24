@@ -17,7 +17,7 @@ publish_textbook(tree, course_paths, languages)
 Write folders and pages to disk in the folder "4_materials/textbooks".
 }
 \description{
-Function loading a tree and compiling the corresponding textbook. Pages are formated and organized so that they can then be added to a blogdown project based in the hugo theme "learn"
+Function loading a tree and compiling the corresponding textbook. Pages are formatted and organized so that they can then be added to a quarto website.
 }
 \author{
 Nicolas Mangin

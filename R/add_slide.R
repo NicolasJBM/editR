@@ -5,6 +5,7 @@
 #' @param title Character. Title of the slide. If NA, the slide does not include separation.
 #' @param section Logical. True if this is a section-title slide.
 #' @param color Character. Background color.
+#' @param gradient Character. Specify a css gradient as background instead of the background color (e.g. "-webkit-radial-gradient(top, circle cover, #246 0%, #013 80%)").
 #' @param size Character. Whether the background should be "contain", "cover", or a specific size (e.g. "100px")
 #' @param opacity Integer. From 0 for totally transparent to 1 for totally opaque
 #' @param trans_data Character. Type of transition for data: fade, slide, convex, concave, or zoom.
@@ -29,6 +30,7 @@ add_slide <- function(
     title = NA,
     section = FALSE,
     color = "#FFFFFF",
+    gradient = NA,
     size = "cover",
     opacity = 1,
     trans_data = "fade",
@@ -51,13 +53,23 @@ add_slide <- function(
     TRUE ~ base::paste0("##")
   )
   
-  start <- base::paste0(
-    ' {background-color="', color,
-    '" background-size="', size,
-    '" background-opacity=', opacity,
-    ' transition="', trans_data,
-    '" background-transition="', trans_back
-  )
+  if (base::is.na(gradient)){
+    start <- base::paste0(
+      ' {background-color="', color,
+      '" background-size="', size,
+      '" background-opacity=', opacity,
+      ' transition="', trans_data,
+      '" background-transition="', trans_back
+    )
+  } else {
+    start <- base::paste0(
+      ' {background="', gradient,
+      '" background-size="', size,
+      '" background-opacity=', opacity,
+      ' transition="', trans_data,
+      '" background-transition="', trans_back
+    )
+  }
   
   if (!base::is.na(image_url)){
     content <- base::paste0(

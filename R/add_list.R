@@ -19,8 +19,7 @@ add_list <- function(
       displaybullet <- c(
         displaybullet,
         base::paste0(
-          i, '. <span class="fragment ', animation, '"> ',
-          bullet_points[i], ' </span>'
+          i, '. [', bullet_points[i],']{.fragment .', animation, '}'
         )
       )
     }
@@ -33,8 +32,7 @@ add_list <- function(
       displaybullet <- c(
         displaybullet,
         base::paste0(
-          '- <span class="fragment ', animation, '"> ',
-          bullet_points[i], ' </span>'
+          '- [', bullet_points[i],']{.fragment .', animation, '}'
         )
       )
     }

@@ -8,6 +8,7 @@ add_slide(
   title = NA,
   section = FALSE,
   color = "#FFFFFF",
+  gradient = NA,
   size = "cover",
   opacity = 1,
   trans_data = "fade",
@@ -30,6 +31,8 @@ add_slide(
 \item{section}{Logical. True if this is a section-title slide.}
 
 \item{color}{Character. Background color.}
+
+\item{gradient}{Character. Specify a css gradient as background instead of the background color (e.g. "-webkit-radial-gradient(top, circle cover, #246 0\%, #013 80\%)").}
 
 \item{size}{Character. Whether the background should be "contain", "cover", or a specific size (e.g. "100px")}
 

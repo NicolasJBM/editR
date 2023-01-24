@@ -19,7 +19,7 @@
 
 publish_note <- function(selected_document, course_paths, translation = FALSE){
   
-  tag_authors <- NULL
+  authors <- NULL
   
   if (translation){
     source_folder <- course_paths$subfolders$translated
@@ -34,8 +34,8 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   
   title <- tags$title[[1]]
   date <- base::as.character(base::Sys.Date())
-  if ("tag_authors" %in% base::names(tags)) {
-    authors <- tags$tag_authors[[1]]
+  if ("authors" %in% base::names(tags)) {
+    authors <- tags$authors[[1]]
   } else {
     authors <- ""
   }
@@ -58,7 +58,6 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   
   tags <- dplyr::select(tags, dplyr::starts_with("tag_"))
   
-  if ("tag_authors" %in% base::names(tags)) tags <- dplyr::select(tags, -tag_authors)
   tags <- base::paste('"', base::as.character(tags[1,]), '"', sep = "") |>
     base::paste(collapse = ", ")
   

@@ -4,10 +4,14 @@
 \alias{add_video}
 \title{Embed video}
 \usage{
-add_video(vid, start = 0, host = "Youtube")
+add_video(vid, width = "100\%", height = "100\%", start = 0, host = "Youtube")
 }
 \arguments{
 \item{vid}{Character. ID of the video.}
+
+\item{width}{Character. Width of the video.}
+
+\item{height}{Character. Height of the video.}
 
 \item{start}{Numeric. Time at which the video should start.}
 

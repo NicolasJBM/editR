@@ -40,7 +40,6 @@ publish_presentation <- function(tree, selected_document, course_paths){
   allversions <- alldocuments[stringr::str_detect(alldocuments, slctcode)]
   
   # define useful paths
-  datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
   formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
   templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/presentations")
   presentationfolder <- course_paths$subfolders$presentations
@@ -51,7 +50,15 @@ publish_presentation <- function(tree, selected_document, course_paths){
   if (!base::dir.exists(coursefolder)) base::dir.create(coursefolder)
   
   # Populate course folder with common files
-  bibfile <- base::paste0(datafolder, "/references.bib")
+  envfile <- base::paste0(course_paths$subfolders$edit, "/data/environment.RData")
+  if (base::file.exists(envfile)) {
+    base::file.copy(
+      from = envfile,
+      to = base::paste0(coursefolder, "/environment.RData")
+    )
+  }
+  
+  bibfile <- base::paste0(course_paths$subfolders$edit, "/data/references.bib")
   if (base::file.exists(bibfile)) {
     base::file.copy(
       from = bibfile,
@@ -105,10 +112,14 @@ publish_presentation <- function(tree, selected_document, course_paths){
     doc <- base::readLines(filepath)
     doctitle <- doc[stringr::str_detect(doc, "^exextra\\[title\\]:")]
     doctitle <- base::trimws(stringr::str_remove(doctitle, "^exextra\\[title\\]:"))
-    docauthor <- doc[stringr::str_detect(doc, "^exextra\\[tag_authors\\]:")]
-    docauthor <- base::trimws(stringr::str_remove(docauthor, "^exextra\\[tag_authors\\]:"))
+    docauthor <- doc[stringr::str_detect(doc, "^exextra\\[authors\\]:")]
+    docauthor <- base::trimws(stringr::str_remove(docauthor, "^exextra\\[authors\\]:"))
     docdate <- base::format(base::Sys.time(), format = "%Y-%m-%d")
-    doccontent <- doc[1:(base::match('Meta-information', doc)-1)]
+    doccontent <- doc[1:(base::match('Meta-information', doc)-1)] |>
+      stringr::str_replace_all(
+        'base::load("data/environment.RData")',
+        'base::load("../../environment.RData")'
+      )
     
     qmdfolder <- base::paste0(
       subfolder, "/", position, "_",
@@ -125,12 +136,15 @@ publish_presentation <- function(tree, selected_document, course_paths){
       base::paste0('title: <large> ', doctitle,' </large>'),
       base::paste0('author: ', docauthor),
       base::paste0('date: ', docdate),
+      '',
       'execute:',
       '  eval: true',
       '  echo: false',
+      '  output: asis',
       '  warning: false',
       '  error: false',
       '  include: true',
+      '',
       'format:',
       '  revealjs:',
       '    transition: slide',
@@ -156,8 +170,11 @@ publish_presentation <- function(tree, selected_document, course_paths){
       base::paste0('    footer: "', doctitle, " - ", docauthor, " - ", docdate,'"'),
       '    css:',
       '      - slides.css',
+      '      - all.css',
       '      - "https://cdn.jsdelivr.net/npm/reveal.js-plugins/menu/font-awesome/css/fontawesome.css"',
+      '',
       'bibliography: ../../references.bib',
+      '',
       'csl: ../../apa.csl',
       '---',
       ""
@@ -166,15 +183,26 @@ publish_presentation <- function(tree, selected_document, course_paths){
     presentation <- c(yaml, doccontent)
     base::writeLines(presentation, qmdpath, useBytes = TRUE)
     
-    cssfile <- base::paste0(formatfolder, "/css/slides.css")
-    if (base::file.exists(cssfile)) {
+    cssslidesfile <- base::paste0(formatfolder, "/css/slides.css")
+    if (base::file.exists(cssslidesfile)) {
       base::file.copy(
-        from = cssfile,
+        from = cssslidesfile,
         to = base::paste0(qmdfolder, "/slides.css")
       )
     }
     
-    quarto::quarto_render(qmdpath, quiet = TRUE)
+    cssallfile <- base::paste0(formatfolder, "/css/all.css")
+    if (base::file.exists(cssallfile)) {
+      base::file.copy(
+        from = cssallfile,
+        to = base::paste0(qmdfolder, "/all.css")
+      )
+    }
+    
+    base::try(base::suppressWarnings(
+      quarto::quarto_render(qmdpath, quiet = TRUE)
+    )) 
+    
   }
   
   shinybusy::remove_modal_spinner()
