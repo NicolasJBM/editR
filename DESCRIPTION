@@ -33,6 +33,6 @@ Imports:
   stringr,
   tibble,
   tidyr,
-  ggplot2,
-  patchwork,
-  fs
+  fs,
+  diffr,
+  lubridate

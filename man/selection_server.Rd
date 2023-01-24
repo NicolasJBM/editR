@@ -9,7 +9,7 @@ selection_server(id, selection_base)
 \arguments{
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
 
-\item{selection_base}{Character vector. List of values from which to choose.}
+\item{selection_base}{Reactive. Function containing a list of values from which to choose.}
 }
 \value{
 A list of course data.
