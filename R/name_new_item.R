@@ -15,7 +15,12 @@ name_new_item <- function(existing_names = NULL){
     stringr::str_remove_all(existing_names, "I")
   )
   
-  maximum <- base::max(existing_numbers)
+  if (base::length(existing_numbers) > 0){
+    maximum <- base::max(existing_numbers)
+  } else {
+    maximum <- 0
+  }
+  
   assign <- maximum + 1
   
   newname <- base::paste(
