@@ -58,6 +58,8 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     translated_proposition <- NULL
     propositions <- NULL
     keep <- NULL
+    success <- NULL
+    discrimination <- NULL
     
     languages <- shiny::reactive({
       course_data()$languages
@@ -127,12 +129,12 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         shiny::actionButton(
           ns("createnewtranslation"),"New",
           icon = shiny::icon("wand-magic-sparkles"),
-          style = "background-color:#003366; color:#FFF; width:100%; margin-top:25px;"
+          style = "background-color:#000066; color:#FFF; width:100%; margin-top:25px;"
         )
       } else {
         shiny::actionButton(
           ns("publishtranslation"), "Publish", icon = shiny::icon("print"),
-          style = "background-color:#330066;color:#FFF;
+          style = "background-color:#660099;color:#FFF;
           width:100%;margin-top:25px;"
         )
       }
@@ -171,24 +173,55 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
       translated_document
     })
     
-    
     output$vieworiginal <- shiny::renderUI({
       shiny::req(!base::is.null(document_to_translate()))
       editR::view_document(document_to_translate(), TRUE, course_data, course_paths)
     })
     
-    output$viewtranslation <- shiny::renderUI({
+    doctranslate <- shiny::reactive({
       shiny::req(!base::is.null(document_to_translate()))
-      shiny::req(base::file.exists(translated_document()$filepath))
-      input$savetranslation
-      input$refreshtranslation
+      shiny::req(!base::is.null(input$refreshtranslation))
+      document_to_translate()
+    })
+    
+    
+    
+    # Display statistics #######################################################
+    
+    doc_for_stats <- shiny::reactive({
+      shiny::req(!base::is.null(translated_document()))
+      translated_document()$file
+    })
+    
+    output$ratingsstatistics <- shiny::renderUI({
+      shiny::req(!base::is.null(doc_for_stats()))
+      shiny::req(doc_for_stats() != "")
+      make_infobox(course_data, doc_for_stats(), "ratings")
+    })
+    output$viewsstatistics <- shiny::renderUI({
+      shiny::req(!base::is.null(doc_for_stats()))
+      shiny::req(doc_for_stats() != "")
+      make_infobox(course_data, doc_for_stats(), "views")
+    })
+    output$resultsstatistics <- shiny::renderUI({
+      shiny::req(!base::is.null(doc_for_stats()))
+      shiny::req(doc_for_stats() != "")
+      make_infobox(course_data, doc_for_stats(), "results")
+    })
+    
+    
+    
+    # Display documents ########################################################
+    
+    output$viewtranslation <- shiny::renderUI({
+      shiny::req(!base::is.null(doctranslate()))
+      shiny::req(base::file.exists(doctranslate()$filepath))
       editR::view_document(translated_document(), FALSE, course_data, course_paths)
     })
     
     output$edittranslation <- shiny::renderUI({
-      shiny::req(!base::is.null(translated_document()))
-      shiny::req(base::file.exists(translated_document()$filepath))
-      input$refreshtranslation
+      shiny::req(!base::is.null(doctranslate()))
+      shiny::req(base::file.exists(doctranslate()$filepath))
       lines <- base::readLines(base::paste0(translated_document()$filepath))
       shinydashboardPlus::box(
         width = 12, title = "Edition", solidHeader = TRUE,
@@ -199,7 +232,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
             4,
             shiny::actionButton(
               ns("savetranslation"), "Save", icon = shiny::icon("floppy-disk"),
-              style = "background-color:#006633;color:#FFF;
+              style = "background-color:#006600;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           ),
@@ -208,7 +241,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
             shiny::actionButton(
               ns("translationinrstudio"), "RStudio",
               icon = shiny::icon("r-project"),
-              style = "background-color:#222222;color:#FFF;
+              style = "background-color:#333;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           ),
@@ -217,7 +250,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
             shiny::actionButton(
               ns("refreshtranslation"), "Refresh",
               icon = shiny::icon("rotate"),
-              style = "background-color:#003399;color:#FFF;
+              style = "background-color:#006666;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           )
@@ -386,13 +419,19 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     
     output$translatepropositions <- rhandsontable::renderRHandsontable({
       shiny::req(!base::is.null(selected_translations()))
+      
+      base::load(course_paths()$databases$item_parameters)
+      item_parameters <- item_parameters |>
+        dplyr::select(item, language, success, discrimination)
+      
       selected_translations() |>
+        dplyr::left_join(item_parameters, by = c("item","language")) |>
         rhandsontable::rhandsontable(
           height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
         ) |>
-        rhandsontable::hot_col(c(1,2,3,5), readOnly = TRUE) |>
+        rhandsontable::hot_col(c(1,2,3,5,7,8), readOnly = TRUE) |>
         rhandsontable::hot_cols(
-          colWidths = c("10%","5%","20%","22%","20%","23%")
+          colWidths = c("8%","4%","20%","20%","20%","20%","4%","4%")
         ) |>
         rhandsontable::hot_context_menu(
           allowRowEdit = FALSE, allowColEdit = FALSE
