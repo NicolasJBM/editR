@@ -26,6 +26,11 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
   
   if (doctype %in% c("Note","Page","Slide","Video","Game","Tutorial","Case")){
     
+    shinybusy::show_modal_spinner(
+      spin = "orbit",
+      text = "Preparing the document..."
+    )
+    
     qmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.qmd")
     
     htmlpath <- stringr::str_remove(
@@ -49,7 +54,9 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     
     base::writeLines(doc, qmdpath, useBytes = TRUE)
     
-    quarto::quarto_render(qmdpath, quiet = TRUE)
+    base::try(base::suppressWarnings(
+      quarto::quarto_render(qmdpath, quiet = TRUE)
+    )) 
     
     title <- selected |>
       editR::make_title_display(course_data)
@@ -57,16 +64,18 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     if (doctype == "Slide"){
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
-        collapsible = FALSE, collapsed = FALSE, height = "550px",
+        collapsible = FALSE, collapsed = FALSE, height = "500px",
         shiny::tags$iframe(src=htmlpath, height = 520, width = "100%")
       )
     } else {
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
-        collapsible = FALSE, collapsed = FALSE, height = "750px",
+        collapsible = FALSE, collapsed = FALSE, height = "700px",
         shiny::tags$iframe(src=htmlpath, height = 750, width="100%")
       )
     }
+    
+    shinybusy::remove_modal_spinner()
     
   } else {
     
