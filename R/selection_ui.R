@@ -24,8 +24,8 @@ selection_ui <- function(id){
         shiny::actionButton(
           ns("prv"), "",
           icon = shiny::icon("circle-chevron-left"),
-          style = "background-color:#660000;color:#FFF;width:100%;
-            height:75px;font-size:40px;text-align:center;"
+          style = "background-color:#003366;color:#FFF;width:100%;
+            height:75px;font-size:30px;text-align:center;"
         )
       ),
       shiny::column(
@@ -41,8 +41,8 @@ selection_ui <- function(id){
         shiny::actionButton(
           ns("nxt"), "",
           icon = shiny::icon("circle-chevron-right"),
-          style = "background-color:#000066;color:#FFF;width:100%;
-            height:75px;font-size:40px;text-align:center;"
+          style = "background-color:#0099CC;color:#FFF;width:100%;
+            height:75px;font-size:30px;text-align:center;"
         )
       )
     ),

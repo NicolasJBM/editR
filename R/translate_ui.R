@@ -46,10 +46,15 @@ translate_ui <- function(id){
         2,
         shiny::actionButton(
           ns("opentransfolder"), "Open folder", icon = shiny::icon("folder-open"),
-          style = "background-color:#660033;color:#FFF;
+          style = "background-color:#006666;color:#FFF;
           width:100%;margin-top:25px;"
         )
       )
+    ),
+    shiny::fluidRow(
+      shiny::uiOutput(ns("ratingsstatistics")),
+      shiny::uiOutput(ns("viewsstatistics")),
+      shiny::uiOutput(ns("resultsstatistics")),
     ),
     shiny::fluidRow(
       shiny::column(4, shiny::uiOutput(ns("vieworiginal"))),
@@ -61,7 +66,7 @@ translate_ui <- function(id){
       shiny::actionButton(
         ns("saveproptranslation"),
         "Save", icon = shiny::icon("floppy-disk"),
-        style = "background-color:#063;color:#FFF;width:300px;"
+        style = "background-color:#006600;color:#FFF;width:300px;"
       ),
       shiny::tags$hr(),
       rhandsontable::rHandsontableOutput(ns("translatepropositions"))

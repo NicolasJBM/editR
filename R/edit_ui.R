@@ -24,17 +24,17 @@ edit_ui <- function(id){
         3,
         shiny::actionButton(
           ns("newdoc"), "New", icon = shiny::icon("wand-magic-sparkles"),
-          style = "background-color:#003366;color:#FFF;
+          style = "background-color:#000066;color:#FFF;
           width:100%;margin-bottom:10px;"
         ),
         shiny::actionButton(
           ns("publishdocs"), "Publish", icon = shiny::icon("print"),
-          style = "background-color:#330066;color:#FFF;
+          style = "background-color:#660099;color:#FFF;
           width:100%;margin-bottom:10px;"
         ),
         shiny::actionButton(
           ns("openfolder"), "Open folder", icon = shiny::icon("folder-open"),
-          style = "background-color:#660033;color:#FFF;
+          style = "background-color:#336666;color:#FFF;
           width:100%;margin-bottom:10px;"
         )
       )
@@ -48,12 +48,8 @@ edit_ui <- function(id){
       shiny::column(6, shiny::uiOutput(ns("editdoc")))
     ),
     shiny::fluidRow(
-      shiny::column(
-        3,
-        shiny::uiOutput(ns("selectprop")),
-        shiny::plotOutput(ns("displaycurve"))
-      ),
-      shiny::column(9, rhandsontable::rHandsontableOutput(ns("editprop")))
+      shiny::column(2, shiny::uiOutput(ns("selectprop"))),
+      shiny::column(10, rhandsontable::rHandsontableOutput(ns("editprop")))
     )
   )
 }
