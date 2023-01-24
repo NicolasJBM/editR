@@ -50,14 +50,14 @@ code_edit_server <- function(id, course_paths){
       } else if (input$codetype == "Report"){
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("Feedback", "Analysis"),
+          choices = c("Report"),
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
       } else {
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("tex","css"),
+          choices = c("tex","css","js"),
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
@@ -77,10 +77,10 @@ code_edit_server <- function(id, course_paths){
         Game = course_paths()$subfolders$templates_game,
         Case = course_paths()$subfolders$templates_case,
         Question = course_paths()$subfolders$templates_question,
-        Feedback = course_paths()$subfolders$templates_feedback,
-        Analysis = course_paths()$subfolders$templates_analysis,
+        Report = course_paths()$subfolders$templates_report,
         tex = course_paths()$subfolders$tex,
-        css = course_paths()$subfolders$css
+        css = course_paths()$subfolders$css,
+        js = course_paths()$subfolders$js
       )
     })
     
@@ -111,10 +111,10 @@ code_edit_server <- function(id, course_paths){
         Game = "markdown",
         Case = "markdown",
         Question = "markdown",
-        Feedback = "markdown",
-        Analysis = "markdown",
+        Report = "markdown",
         tex = "tex",
-        css = "css"
+        css = "css",
+        js = "javascript"
       )
       shinyAce::aceEditor(
         outputId = ns("editedcode"), value = code, mode = codemode,
