@@ -52,6 +52,7 @@
 #' @importFrom stringr str_replace_all
 #' @importFrom stringr str_split
 #' @importFrom tibble tibble
+#' @importFrom utils browseURL
 #' @export
 
 
@@ -143,7 +144,7 @@ edit_server <- function(
     
     output$pathintree <- shiny::renderText({
       shiny::req(!base::is.null(selected_document()))
-      shiny::req(nrow(selected_document()) > 0)
+      shiny::req(base::length(selected_document()) == 1 & selected_document() != "")
       editR::make_tree_path(selected_document(), tree()$tbltree)
     })
     
@@ -183,11 +184,15 @@ edit_server <- function(
       to_edit
     })
     
-    output$viewdoc <- shiny::renderUI({
+    docedit <- shiny::reactive({
       shiny::req(!base::is.null(document_to_edit()))
-      input$savedoc
-      input$docrefresh
-      editR::view_document(document_to_edit(), TRUE, course_data, course_paths)
+      shiny::req(!base::is.null(input$docrefresh))
+      document_to_edit()
+    })
+    
+    output$viewdoc <- shiny::renderUI({
+      shiny::req(!base::is.null(docedit()))
+      editR::view_document(docedit(), TRUE, course_data, course_paths)
     })
 
 
@@ -196,7 +201,6 @@ edit_server <- function(
 
     output$editdoc <- shiny::renderUI({
       shiny::req(!base::is.null(document_to_edit()))
-      input$docrefresh
       lines <- base::readLines(document_to_edit()$filepath)
       shinydashboardPlus::box(
         width = 12, title = "Edition", solidHeader = TRUE,
@@ -204,7 +208,7 @@ edit_server <- function(
         height = "750px",
         shiny::fluidRow(
           shiny::column(
-            4,
+            3,
             shiny::actionButton(
               ns("savedoc"), "Save", icon = shiny::icon("floppy-disk"),
               style = "background-color:#006633;color:#FFF;
@@ -212,20 +216,28 @@ edit_server <- function(
             )
           ),
           shiny::column(
-            4,
+            3,
             shiny::actionButton(
-              ns("docinrstudio"), "RStudio",
-              icon = shiny::icon("r-project"),
-              style = "background-color:#222222;color:#FFF;
+              ns("docinbrowser"), "Browser", icon = shiny::icon("firefox"),
+              style = "background-color:#336666;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           ),
           shiny::column(
-            4,
+            3,
+            shiny::actionButton(
+              ns("docinrstudio"), "RStudio",
+              icon = shiny::icon("r-project"),
+              style = "background-color:#336666;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            3,
             shiny::actionButton(
               ns("docrefresh"), "Refresh",
               icon = shiny::icon("rotate"),
-              style = "background-color:#003399;color:#FFF;
+              style = "background-color:#006699;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           )
@@ -245,8 +257,26 @@ edit_server <- function(
       editeddoc <- shiny::isolate({ input$editeddoc })
       shiny::req(!base::is.null(editeddoc))
       base::writeLines(editeddoc, document_to_edit$filepath, useBytes = TRUE)
+      shinyalert::shinyalert(
+        "Document saved", "Click on the refresh button to display changes.",
+        type = "success"
+      )
     })
-
+    
+    shiny::observeEvent(input$docinbrowser, {
+      
+      if (doctype == "Question"){
+        shinyalert::shinyalert(
+          "Not possible!", "Questions cannot be opened is a browser.",
+          type = "warning"
+        )
+      } else {
+        filepath <- base::paste0(course_paths()$subfolders$edit, "/index.html")
+        shiny::req(base::file.exists(filepath))
+        utils::browseURL(filepath)
+      }
+    })
+    
     shiny::observeEvent(input$docinrstudio, {
       document_to_edit <- shiny::isolate({ document_to_edit() })
       shiny::req(!base::is.null(document_to_edit))
@@ -369,17 +399,21 @@ edit_server <- function(
         targeted_documents(),
         base::unique(propositions_for_document()$document)
       )
-      shiny::wellPanel(
+      
+      shinydashboardPlus::box(
+        width = 12, title = "Selection", solidHeader = TRUE,
+        status = "purple", collapsible = FALSE, collapsed = FALSE,
+        height = "250px",
         shiny::actionButton(
           ns("saveprop"), "Save propositions",
           icon = shiny::icon("floppy-disk"),
-          style = "background-color:#009933;color:#FFF;width:100%"
+          style = "background-color:#006600;color:#FFF;width:100%"
         ),
         shiny::tags$hr(),
         shiny::actionButton(
           ns("refreshprop"), "Refresh propositions",
-          icon = shiny::icon("floppy-disk"),
-          style = "background-color:#003399;color:#FFF;width:100%"
+          icon = shiny::icon("rotate"),
+          style = "background-color:#006699;color:#FFF;width:100%"
         ),
         shiny::tags$hr(),
         shiny::selectInput(
