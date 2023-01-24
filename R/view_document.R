@@ -32,13 +32,12 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     )
     
     qmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.qmd")
-    
-    htmlpath <- stringr::str_remove(
-      base::paste0(course_paths()$subfolders$edit, "/index.html"),
+    htmlpath1 <- base::paste0(course_paths()$subfolders$edit, "/index.html")
+    htmlpath2 <- stringr::str_remove(
+      htmlpath1,
       base::paste0(course_paths()$subfolders$course, "/")
     )
-    if (base::file.exists(htmlpath)) base::file.remove(htmlpath)
-    
+    if (base::file.exists(htmlpath1)) base::file.remove(htmlpath1)
     doc <- base::readLines(filepath)
     
     if (!original){
@@ -54,24 +53,28 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     
     base::writeLines(doc, qmdpath, useBytes = TRUE)
     
-    base::try(base::suppressWarnings(
-      quarto::quarto_render(qmdpath, quiet = TRUE)
-    )) 
+    base::try(quarto::quarto_render(qmdpath, quiet = TRUE), silent = TRUE)
     
     title <- selected |>
       editR::make_title_display(course_data)
     
-    if (doctype == "Slide"){
+    if (!base::file.exists(htmlpath1)){
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
         collapsible = FALSE, collapsed = FALSE, height = "500px",
-        shiny::tags$iframe(src=htmlpath, height = 520, width = "100%")
+        shiny::h2("The document could not be rendered. Try to correct it and then refresh.")
+      )
+    } else if (doctype == "Slide"){
+      ui <- shinydashboardPlus::box(
+        width = 12, title = title, solidHeader = TRUE, status = "primary",
+        collapsible = FALSE, collapsed = FALSE, height = "500px",
+        shiny::tags$iframe(src=htmlpath2, height = 520, width = "100%")
       )
     } else {
       ui <- shinydashboardPlus::box(
         width = 12, title = title, solidHeader = TRUE, status = "primary",
         collapsible = FALSE, collapsed = FALSE, height = "700px",
-        shiny::tags$iframe(src=htmlpath, height = 750, width="100%")
+        shiny::tags$iframe(src=htmlpath2, height = 750, width="100%")
       )
     }
     
