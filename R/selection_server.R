@@ -3,7 +3,7 @@
 #' @author Nicolas Mangin
 #' @description Module facilitating the selection of a specific value in a vector.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
-#' @param selection_base Character vector. List of values from which to choose.
+#' @param selection_base Reactive. Function containing a list of values from which to choose.
 #' @return A list of course data.
 #' @importFrom shiny moduleServer
 #' @importFrom shiny NS
@@ -27,6 +27,7 @@ selection_server <- function(id, selection_base){
       
       modrval <- shiny::reactiveValues()
       shiny::observe({
+        shiny::req(!base::is.null(selection_base()))
         shiny::updateSelectInput(
           session, "slctvalue",
           choices = selection_base(),
@@ -35,6 +36,7 @@ selection_server <- function(id, selection_base){
       })
       
       shiny::observeEvent(input$prv, {
+        shiny::req(!base::is.null(selection_base()))
         shiny::req(base::length(selection_base()) > 0)
         shiny::updateSelectInput(
           session, "slctvalue",
