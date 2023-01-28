@@ -89,7 +89,7 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
     base::load(course_paths()$databases$propositions)
     base::load(course_paths()$databases$translations)
     test_parameters <- test_parameters
-    as_latex <- FALSE
+    docformat <- "html"
     record_solution <- FALSE
     
     ui <- shinydashboardPlus::box(
