@@ -78,7 +78,7 @@ edit_server <- function(
     value <- NULL
     code <- NULL
     tags <- NULL
-
+    answers <- NULL
 
     # Load data ################################################################
 
@@ -480,6 +480,7 @@ edit_server <- function(
         scale = base::factor(levelscale[1], levels = levelscale),
         explanation = base::as.character(NA),
         keywords = base::as.character(NA),
+        answers = base::as.numeric(NA),
         success = base::as.numeric(NA),
         discrimination = base::as.numeric(NA)
       )
@@ -499,7 +500,7 @@ edit_server <- function(
           ) |>
           dplyr::select(
             item, language, code, type, document, modifications, proposition,
-            value, scale, explanation, keywords, success, discrimination
+            value, scale, explanation, keywords, answers, success, discrimination
           ) |>
           dplyr::bind_rows(tmprow)
       } else {
@@ -513,8 +514,8 @@ edit_server <- function(
         rhandsontable::hot_col(c(1,2,12,13), readOnly = TRUE) |>
         rhandsontable::hot_cols(
           colWidths = c(
-            "7%","2%","7%","7%","7%","3%","18%","3%",
-            "5%","25%","10%","3%","3%"
+            "6%","2%","6%","6%","7%","3%","18%","3%",
+            "5%","25%","10%","3%","3%","3%"
           )
         ) |>
         rhandsontable::hot_context_menu(

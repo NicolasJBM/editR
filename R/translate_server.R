@@ -60,6 +60,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     keep <- NULL
     success <- NULL
     discrimination <- NULL
+    answers <- NULL
     
     languages <- shiny::reactive({
       course_data()$languages
@@ -422,7 +423,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
       
       base::load(course_paths()$databases$item_parameters)
       item_parameters <- item_parameters |>
-        dplyr::select(item, language, success, discrimination)
+        dplyr::select(item, language, answers, success, discrimination)
       
       selected_translations() |>
         dplyr::left_join(item_parameters, by = c("item","language")) |>
@@ -431,7 +432,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         ) |>
         rhandsontable::hot_col(c(1,2,3,5,7,8), readOnly = TRUE) |>
         rhandsontable::hot_cols(
-          colWidths = c("8%","4%","20%","20%","20%","20%","4%","4%")
+          colWidths = c("8%","3%","20%","20%","20%","20%","3%","3%","3%")
         ) |>
         rhandsontable::hot_context_menu(
           allowRowEdit = FALSE, allowColEdit = FALSE
