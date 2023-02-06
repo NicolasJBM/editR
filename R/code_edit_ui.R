@@ -19,7 +19,7 @@ code_edit_ui <- function(id){
   base::list(
     shiny::fluidRow(
       shiny::column(
-        4,
+        5,
         shinydashboardPlus::box(
           width = 12, title = "Selection", solidHeader = TRUE,
           status = "navy", collapsible = FALSE, collapsed = FALSE,
@@ -35,7 +35,7 @@ code_edit_ui <- function(id){
         )
       ),
       shiny::column(
-        8,
+        7,
         shiny::fluidRow(
           shiny::column(
             3,
