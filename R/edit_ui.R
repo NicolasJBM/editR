@@ -22,20 +22,31 @@ edit_ui <- function(id){
       shiny::column(9, editR::selection_ui(ns("slctdoc"))),
       shiny::column(
         3,
-        shiny::actionButton(
-          ns("newdoc"), "New", icon = shiny::icon("wand-magic-sparkles"),
-          style = "background-color:#000066;color:#FFF;
-          width:100%;margin-bottom:10px;"
-        ),
-        shiny::actionButton(
-          ns("publishdocs"), "Publish", icon = shiny::icon("print"),
-          style = "background-color:#660099;color:#FFF;
-          width:100%;margin-bottom:10px;"
-        ),
-        shiny::actionButton(
-          ns("openfolder"), "Open folder", icon = shiny::icon("folder-open"),
-          style = "background-color:#336666;color:#FFF;
-          width:100%;margin-bottom:10px;"
+        shiny::fluidRow(
+          shiny::column(
+            6,
+            shiny::actionButton(
+              ns("newdoc"), "New", icon = shiny::icon("wand-magic-sparkles"),
+              style = "background-color:#000066;color:#FFF;width:100%;margin-bottom:10px;"
+            ),
+            shiny::actionButton(
+              ns("docrefresh"), "Refresh",
+              icon = shiny::icon("rotate"),
+              style = "background-color:#006699;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            6,
+            shiny::actionButton(
+              ns("publishdocs"), "Publish", icon = shiny::icon("print"),
+              style = "background-color:#660099;color:#FFF;width:100%;margin-bottom:10px;"
+            ),
+            shiny::actionButton(
+              ns("openfolder"), "Open folder", icon = shiny::icon("folder-open"),
+              style = "background-color:#336666;color:#FFF;width:100%;margin-bottom:10px;"
+            )
+          )
         )
       )
     ),

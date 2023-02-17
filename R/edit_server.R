@@ -184,15 +184,10 @@ edit_server <- function(
       to_edit
     })
     
-    docedit <- shiny::reactive({
-      shiny::req(!base::is.null(document_to_edit()))
-      shiny::req(!base::is.null(input$docrefresh))
-      document_to_edit()
-    })
-    
     output$viewdoc <- shiny::renderUI({
-      shiny::req(!base::is.null(docedit()))
-      editR::view_document(docedit(), TRUE, course_data, course_paths)
+      shiny::req(!base::is.null(input$docrefresh))
+      shiny::req(!base::is.null(document_to_edit()))
+      editR::view_document(document_to_edit(), TRUE, course_data, course_paths)
     })
 
 
@@ -200,6 +195,7 @@ edit_server <- function(
     # Edit document ############################################################
 
     output$editdoc <- shiny::renderUI({
+      shiny::req(!base::is.null(input$docrefresh))
       shiny::req(!base::is.null(document_to_edit()))
       lines <- base::readLines(document_to_edit()$filepath)
       shinydashboardPlus::box(
@@ -208,7 +204,7 @@ edit_server <- function(
         height = "750px",
         shiny::fluidRow(
           shiny::column(
-            3,
+            4,
             shiny::actionButton(
               ns("savedoc"), "Save", icon = shiny::icon("floppy-disk"),
               style = "background-color:#006633;color:#FFF;
@@ -216,7 +212,7 @@ edit_server <- function(
             )
           ),
           shiny::column(
-            3,
+            4,
             shiny::actionButton(
               ns("docinbrowser"), "Browser", icon = shiny::icon("firefox"),
               style = "background-color:#336666;color:#FFF;
@@ -224,20 +220,11 @@ edit_server <- function(
             )
           ),
           shiny::column(
-            3,
+            4,
             shiny::actionButton(
               ns("docinrstudio"), "RStudio",
               icon = shiny::icon("r-project"),
               style = "background-color:#336666;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          ),
-          shiny::column(
-            3,
-            shiny::actionButton(
-              ns("docrefresh"), "Refresh",
-              icon = shiny::icon("rotate"),
-              style = "background-color:#006699;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           )
@@ -264,7 +251,6 @@ edit_server <- function(
     })
     
     shiny::observeEvent(input$docinbrowser, {
-      
       if (doctype == "Question"){
         shinyalert::shinyalert(
           "Not possible!", "Questions cannot be opened is a browser.",
@@ -377,18 +363,23 @@ edit_server <- function(
       shiny::req(!base::is.null(targeted_documents()))
       selected_document <- selection() |>
         dplyr::filter(file == selected_document())
-      slctcode <- selected_document$code
-      slcttype <- selected_document$type
-      if (slcttype == "Statements"){
+      if (selected_document$type %in% c("Note","Page","Slide","Video")) {
         propositions() |>
           dplyr::filter(
-            document %in% targeted_documents(),
-            type == slcttype
+            document %in% targeted_documents()
           )
-      } else if (slcttype %in% c("Note","Page","Slide","Video")) {
-        propositions() |> dplyr::filter(document %in% targeted_documents())
+      } else if (selected_document$type == "Statements") {
+        propositions() |>
+          dplyr::filter(
+            type == selected_document$type,
+            document %in% targeted_documents()
+          )
       } else {
-        propositions() |> dplyr::filter(code == slctcode)
+        propositions() |>
+          dplyr::filter(
+            code == selected_document$code,
+            type == selected_document$type
+          )
       }
     })
     
@@ -399,6 +390,7 @@ edit_server <- function(
         targeted_documents(),
         base::unique(propositions_for_document()$document)
       )
+      tgttype <- c(base::unique(propositions_for_document()$type))
       
       shinydashboardPlus::box(
         width = 12, title = "Selection", solidHeader = TRUE,
@@ -423,6 +415,13 @@ edit_server <- function(
           multiple = TRUE
         ),
         shiny::tags$hr(),
+        shiny::selectInput(
+          ns("slctproptype"), "Select a type:",
+          choices = tgttype,
+          selected = tgttype,
+          multiple = TRUE
+        ),
+        shiny::tags$hr(),
         shiny::sliderInput(
           ns("slctpropval"), "Select a value range:",
           min = 0, max = 1, value = c(0,1)
@@ -437,6 +436,7 @@ edit_server <- function(
       propositions_for_document() |>
         dplyr::filter(
           document %in% input$slctpropdoc,
+          type %in% input$slctproptype,
           value >= input$slctpropval[1],
           value <= input$slctpropval[2]
         )
@@ -444,34 +444,40 @@ edit_server <- function(
     
     output$editprop <- rhandsontable::renderRHandsontable({
       
+      shiny::req(!base::is.null(selected_document()))
       shiny::req(base::length(targeted_documents()) > 0)
       shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(propositions_to_edit()))
+      
+      selected_document <- selection() |>
+        dplyr::filter(file == selected_document())
       
       existing_names <- propositions() |>
         dplyr::select(item) |> base::unlist() |>
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_names)
       
-      if (base::nrow(propositions_to_edit()) > 0){
-        levellanguage <- base::unique(propositions_to_edit()$language)
-        levelcode <- base::unique(propositions_to_edit()$code)
-        leveltype <- base::unique(propositions_to_edit()$type)
-        leveldocs <- base::unique(c(targeted_documents(), propositions_to_edit()$document))
-      } else {
-        selected_document <- selection() |>
-          dplyr::filter(file == selected_document())
-        levellanguage <- selected_document$language
+      if (selected_document$type %in% c("Note","Page","Slide","Video")){
+        levelcode <- base::unique(c(targeted_documents(), propositions_to_edit()$code))
+        slctcode <- NA
+        leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
+      } else if (selected_document$type == "Statements") {
         levelcode <- selected_document$code
+        slctcode <- NA
         leveltype <- selected_document$type
-        leveldocs <- targeted_documents()
+      } else {
+        levelcode <- selected_document$code
+        slctcode <- levelcode[1]
+        leveltype <- selected_document$type
       }
+      levellanguage <- selected_document$language
+      leveldocs <- targeted_documents()
       levelscale <- c("logical","qualitative","percentage")
       
       tmprow <- tibble::tibble(
         item = newitemid,
         language = base::factor(levellanguage[1], levels = levellanguage),
-        code = base::factor(levelcode[1], levels = levelcode),
+        code = base::factor(slctcode, levels = levelcode),
         type = base::factor(leveltype[1], levels = leveltype),
         document = base::factor(leveldocs[1], levels = leveldocs),
         modifications = 1,
