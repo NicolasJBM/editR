@@ -36,6 +36,7 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr replace_na
 #' @importFrom tidyr unnest
+#' @importFrom tidyr unite
 #' @export
 
 
@@ -85,20 +86,21 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     })
     
     
-    output$slctdocument <- shiny::renderUI({
-      codes <- documents()$code
-      base::names(codes) <- base::paste(
-        documents()$code, " - ", documents()$title
-      )
-      shiny::selectInput(
-        ns("slctcode"), "Document:", choices = codes, width = "100%"
-      )
+    document_list <- shiny::reactive({
+      basis <- documents() |>
+        dplyr::select(code, title) |>
+        base::unique() |>
+        tidyr::unite("title", code, title, remove = FALSE)
+      codes <- basis$code
+      base::names(codes) <- basis$title
+      codes
     })
+    selected_code <- editR::selection_server("selectdoc", document_list)
     
     
     language_status <- shiny::reactive({
       dplyr::select(languages(), langiso, language) |>
-        dplyr::mutate(code = input$slctcode) |>
+        dplyr::mutate(code = selected_code()) |>
         dplyr::left_join(
           dplyr::select(documents(), code, langiso, type, status),
           by = c("langiso", "code")
@@ -107,7 +109,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     })
     
     output$slctlanguage <- shiny::renderUI({
-      shiny::req(!base::is.null(input$slctcode))
+      shiny::req(!base::is.null(selected_code()))
       shiny::req(!base::is.null(input$translationstatus))
       translations <- language_status() |>
         dplyr::filter(
@@ -133,20 +135,31 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           style = "background-color:#000066; color:#FFF; width:100%; margin-top:25px;"
         )
       } else {
-        shiny::actionButton(
-          ns("publishtranslation"), "Publish", icon = shiny::icon("print"),
-          style = "background-color:#660099;color:#FFF;
-          width:100%;margin-top:25px;"
+        shiny::fluidRow(
+          shiny::column(
+            6,
+            shiny::actionButton(
+              ns("refreshtranslation"), "Refresh",
+              icon = shiny::icon("rotate"),
+              style = "background-color:#006666;color:#FFF;width:100%;margin-top:25px;"
+            )
+          ), shiny::column(
+            6,
+            shiny::actionButton(
+              ns("publishtranslation"), "Publish", icon = shiny::icon("print"),
+              style = "background-color:#660099;color:#FFF;width:100%;margin-top:25px;"
+            )
+          )
         )
       }
     })
     
     document_to_translate <- shiny::reactive({
-      shiny::req(input$slctcode)
+      shiny::req(selected_code())
       shiny::req(!base::is.null(filtered()))
-      shiny::req(input$slctcode %in% filtered()$code)
+      shiny::req(selected_code() %in% filtered()$code)
       document_to_translate <- filtered() |>
-        dplyr::filter(code == input$slctcode)
+        dplyr::filter(code == selected_code())
       document_to_translate$filepath <- base::paste0(
         course_paths()$subfolders$original, "/", document_to_translate$file
       )
@@ -179,12 +192,6 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
       editR::view_document(document_to_translate(), TRUE, course_data, course_paths)
     })
     
-    doctranslate <- shiny::reactive({
-      shiny::req(!base::is.null(document_to_translate()))
-      shiny::req(!base::is.null(input$refreshtranslation))
-      document_to_translate()
-    })
-    
     
     
     # Display statistics #######################################################
@@ -215,14 +222,16 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     # Display documents ########################################################
     
     output$viewtranslation <- shiny::renderUI({
-      shiny::req(!base::is.null(doctranslate()))
-      shiny::req(base::file.exists(doctranslate()$filepath))
+      shiny::req(!base::is.null(input$refreshtranslation))
+      shiny::req(!base::is.null(translated_document()))
+      shiny::req(base::file.exists(translated_document()$filepath))
       editR::view_document(translated_document(), FALSE, course_data, course_paths)
     })
     
     output$edittranslation <- shiny::renderUI({
-      shiny::req(!base::is.null(doctranslate()))
-      shiny::req(base::file.exists(doctranslate()$filepath))
+      shiny::req(!base::is.null(input$refreshtranslation))
+      shiny::req(!base::is.null(translated_document()))
+      shiny::req(base::file.exists(translated_document()$filepath))
       lines <- base::readLines(base::paste0(translated_document()$filepath))
       shinydashboardPlus::box(
         width = 12, title = "Edition", solidHeader = TRUE,
@@ -240,18 +249,17 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           shiny::column(
             4,
             shiny::actionButton(
-              ns("translationinrstudio"), "RStudio",
-              icon = shiny::icon("r-project"),
-              style = "background-color:#333;color:#FFF;
+              ns("translationinbrowser"), "Browser", icon = shiny::icon("firefox"),
+              style = "background-color:#336666;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           ),
           shiny::column(
             4,
             shiny::actionButton(
-              ns("refreshtranslation"), "Refresh",
-              icon = shiny::icon("rotate"),
-              style = "background-color:#006666;color:#FFF;
+              ns("translationinrstudio"), "RStudio",
+              icon = shiny::icon("r-project"),
+              style = "background-color:#333;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           )
@@ -271,6 +279,25 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
       editedtranslation <- shiny::isolate({ input$editedtranslation })
       shiny::req(!base::is.null(editedtranslation))
       base::writeLines(editedtranslation, translated_document$filepath, useBytes = TRUE)
+      shinyalert::shinyalert(
+        "Translation saved", "Click on the refresh button to display changes.",
+        type = "success"
+      )
+    })
+    
+    shiny::observeEvent(input$translationinbrowser, {
+      shiny::req(!base::is.null(translated_document()))
+      doctype <- translated_document()$type[1]
+      if (doctype == "Question"){
+        shinyalert::shinyalert(
+          "Not possible!", "Questions cannot be opened is a browser.",
+          type = "warning"
+        )
+      } else {
+        filepath <- base::paste0(course_paths()$subfolders$edit, "/index.html")
+        shiny::req(base::file.exists(filepath))
+        utils::browseURL(filepath)
+      }
     })
     
     shiny::observeEvent(input$translationinrstudio, {
@@ -381,10 +408,10 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     # Edit propositions ########################################################
     
     selected_propositions <- shiny::reactive({
-      shiny::req(input$slctcode)
+      shiny::req(selected_code())
       base::load(course_paths()$databases$propositions)
       selection <- course_data()$documents |>
-        dplyr::filter(code == input$slctcode) |>
+        dplyr::filter(code == selected_code()) |>
         dplyr::select(type, code, document) |>
         base::unique()
       if (selection$type %in% c("Note","Page","Slide","Video","Game","Case","Statements")){
@@ -396,7 +423,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           dplyr::select(-keep)
       } else {
         propositions |>
-          dplyr::filter(code == input$slctcode)
+          dplyr::filter(code == selected_code())
       }
     })
     

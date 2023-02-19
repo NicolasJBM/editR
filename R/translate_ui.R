@@ -18,11 +18,11 @@ translate_ui <- function(id){
   base::list(
     shiny::fluidRow(
       shiny::column(
-        3,
-        shiny::uiOutput(ns("slctdocument"))
+        5,
+        editR::selection_ui(ns("selectdoc"))
       ),
       shiny::column(
-        3,
+        2,
         shinyWidgets::checkboxGroupButtons(
           inputId = ns("translationstatus"), label = "Status",
           choices = c("Existing", "Missing"),
@@ -43,7 +43,7 @@ translate_ui <- function(id){
         shiny::uiOutput(ns("translationaction"))
       ),
       shiny::column(
-        2,
+        1,
         shiny::actionButton(
           ns("opentransfolder"), "Open folder", icon = shiny::icon("folder-open"),
           style = "background-color:#006666;color:#FFF;
@@ -57,9 +57,9 @@ translate_ui <- function(id){
       shiny::uiOutput(ns("resultsstatistics")),
     ),
     shiny::fluidRow(
-      shiny::column(4, shiny::uiOutput(ns("vieworiginal"))),
-      shiny::column(4, shiny::uiOutput(ns("viewtranslation"))),
-      shiny::column(4, shiny::uiOutput(ns("edittranslation")))
+      #shiny::column(4, shiny::uiOutput(ns("vieworiginal"))),
+      shiny::column(6, shiny::uiOutput(ns("viewtranslation"))),
+      shiny::column(6, shiny::uiOutput(ns("edittranslation")))
     ),
     shiny::tags$hr(),
     shiny::fluidRow(
