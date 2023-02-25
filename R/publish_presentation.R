@@ -54,7 +54,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
   if (base::file.exists(envfile)) {
     base::file.copy(
       from = envfile,
-      to = base::paste0(coursefolder, "/environment.RData")
+      to = base::paste0(coursefolder, "/environment.RData"),
+      overwrite = TRUE
     )
   }
   
@@ -62,7 +63,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
   if (base::file.exists(bibfile)) {
     base::file.copy(
       from = bibfile,
-      to = base::paste0(coursefolder, "/references.bib")
+      to = base::paste0(coursefolder, "/references.bib"),
+      overwrite = TRUE
     )
   }
   
@@ -70,7 +72,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
   if (base::file.exists(cslfile)) {
     base::file.copy(
       from = cslfile,
-      to = base::paste0(coursefolder, "/apa.csl")
+      to = base::paste0(coursefolder, "/apa.csl"),
+      overwrite = TRUE
     )
   }
   
@@ -78,7 +81,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
   if (base::file.exists(titlefile)) {
     base::file.copy(
       from = titlefile,
-      to = base::paste0(coursefolder, "/title-slide.html")
+      to = base::paste0(coursefolder, "/title-slide.html"),
+      overwrite = TRUE
     )
   }
   
@@ -86,7 +90,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
   if (base::file.exists(logofile)) {
     base::file.copy(
       from = logofile,
-      to = base::paste0(coursefolder, "/logo.png")
+      to = base::paste0(coursefolder, "/logo.png"),
+      overwrite = TRUE
     )
   }
   
@@ -115,19 +120,14 @@ publish_presentation <- function(tree, selected_document, course_paths){
     docauthor <- doc[stringr::str_detect(doc, "^exextra\\[authors\\]:")]
     docauthor <- base::trimws(stringr::str_remove(docauthor, "^exextra\\[authors\\]:"))
     docdate <- base::format(base::Sys.time(), format = "%Y-%m-%d")
-    doccontent <- doc[1:(base::match('Meta-information', doc)-1)] |>
-      stringr::str_replace_all(
-        'base::load("data/environment.RData")',
-        'base::load("../../environment.RData")'
+    doccontent <- doc[1:(base::match('Meta-information', doc)-1)]
+    doccontent <-   stringr::str_replace_all(
+        doccontent,
+        stringr::fixed('base::load("data/environment.RData")'),
+        stringr::fixed('base::load("../../environment.RData")')
       )
     
-    qmdfolder <- base::paste0(
-      subfolder, "/", position, "_",
-      base::tolower(stringr::str_replace_all(stringr::str_remove_all(doctitle, "[[:punct:]]"), " ", "_"))
-    )
-    if (.Platform['OS.type'] == "windows" & base::nchar(qmdfolder) > 249){
-      qmdfolder <- base::paste0(subfolder, "/", position)
-    }
+    qmdfolder <- base::paste0(subfolder, "/", position)
     if (!base::dir.exists(qmdfolder)) base::dir.create(qmdfolder)
     qmdpath <- base::paste0(qmdfolder, "/index.qmd")
     
@@ -187,7 +187,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
     if (base::file.exists(cssslidesfile)) {
       base::file.copy(
         from = cssslidesfile,
-        to = base::paste0(qmdfolder, "/slides.css")
+        to = base::paste0(qmdfolder, "/slides.css"),
+        overwrite = TRUE
       )
     }
     
@@ -195,7 +196,8 @@ publish_presentation <- function(tree, selected_document, course_paths){
     if (base::file.exists(cssallfile)) {
       base::file.copy(
         from = cssallfile,
-        to = base::paste0(qmdfolder, "/all.css")
+        to = base::paste0(qmdfolder, "/all.css"),
+        overwrite = TRUE
       )
     }
     

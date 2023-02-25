@@ -223,7 +223,8 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(envfile)) {
       base::file.copy(
         from = envfile,
-        to = base::paste0(data_folder, "/environment.RData")
+        to = base::paste0(data_folder, "/environment.RData"),
+        overwrite = TRUE
       )
     }
     
@@ -231,7 +232,8 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(bibfile)) {
       base::file.copy(
         from = bibfile,
-        to = base::paste0(data_folder, "/references.bib")
+        to = base::paste0(data_folder, "/references.bib"),
+        overwrite = TRUE
       )
     }
     
@@ -240,7 +242,8 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(cslfile)) {
       base::file.copy(
         from = cslfile,
-        to = base::paste0(template_folder, "/apa.csl")
+        to = base::paste0(template_folder, "/apa.csl"),
+        overwrite = TRUE
       )
     }
     
@@ -248,7 +251,8 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(csspagefile)) {
       base::file.copy(
         from = csspagefile,
-        to = base::paste0(template_folder, "/pages.css")
+        to = base::paste0(template_folder, "/pages.css"),
+        overwrite = TRUE
       )
     }
     
@@ -256,45 +260,52 @@ publish_textbook <- function(tree, course_paths, languages){
     if (base::file.exists(cssallfile)) {
       base::file.copy(
         from = cssallfile,
-        to = base::paste0(template_folder, "/all.css")
+        to = base::paste0(template_folder, "/all.css"),
+        overwrite = TRUE
       )
     }
     
     jsscriptsfile <- base::paste0(formatfolder, "/js/scripts.js")
     base::file.copy(
       from = jsscriptsfile,
-      to = base::paste0(template_folder, "/scripts.js")
+      to = base::paste0(template_folder, "/scripts.js"),
+      overwrite = TRUE
     )
     
     # Retrieve files from template
     rprojfile <- base::paste0(templatefolder, "/textbook.Rproj")
     base::file.copy(
       from = rprojfile,
-      to = base::paste0(coursefolder, "/textbook.Rproj")
+      to = base::paste0(coursefolder, "/textbook.Rproj"),
+      overwrite = TRUE
     )
     
     preparefile <- base::paste0(templatefolder, "/prepare.R")
     base::file.copy(
       from = preparefile,
-      to = base::paste0(coursefolder, "/prepare.R")
+      to = base::paste0(coursefolder, "/prepare.R"),
+      overwrite = TRUE
     )
     
     logofile <- base::paste0(templatefolder, "/logo.png")
     base::file.copy(
       from = logofile,
-      to = base::paste0(template_folder, "/logo.png")
+      to = base::paste0(template_folder, "/logo.png"),
+      overwrite = TRUE
     )
     
     headerfile <- base::paste0(templatefolder, "/in_header.txt")
     base::file.copy(
       from = headerfile,
-      to = base::paste0(template_folder, "/in_header.txt")
+      to = base::paste0(template_folder, "/in_header.txt"),
+      overwrite = TRUE
     )
     
     afterbodyfile <- base::paste0(templatefolder, "/after_body.txt")
     base::file.copy(
       from = afterbodyfile,
-      to = base::paste0(template_folder, "/after_body.txt")
+      to = base::paste0(template_folder, "/after_body.txt"),
+      overwrite = TRUE
     )
     
     base::try(base::suppressWarnings(
