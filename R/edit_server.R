@@ -549,7 +549,8 @@ edit_server <- function(
       propositions <- not_modified |>
         dplyr::bind_rows(modified) |>
         dplyr::filter(!base::is.na(type), !base::is.na(value)) |>
-        dplyr::arrange(item)
+        dplyr::arrange(item) |>
+        dplyr::filter(proposition != "", !base::is.na(proposition))
       
       base::save(propositions, file = course_paths()$databases$propositions)
       
