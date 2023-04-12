@@ -123,7 +123,7 @@ publish_textbook <- function(tree, course_paths, languages){
       '    border: true',
       '    background: dark',
       '',
-      'bibliography: template/references.bib',
+      'bibliography: data/references.bib',
       '',
       'csl: template/apa.csl',
       '',
@@ -159,7 +159,7 @@ publish_textbook <- function(tree, course_paths, languages){
     orginal_path <- course_paths$subfolders$original
     translated_path <- course_paths$subfolders$translated
     coursename <- stringr::str_remove(tree$course$tree[1], ".RData$")
-    coursefolder <- base::paste0(textbookfolder, "/", coursename)
+    coursefolder <- base::paste0(textbookfolder, "/", coursename, "_", textbook$language[1])
     
     other_languages <- languages |>
       dplyr::filter(langiso != textbook$language[1]) |>
