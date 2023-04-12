@@ -100,7 +100,9 @@ view_document <- function(selected, original, course_data, course_paths, test_pa
         shiny::column(
           12,
           base::suppressWarnings(
-            shiny::withMathJax(shiny::HTML(knitr::knit2html(text = base::readLines(filepath))))
+            shiny::withMathJax(shiny::HTML(knitr::knit2html(
+              text = base::readLines(filepath), quiet = TRUE, template = FALSE
+            )))
           )
         )
       )
