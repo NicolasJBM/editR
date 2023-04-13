@@ -129,9 +129,7 @@ publish_textbook <- function(tree, course_paths, languages){
       '',
       'format:',
       '  html:',
-      '    theme: ',
-      '      light: flatly',
-      '      dark: darkly',
+      '    theme: yeti',
       '    highlight-style: dracula',
       '    citations-hover: true',
       '    footnotes-hover: true',
@@ -202,7 +200,7 @@ publish_textbook <- function(tree, course_paths, languages){
         base::paste0('title: ', section_number, textbook$title[i]),
         base::paste0("order: ", textbook$order[i]),
         '---',
-        '<hr>'
+        '<br>'
       )
 
       newlines <- c(header, core)
