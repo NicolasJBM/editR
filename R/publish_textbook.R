@@ -199,8 +199,7 @@ publish_textbook <- function(tree, course_paths, languages){
         '---',
         base::paste0('title: ', section_number, textbook$title[i]),
         base::paste0("order: ", textbook$order[i]),
-        '---',
-        '<br>'
+        '---'
       )
 
       newlines <- c(header, core)
