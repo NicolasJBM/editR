@@ -48,8 +48,38 @@ publish_textbook <- function(tree, course_paths, languages){
     
     # Create quarto YAML
     textbook <- tree$textbook
-    main_sections <- dplyr::filter(textbook, base::nchar(section) == 1)
     
+    # define useful paths
+    formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
+    datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
+    templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/textbooks")
+    textbookfolder <- course_paths$subfolders$textbooks
+    orginal_path <- course_paths$subfolders$original
+    translated_path <- course_paths$subfolders$translated
+    coursename <- stringr::str_remove(tree$course$tree[1], ".RData$")
+    
+    coursefolder <- base::paste0(textbookfolder, "/", coursename, "_", textbook$language[1])
+    if (!base::dir.exists(coursefolder)) base::dir.create(coursefolder)
+    pagesfolder <- base::paste0(coursefolder, "/pages")
+    if (!base::dir.exists(pagesfolder)) base::dir.create(pagesfolder)
+    template_folder <- base::paste0(coursefolder, "/template")
+    if (!base::dir.exists(template_folder)) base::dir.create(template_folder)
+    data_folder <- base::paste0(coursefolder, "/data")
+    if (!base::dir.exists(data_folder)) base::dir.create(data_folder)
+    
+    other_languages <- languages |>
+      dplyr::filter(langiso != textbook$language[1]) |>
+      dplyr::select(language = langiso) |>
+      dplyr::mutate(languageweb = stringr::str_to_lower(language))
+    
+    textbook <- textbook |>
+      dplyr::mutate(
+        original_path = base::paste0(orginal_path, "/", file),
+        translated_path = base::paste0(translated_path, "/", file),
+        page_path = base::paste0(pagesfolder, "/", order, ".qmd")
+      )
+    
+    # Create the YAML
     quarto_yaml1 <- c(
       'project:',
       '  type: website',
@@ -67,57 +97,66 @@ publish_textbook <- function(tree, course_paths, languages){
       '  include: true',
       '',
       'website:',
-      base::paste0('  title: "', tree$course$course[1],'"'),
-      '  navbar:',
+      #base::paste0('  title: "', tree$course$course[1],'"'),
+      '  sidebar:',
       '    logo: template/logo.png',
       '    search: true',
-      '    pinned: true',
+      '    style: floating',
       '    background: dark',
-      '    left:'
+      '    collapse-level: 1',
+      '    contents:'
     )
     
     quarto_yaml2 <- c()
-    for (i in 1:(base::nrow(main_sections))){
-      add <- c(
-        base::paste0('      - text: "', main_sections$title[i], '"'),
-        base::paste0('        file: section', i, '/index.qmd')
+    for (i in 1:base::nrow(textbook)){
+      level = base::nchar(textbook$section[[i]])
+      if (i < base::nrow(textbook)){
+        nextlev <- base::nchar(textbook$section[[i+1]])
+      } else {
+        nextlev <- base::nchar(textbook$section[[i]])
+      }
+      increments <- base::paste(base::rep("  ", level+2), collapse = "")
+      
+      if (level < 1){
+        newpage <- base::paste0('      - href: pages/', textbook$order[i], ".qmd")
+      } else if (level == 1 & nextlev > level){
+        newpage <- c(
+          base::paste0(increments, '- text: "---"'),
+          base::paste0(increments, '- href: pages/', textbook$order[i], ".qmd"),
+          base::paste0(increments, '  contents: ')
+        )
+      } else if (nextlev > level){
+        newpage <- c(
+          base::paste0(increments, '- href: pages/', textbook$order[i], ".qmd"),
+          base::paste0(increments, '  contents: ')
+        )
+      } else {
+        newpage <- c(base::paste0(increments, '- href: pages/', textbook$order[i], ".qmd"))
+      }
+      
+      quarto_yaml2 <- c(quarto_yaml2, newpage)
+      
+      # Write the page
+      from = textbook$original_path[i]
+      to = textbook$page_path[i]
+      lines <- base::readLines(from)
+      core <- lines[1:(base::match('Meta-information', lines)-1)]
+      core <- stringr::str_replace_all(core, "SOURCENAME", coursename)
+      if (base::nchar(textbook$section[i]) > 1){
+        section_number <- base::paste0(textbook$section[i], ' - ')
+      } else section_number <- ""
+      header <- c(
+        '---',
+        base::paste0('title: ', section_number, textbook$title[i]),
+        base::paste0("order: ", textbook$order[i]),
+        '---'
       )
-      quarto_yaml2 <- c(quarto_yaml2, add)
+      newlines <- c(header, core)
+      base::writeLines(newlines, to, useBytes = TRUE)
     }
     
-    quarto_yaml3 <- c( 
-      '    right: ',
-      '      - icon: github',
-      '        url: https://github.com',
-      '      - icon: linkedin',
-      '        url: https://www.linkedin.com',
-      '  sidebar:'
-    )
-    
-    quarto_yaml4 <- c(
-      base::paste0('    - id: section', main_sections$section[1]),
-      base::paste0('      title: "', main_sections$title[1], '"'),
-      base::paste0('      href: section1/index.qmd'),
-      '      search: true',
-      '      style: floating',
-      '      background: light',
-      '      collapse-level: 2',
-      base::paste0('      contents: section', main_sections$section[1])
-    )
-    
-    for (i in 2:(base::nrow(main_sections))){
-      add <- c(
-        base::paste0('    - id: section', main_sections$section[i]),
-        base::paste0('      title: "', main_sections$title[i], '"'),
-        base::paste0('      href: section', i, '/index.qmd'),
-        base::paste0('      contents: section', main_sections$section[i])
-      )
-      quarto_yaml4 <- c(quarto_yaml4, add)
-    }
-    
-    quarto_yaml5 <- c(
+    quarto_yaml3 <- c(
       '  page-navigation: true',
-      '  reader-mode: true',
       '  page-footer:',
       base::paste0('    center: "', tree$course$authors, ' (', tree$course$year, ') ', tree$course$course[1], ' ', '"'),
       '    border: true',
@@ -147,64 +186,7 @@ publish_textbook <- function(tree, course_paths, languages){
       ''
     )
     
-    yaml <- c(quarto_yaml1, quarto_yaml2, quarto_yaml3, quarto_yaml4, quarto_yaml5)
-    
-    # define useful paths
-    formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
-    datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
-    templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/textbooks")
-    textbookfolder <- course_paths$subfolders$textbooks
-    orginal_path <- course_paths$subfolders$original
-    translated_path <- course_paths$subfolders$translated
-    coursename <- stringr::str_remove(tree$course$tree[1], ".RData$")
-    coursefolder <- base::paste0(textbookfolder, "/", coursename, "_", textbook$language[1])
-    
-    other_languages <- languages |>
-      dplyr::filter(langiso != textbook$language[1]) |>
-      dplyr::select(language = langiso) |>
-      dplyr::mutate(languageweb = stringr::str_to_lower(language))
-
-    # Create the textbook folder structure
-    textbook <- textbook |>
-      dplyr::mutate(
-        original_path = base::paste0(orginal_path, "/", file),
-        translated_path = base::paste0(translated_path, "/", file),
-        folder = base::paste0(textbookfolder, "/", folder)
-      )
-    
-    for (folder in textbook$folder){
-      if (!base::dir.exists(folder)) base::dir.create(folder)
-    }
-    template_folder <- base::paste0(coursefolder, "/template")
-    if (!base::dir.exists(template_folder)) base::dir.create(template_folder)
-    data_folder <- base::paste0(coursefolder, "/data")
-    if (!base::dir.exists(data_folder)) base::dir.create(data_folder)
-
-    # Fill in the textbook for the original language
-    for (i in base::seq_len(base::nrow(textbook))){
-      from = textbook$original_path[i]
-      to = base::paste0(
-        textbook$folder[i], "/index.qmd"
-      )
-      lines <- base::readLines(from)
-      core <- lines[1:(base::match('Meta-information', lines)-1)]
-
-      core <- stringr::str_replace_all(core, "SOURCENAME", coursename)
-      
-      if (textbook$section[i] != ""){
-        section_number <- base::paste0(textbook$section[i], ' - ')
-      } else section_number <- ""
-
-      header <- c(
-        '---',
-        base::paste0('title: ', section_number, textbook$title[i]),
-        base::paste0("order: ", textbook$order[i]),
-        '---'
-      )
-
-      newlines <- c(header, core)
-      base::writeLines(newlines, to, useBytes = TRUE)
-    }
+    yaml <- c(quarto_yaml1, quarto_yaml2, quarto_yaml3)
     
     
     # Write YAML and course 
