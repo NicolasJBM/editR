@@ -24,39 +24,37 @@ edit_ui <- function(id){
         3,
         shiny::fluidRow(
           shiny::column(
-            6,
+            12,
             shiny::actionButton(
               ns("newdoc"), "New", icon = shiny::icon("wand-magic-sparkles"),
               style = "background-color:#000066;color:#FFF;width:100%;margin-bottom:10px;"
             ),
             shiny::actionButton(
-              ns("docrefresh"), "Refresh",
-              icon = shiny::icon("rotate"),
-              style = "background-color:#006699;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          ),
-          shiny::column(
-            6,
-            shiny::actionButton(
               ns("publishdocs"), "Publish", icon = shiny::icon("print"),
-              style = "background-color:#660099;color:#FFF;width:100%;margin-bottom:10px;"
+              style = "background-color:#330066;color:#FFF;width:100%;margin-bottom:10px;"
             ),
             shiny::actionButton(
               ns("openfolder"), "Open folder", icon = shiny::icon("folder-open"),
-              style = "background-color:#336666;color:#FFF;width:100%;margin-bottom:10px;"
+              style = "background-color:#660000;color:#FFF;width:100%;margin-bottom:10px;"
             )
           )
         )
       )
     ),
-    shiny::uiOutput(ns("ratingsstatistics")),
-    shiny::uiOutput(ns("viewsstatistics")),
-    shiny::uiOutput(ns("resultsstatistics")),
     shiny::fluidRow(
-      shiny::column(12, align="center", shiny::h3(shiny::textOutput(ns("pathintree")))),
-      shiny::column(6, shiny::uiOutput(ns("viewdoc"))),
-      shiny::column(6, shiny::uiOutput(ns("editdoc")))
+      shiny::column(
+        2,
+        shiny::uiOutput(ns("pathintree")),
+        shiny::tags$hr(),
+        shiny::uiOutput(ns("docinfo"))
+      ),
+      shiny::column(6, shiny::uiOutput(ns("editdoc"))),
+      shiny::column(
+        4,
+        shiny::uiOutput(ns("ratingsstatistics")),
+        shiny::uiOutput(ns("viewsstatistics")),
+        shiny::uiOutput(ns("resultsstatistics"))
+      )
     ),
     shiny::fluidRow(
       shiny::column(2, shiny::uiOutput(ns("selectprop"))),

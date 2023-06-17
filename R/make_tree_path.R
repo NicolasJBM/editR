@@ -30,8 +30,11 @@ make_tree_path <- function(doc, tree){
     section <- classification |>
       dplyr::filter(position == base::substr(docpos, 1, i)) |>
       dplyr::select(text)
-    sections[i] <- section$text[1]
+    if (i == 1){
+      sections[i] <- base::paste0("<p>", section$text[1], "</p>")
+    } else {
+      sections[i] <- base::paste0("<h", i-1, ">", section$text[1], "</h", i-1, ">")
+    }
   }
-  
-  base::paste(sections, collapse = " | ")
+  base::paste0('<span style="font-size:1em;">', sections, '</span>')
 }

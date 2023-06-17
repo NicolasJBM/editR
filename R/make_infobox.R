@@ -66,17 +66,14 @@ make_infobox <- function(course_data, selected_file, infotype){
     if (base::nrow(video_views) == 1){
       shiny::fluidRow(
         shiny::column(
-          2,
+          4,
           shinydashboard::valueBox(
             video_views$views,
             "Views",
             icon = shiny::icon("eye"),
             color = video_views$views_color,
             width = 12
-          )
-        ),
-        shiny::column(
-          2,
+          ),
           shinydashboard::valueBox(
             video_views$viewers,
             "Viewers",
@@ -86,27 +83,14 @@ make_infobox <- function(course_data, selected_file, infotype){
           )
         ),
         shiny::column(
-          2,
+          4,
           shinydashboard::valueBox(
             video_views$watchtime,
             "Watchtime",
             icon = shiny::icon("clock"),
             color = video_views$watchtime_color,
             width = 12
-          )
-        ),
-        shiny::column(
-          2,
-          shinydashboard::valueBox(
-            video_views$retention,
-            "Retention",
-            icon = shiny::icon("battery-half"),
-            color = video_views$retention_color,
-            width = 12
-          )
-        ),
-        shiny::column(
-          2,
+          ),
           shinydashboard::valueBox(
             video_views$duration,
             "Duration",
@@ -116,7 +100,14 @@ make_infobox <- function(course_data, selected_file, infotype){
           )
         ),
         shiny::column(
-          2,
+          4,
+          shinydashboard::valueBox(
+            video_views$retention,
+            "Retention",
+            icon = shiny::icon("battery-half"),
+            color = video_views$retention_color,
+            width = 12
+          ),
           shinydashboard::valueBox(
             video_views$repetition,
             "Repetition",
@@ -137,17 +128,14 @@ make_infobox <- function(course_data, selected_file, infotype){
     if (base::nrow(document_parameters)){
       shiny::fluidRow(
         shiny::column(
-          2,
+          4,
           shinydashboard::valueBox(
             document_parameters$answers,
             "Answers",
             icon = shiny::icon("users"),
             color = document_parameters$answers_color,
             width = 12
-          )
-        ),
-        shiny::column(
-          2,
+          ),
           shinydashboard::valueBox(
             document_parameters$success,
             "success",
@@ -157,17 +145,14 @@ make_infobox <- function(course_data, selected_file, infotype){
           )
         ),
         shiny::column(
-          2,
+          4,
           shinydashboard::valueBox(
             document_parameters$difficulty,
             "difficulty",
             icon = shiny::icon("graduation-cap"),
             color = document_parameters$difficulty_color,
             width = 12
-          )
-        ),
-        shiny::column(
-          2,
+          ),
           shinydashboard::valueBox(
             document_parameters$discrimination,
             "discrimination",
@@ -177,17 +162,14 @@ make_infobox <- function(course_data, selected_file, infotype){
           )
         ),
         shiny::column(
-          2,
+          4,
           shinydashboard::valueBox(
             document_parameters$guess,
             "guess",
             icon = shiny::icon("dice"),
             color = document_parameters$guess_color,
             width = 12
-          )
-        ),
-        shiny::column(
-          2,
+          ),
           shinydashboard::valueBox(
             document_parameters$accuracy,
             "accuracy",

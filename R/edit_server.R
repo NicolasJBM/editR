@@ -142,10 +142,11 @@ edit_server <- function(
 
     selected_document <- editR::selection_server("slctdoc", document_list)
     
-    output$pathintree <- shiny::renderText({
+    output$pathintree <- shiny::renderUI({
       shiny::req(!base::is.null(selected_document()))
       shiny::req(base::length(selected_document()) == 1 & selected_document() != "")
-      editR::make_tree_path(selected_document(), tree()$tbltree)
+      editR::make_tree_path(selected_document(), tree()$tbltree) |>
+        shiny::HTML()
     })
     
     
@@ -184,89 +185,112 @@ edit_server <- function(
       to_edit
     })
     
-    output$viewdoc <- shiny::renderUI({
-      shiny::req(!base::is.null(input$docrefresh))
-      shiny::req(!base::is.null(document_to_edit()))
-      editR::view_document(document_to_edit(), TRUE, course_data, course_paths)
+    output$docinfo <- shiny::renderUI({
+      editR::make_title_display(document_to_edit(), course_data)
     })
-
-
-
+    
+    
     # Edit document ############################################################
 
-    output$editdoc <- shiny::renderUI({
-      shiny::req(!base::is.null(input$docrefresh))
+    edited_lines <- shiny::reactive({
       shiny::req(!base::is.null(document_to_edit()))
-      lines <- base::readLines(document_to_edit()$filepath)
+      if (!base::is.null(input$docrefresh)) input$docrefresh
+      base::readLines(document_to_edit()$filepath)
+    })
+    
+    output$editdoc <- shiny::renderUI({
+      shiny::req(!base::is.null(edited_lines()))
       shinydashboardPlus::box(
         width = 12, title = "Edition", solidHeader = TRUE,
         status = "navy", collapsible = FALSE, collapsed = FALSE,
         height = "750px",
         shiny::fluidRow(
           shiny::column(
-            4,
+            3,
             shiny::actionButton(
-              ns("savedoc"), "Save", icon = shiny::icon("floppy-disk"),
+              ns("docinrstudio"), "RStudio",
+              icon = shiny::icon("r-project"),
+              style = "background-color:#003366;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            3,
+            shiny::actionButton(
+              ns("docrefresh"), "Refresh",
+              icon = shiny::icon("rotate"),
+              style = "background-color:#006699;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            3,
+            shiny::actionButton(
+              ns("savedoc"), "Save",
+              icon = shiny::icon("floppy-disk"),
               style = "background-color:#006633;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           ),
           shiny::column(
-            4,
+            3,
             shiny::actionButton(
-              ns("docinbrowser"), "Browser", icon = shiny::icon("firefox"),
-              style = "background-color:#336666;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          ),
-          shiny::column(
-            4,
-            shiny::actionButton(
-              ns("docinrstudio"), "RStudio",
-              icon = shiny::icon("r-project"),
-              style = "background-color:#336666;color:#FFF;
+              ns("docpreview"), "Preview", icon = shiny::icon("eye"),
+              style = "background-color:#660033;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
           )
         ),
         shiny::fluidRow(
           shiny::column(12, shinyAce::aceEditor(
-            outputId = ns("editeddoc"), value = lines, mode = "markdown",
-            wordWrap = TRUE, debounce = 10, autoComplete = "live",
-            height = "750px"
+            outputId = ns("editeddoc"), value = edited_lines(),
+            mode = "markdown", wordWrap = TRUE, debounce = 10,
+            autoComplete = "live", height = "500"
           ))
         )
       )
-    })
-
-    shiny::observeEvent(input$savedoc, {
-      document_to_edit <- shiny::isolate({ document_to_edit() })
-      editeddoc <- shiny::isolate({ input$editeddoc })
-      shiny::req(!base::is.null(editeddoc))
-      base::writeLines(editeddoc, document_to_edit$filepath, useBytes = TRUE)
-      shinyalert::shinyalert(
-        "Document saved", "Click on the refresh button to display changes.",
-        type = "success"
-      )
-    })
-    
-    shiny::observeEvent(input$docinbrowser, {
-      if (doctype == "Question"){
-        shinyalert::shinyalert(
-          "Not possible!", "Questions cannot be opened is a browser.",
-          type = "warning"
-        )
-      } else {
-        filepath <- base::paste0(course_paths()$subfolders$edit, "/index.html")
-        shiny::req(base::file.exists(filepath))
-        utils::browseURL(filepath)
-      }
     })
     
     shiny::observeEvent(input$docinrstudio, {
       document_to_edit <- shiny::isolate({ document_to_edit() })
       shiny::req(!base::is.null(document_to_edit))
       rstudioapi::navigateToFile(document_to_edit$filepath)
+    })
+    
+    shiny::observeEvent(input$savedoc, {
+      document_to_edit <- shiny::isolate({ document_to_edit() })
+      editeddoc <- shiny::isolate({ input$editeddoc })
+      shiny::req(!base::is.null(editeddoc))
+      base::writeLines(editeddoc, document_to_edit$filepath, useBytes = TRUE)
+      shinyalert::shinyalert(
+        "Document saved", "Click on the refresh button to create a preview.",
+        type = "success"
+      )
+    })
+    
+    shiny::observeEvent(input$docpreview, {
+      if (doctype == "Question"){
+        base::load(course_paths()$databases$propositions)
+        base::load(course_paths()$databases$translations)
+        test_parameters <- NA
+        docformat <- "html"
+        record_solution <- FALSE
+        shiny::showModal(shiny::modalDialog(
+          title = "Question preview",
+          shiny::renderUI({
+            base::suppressWarnings(
+              shiny::withMathJax(shiny::HTML(knitr::knit2html(
+                text = base::readLines(document_to_edit()$filepath),
+                quiet = TRUE, template = FALSE
+              )))
+            )
+          }),
+          easyClose = TRUE
+        ))
+        
+      } else {
+        editR::view_document(document_to_edit(),TRUE,course_data,course_paths)
+      }
     })
 
 
