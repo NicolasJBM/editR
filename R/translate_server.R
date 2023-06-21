@@ -450,7 +450,6 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     })
     
     shiny::observeEvent(input$translationpreview, {
-      View(translated_document())
       if (translated_document()$type %in% c("Statements","Alternatives","Computation","Essay","Problem")){
         base::load(course_paths()$databases$propositions)
         base::load(course_paths()$databases$translations)
