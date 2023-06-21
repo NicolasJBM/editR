@@ -19,9 +19,9 @@ edit_ui <- function(id){
   ns <- shiny::NS(id)
   base::list(
     shiny::fluidRow(
-      shiny::column(9, editR::selection_ui(ns("slctdoc"))),
+      shiny::column(10, editR::selection_ui(ns("slctdoc"))),
       shiny::column(
-        3,
+        2,
         shiny::fluidRow(
           shiny::column(
             12,
@@ -43,14 +43,14 @@ edit_ui <- function(id){
     ),
     shiny::fluidRow(
       shiny::column(
-        2,
+        3,
         shiny::uiOutput(ns("pathintree")),
         shiny::tags$hr(),
         shiny::uiOutput(ns("docinfo"))
       ),
       shiny::column(6, shiny::uiOutput(ns("editdoc"))),
       shiny::column(
-        4,
+        3,
         shiny::uiOutput(ns("ratingsstatistics")),
         shiny::uiOutput(ns("viewsstatistics")),
         shiny::uiOutput(ns("resultsstatistics"))

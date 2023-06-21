@@ -21,6 +21,8 @@
 
 view_document <- function(selected, original, course_data, course_paths, test_parameters = NA){
   
+  title <- NULL
+  
   doctype <- selected$type[1]
   filepath <- selected$filepath
     

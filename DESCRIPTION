@@ -34,5 +34,4 @@ Imports:
   tibble,
   tidyr,
   fs,
-  diffr,
   lubridate

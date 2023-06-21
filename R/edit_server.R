@@ -287,7 +287,6 @@ edit_server <- function(
           }),
           easyClose = TRUE
         ))
-        
       } else {
         editR::view_document(document_to_edit(),TRUE,course_data,course_paths)
       }
@@ -546,7 +545,8 @@ edit_server <- function(
           colWidths = c(
             "6%","2%","6%","6%","7%","3%","18%","3%",
             "5%","25%","10%","3%","3%","3%"
-          )
+          ),
+          manualColumnResize = TRUE
         ) |>
         rhandsontable::hot_context_menu(
           allowRowEdit = FALSE, allowColEdit = FALSE

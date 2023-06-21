@@ -18,48 +18,37 @@ translate_ui <- function(id){
   base::list(
     shiny::fluidRow(
       shiny::column(
-        5,
+        6,
         editR::selection_ui(ns("selectdoc"))
       ),
+      shiny::column(4, shiny::uiOutput(ns("slctlanguage"))),
       shiny::column(
         2,
-        shinyWidgets::checkboxGroupButtons(
-          inputId = ns("translationstatus"), label = "Status",
-          choices = c("Existing", "Missing"),
-          selected = c("Existing", "Missing"),
-          justified = TRUE, status = "primary",
-          checkIcon = base::list(
-            yes = shiny::icon("check"),
-            no = shiny::icon("xmark")
-          )
-        )
-      ),
-      shiny::column(
-        2,
-        shiny::uiOutput(ns("slctlanguage"))
-      ),
-      shiny::column(
-        2,
-        shiny::uiOutput(ns("translationaction"))
-      ),
-      shiny::column(
-        1,
+        shiny::actionButton(
+          ns("createnewtranslation"),"New",
+          icon = shiny::icon("wand-magic-sparkles"),
+          style = "background-color:#000066; color:#FFF; width:100%;margin-bottom:10px;"
+        ),
+        shiny::actionButton(
+          ns("publishtranslation"), "Publish", icon = shiny::icon("print"),
+          style = "background-color:#330066;color:#FFF;width:100%;margin-bottom:10px;"
+        ),
         shiny::actionButton(
           ns("opentransfolder"), "Open folder", icon = shiny::icon("folder-open"),
-          style = "background-color:#006666;color:#FFF;
-          width:100%;margin-top:25px;"
+          style = "background-color:#660000;color:#FFF;width:100%;margin-bottom:10px;"
         )
       )
     ),
     shiny::fluidRow(
-      shiny::uiOutput(ns("ratingsstatistics")),
-      shiny::uiOutput(ns("viewsstatistics")),
-      shiny::uiOutput(ns("resultsstatistics")),
-    ),
-    shiny::fluidRow(
-      #shiny::column(4, shiny::uiOutput(ns("vieworiginal"))),
-      shiny::column(6, shiny::uiOutput(ns("viewtranslation"))),
-      shiny::column(6, shiny::uiOutput(ns("edittranslation")))
+      shiny::column(1),
+      shiny::column(4, shiny::uiOutput(ns("editoriginal"))),
+      shiny::column(4, shiny::uiOutput(ns("edittranslation"))),
+      shiny::column(
+        3,
+        shiny::uiOutput(ns("ratingsstatistics")),
+        shiny::uiOutput(ns("viewsstatistics")),
+        shiny::uiOutput(ns("resultsstatistics"))
+      )
     ),
     shiny::tags$hr(),
     shiny::fluidRow(
