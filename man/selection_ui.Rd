@@ -2,12 +2,14 @@
 % Please edit documentation in R/selection_ui.R
 \name{selection_ui}
 \alias{selection_ui}
-\title{Sleect from a vector}
+\title{Select from a vector}
 \usage{
-selection_ui(id)
+selection_ui(id, selection_label = "Document:")
 }
 \arguments{
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
+
+\item{selection_label}{Character. Label to indicate what is being selected.}
 }
 \value{
 A list of course data.

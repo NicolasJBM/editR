@@ -33,5 +33,4 @@ Imports:
   stringr,
   tibble,
   tidyr,
-  fs,
-  lubridate
+  fs

@@ -1,8 +1,9 @@
 #' @name selection_ui
-#' @title Sleect from a vector
+#' @title Select from a vector
 #' @author Nicolas Mangin
 #' @description Module facilitating the selection of a specific value in a vector.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
+#' @param selection_label Character. Label to indicate what is being selected.
 #' @return A list of course data.
 #' @importFrom shiny actionButton
 #' @importFrom shiny column
@@ -15,7 +16,7 @@
 
 
 
-selection_ui <- function(id){
+selection_ui <- function(id, selection_label = "Document:"){
   ns <- shiny::NS(id)
   base::list(
     shiny::fluidRow(
@@ -31,7 +32,7 @@ selection_ui <- function(id){
       shiny::column(
         8,
         shiny::selectInput(
-          ns("slctvalue"), "Selected:",
+          ns("slctvalue"), selection_label,
           choices = "", selected = "",
           width = "100%"
         )
