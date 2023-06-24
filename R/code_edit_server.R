@@ -57,7 +57,7 @@ code_edit_server <- function(id, course_paths){
       } else {
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("tex","html","css","js"),
+          choices = c("tex","css","js"),
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
@@ -80,7 +80,6 @@ code_edit_server <- function(id, course_paths){
         Question = course_paths()$subfolders$templates_question,
         Report = course_paths()$subfolders$templates_report,
         tex = course_paths()$subfolders$exams,
-        html = course_paths()$subfolders$exams,
         css = course_paths()$subfolders$css,
         js = course_paths()$subfolders$js
       )
@@ -89,7 +88,7 @@ code_edit_server <- function(id, course_paths){
     code_list <- shiny::reactive({
       shiny::req(!base::is.null(folder_path()))
       codelist <- base::list.files(folder_path(), full.names = FALSE)
-      if (input$subtype %in% c("tex","html")){
+      if (input$subtype == "tex"){
         codelist <- codelist[stringr::str_detect(codelist, base::paste0(input$subtype, "$"))]
       }
       codelist
@@ -120,7 +119,6 @@ code_edit_server <- function(id, course_paths){
         Question = "markdown",
         Report = "markdown",
         tex = "tex",
-        html = "html",
         css = "css",
         js = "javascript"
       )
