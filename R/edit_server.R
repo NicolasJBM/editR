@@ -288,7 +288,7 @@ edit_server <- function(
           easyClose = TRUE
         ))
       } else {
-        editR::view_document(document_to_edit(),TRUE,course_data,course_paths)
+        editR::view_document(document_to_edit(),TRUE,course_paths)
       }
     })
 

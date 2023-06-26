@@ -54,8 +54,6 @@ view_document <- function(selected, original, course_paths){
   base::try(quarto::quarto_render(qmdpath, quiet = TRUE), silent = TRUE)
   
   if (!base::file.exists(htmlpath1)){
-    
-    
     ui <- shinydashboardPlus::box(
       width = 12, title = title, solidHeader = TRUE, status = "primary",
       collapsible = FALSE, collapsed = FALSE, height = "500px",
