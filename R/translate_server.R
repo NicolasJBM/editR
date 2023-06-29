@@ -114,8 +114,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
       translations <- language_status() |>
         dplyr::filter(type == "translation")
       shinyWidgets::radioGroupButtons(
-        inputId = ns("slctlang"),
-        label = "Language:", 
+        inputId = ns("slctlang"), label = NULL, 
         choiceNames = base::lapply(
           base::seq_along(translations$langiso), 
           function(i) shiny::tagList(
@@ -124,7 +123,8 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           )
         ),
         choiceValues = translations$langiso,
-        justified = TRUE
+        status = "primary", justified = FALSE, size = "sm",
+        checkIcon = base::list(yes = shiny::icon("check"))
       )
     })
     
