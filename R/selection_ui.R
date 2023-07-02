@@ -26,7 +26,7 @@ selection_ui <- function(id, selection_label = "Document:"){
           ns("prv"), "",
           icon = shiny::icon("circle-chevron-left"),
           style = "background-color:#003366;color:#FFF;width:100%;
-            height:75px;font-size:30px;text-align:center;"
+            height:75px;font-size:25px;text-align:center;padding:0;margin:0;"
         )
       ),
       shiny::column(
@@ -43,7 +43,7 @@ selection_ui <- function(id, selection_label = "Document:"){
           ns("nxt"), "",
           icon = shiny::icon("circle-chevron-right"),
           style = "background-color:#0099CC;color:#FFF;width:100%;
-            height:75px;font-size:30px;text-align:center;"
+            height:75px;font-size:25px;text-align:center;padding:0;margin:0;"
         )
       )
     ),
