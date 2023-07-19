@@ -40,11 +40,10 @@ translate_ui <- function(id){
       )
     ),
     shiny::fluidRow(
-      shiny::column(1),
       shiny::column(4, shiny::uiOutput(ns("editoriginal"))),
       shiny::column(4, shiny::uiOutput(ns("edittranslation"))),
       shiny::column(
-        3,
+        4,
         shiny::uiOutput(ns("ratingsstatistics")),
         shiny::uiOutput(ns("viewsstatistics")),
         shiny::uiOutput(ns("resultsstatistics"))

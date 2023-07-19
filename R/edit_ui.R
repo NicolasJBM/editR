@@ -48,12 +48,13 @@ edit_ui <- function(id){
         shiny::tags$hr(),
         shiny::uiOutput(ns("docinfo"))
       ),
-      shiny::column(6, shiny::uiOutput(ns("editdoc"))),
+      shiny::column(5, shiny::uiOutput(ns("editdoc"))),
       shiny::column(
-        3,
+        4,
         shiny::uiOutput(ns("ratingsstatistics")),
         shiny::uiOutput(ns("viewsstatistics")),
-        shiny::uiOutput(ns("resultsstatistics"))
+        shiny::uiOutput(ns("resultsstatistics")),
+        shiny::plotOutput(ns("questioncurve"))
       )
     ),
     shiny::fluidRow(

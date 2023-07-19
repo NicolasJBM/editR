@@ -33,4 +33,5 @@ Imports:
   stringr,
   tibble,
   tidyr,
-  fs
+  fs,
+  chartR

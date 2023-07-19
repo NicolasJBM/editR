@@ -7,7 +7,7 @@
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
 #' @param tree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
-#' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (questions are handled by another module).
+#' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", "Case" , or question
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
 #' @importFrom dplyr anti_join
 #' @importFrom dplyr arrange
@@ -168,7 +168,23 @@ edit_server <- function(
       shiny::req(selected_document() != "")
       make_infobox(course_data, selected_document(), "results")
     })
+    
+    
+    
+    
+    
+    output$questioncurve <- shiny::renderPlot({
+      shiny::req(doctype == "Question")
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(!base::is.null(course_data()$document_models))
+      shiny::req(selected_document() %in% course_data()$document_models$file)
+      selected_model <- course_data()$document_models |>
+        dplyr::filter(file == selected_document())
+      chartR::display_curve(selected_model$data[[1]])
+    })
 
+    
+    
 
 
     # Display document #########################################################

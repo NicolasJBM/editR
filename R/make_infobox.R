@@ -138,7 +138,7 @@ make_infobox <- function(course_data, selected_file, infotype){
           ),
           shinydashboard::valueBox(
             document_parameters$success,
-            "success",
+            "% Success",
             icon = shiny::icon("thumbs-up"),
             color = document_parameters$success_color,
             width = 12
@@ -148,14 +148,14 @@ make_infobox <- function(course_data, selected_file, infotype){
           4,
           shinydashboard::valueBox(
             document_parameters$difficulty,
-            "difficulty",
+            "Difficulty",
             icon = shiny::icon("graduation-cap"),
             color = document_parameters$difficulty_color,
             width = 12
           ),
           shinydashboard::valueBox(
             document_parameters$discrimination,
-            "discrimination",
+            "Discrimination",
             icon = shiny::icon("circle-half-stroke"),
             color = document_parameters$discrimination_color,
             width = 12
@@ -165,14 +165,14 @@ make_infobox <- function(course_data, selected_file, infotype){
           4,
           shinydashboard::valueBox(
             document_parameters$guess,
-            "guess",
+            "% Guess",
             icon = shiny::icon("dice"),
             color = document_parameters$guess_color,
             width = 12
           ),
           shinydashboard::valueBox(
             document_parameters$accuracy,
-            "accuracy",
+            "% Accuracy",
             icon = shiny::icon("bullseye"),
             color = document_parameters$accuracy_color,
             width = 12

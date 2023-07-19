@@ -17,7 +17,7 @@ edit_server(id, filtered, course_data, tree, course_paths, doctype)
 
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
 
-\item{doctype}{Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (questions are handled by another module).}
+\item{doctype}{Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", "Case" , or question}
 }
 \value{
 Save the new or modified page in the folder "2_documents/main_language/".
