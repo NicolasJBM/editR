@@ -169,10 +169,6 @@ edit_server <- function(
       make_infobox(course_data, selected_document(), "results")
     })
     
-    
-    
-    
-    
     output$questioncurve <- shiny::renderPlot({
       shiny::req(doctype == "Question")
       shiny::req(!base::is.null(selected_document()))
@@ -182,11 +178,9 @@ edit_server <- function(
         dplyr::filter(file == selected_document())
       chartR::display_curve(selected_model$data[[1]])
     })
-
     
     
-
-
+    
     # Display document #########################################################
 
     document_to_edit <- shiny::reactive({
