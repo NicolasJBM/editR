@@ -50,7 +50,7 @@ code_edit_ui <- function(id){
             shiny::actionButton(
               ns("codeinrstudio"), "RStutio",
               icon = shiny::icon("r-project"),
-              style = "background-color:#336666;color:#FFF;width:100%;margin-bottom:10px;"
+              style = "background-color:#003366;color:#FFF;width:100%;margin-bottom:10px;"
             )
           ),
           shiny::column(
