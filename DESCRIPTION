@@ -15,20 +15,22 @@ Depends: R (>= 3.6)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
-  dplyr,
-  rstudioapi,
-  shiny,
-  shinyAce,
-  shinyWidgets,
-  shinyalert,
-  stringr,
-  shinydashboardPlus,
-  knitr,
-  chartR,
-  rhandsontable,
-  tibble,
-  tidyr,
-  shinydashboard,
-  purrr,
-  quarto,
-  shinybusy
+    dplyr,
+    rstudioapi,
+    shiny,
+    shinyAce,
+    shinyWidgets,
+    shinyalert,
+    stringr,
+    shinydashboardPlus,
+    knitr,
+    rhandsontable,
+    tibble,
+    tidyr,
+    shinydashboard,
+    purrr,
+    quarto,
+    shinybusy,
+    chartR
+Remotes:
+    NicolasJBM/chartR

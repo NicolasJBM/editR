@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # editR
 
 <!-- badges: start -->
+[![DOI](https://zenodo.org/badge/530586024.svg)](https://zenodo.org/badge/latestdoi/530586024)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN status](https://www.r-pkg.org/badges/version/editR)](https://CRAN.R-project.org/package=editR)
 [![R-CMD-check](https://github.com/NicolasJBM/editR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/NicolasJBM/editR/actions/workflows/R-CMD-check.yaml)
