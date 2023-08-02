@@ -1,37 +1,34 @@
 Package: editR
-Type: Package
-Title: Toolbox to edit and classify documents
-Version: 1.1
-Date: 2020-08-22
+Title: Edit documents
+Version: 1.30
+Date: 2023-08-02
 Authors@R: 
     person(given = "Nicolas",
            family = "Mangin",
            role = c("aut", "cre"),
            email = "nicolas.jb.mangin@gmail.com",
            comment = c(ORCID = "0000-0002-1597-9376"))
-Description: Functions and interfaces to facilitate the edition of and classification of documents.
+Description: Functions and interfaces to facilitate the edition of documents in the scholR set of packages.
 Encoding: UTF-8
 License: GPL-3 | file LICENSE
 Depends: R (>= 3.6)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
-  knitr,
   dplyr,
-  purrr,
-  rmarkdown,
-  quarto,
   rstudioapi,
-  rhandsontable,
   shiny,
   shinyAce,
-  shinyalert,
-  shinybusy,
-  shinydashboard,
-  shinydashboardPlus,
   shinyWidgets,
+  shinyalert,
   stringr,
+  shinydashboardPlus,
+  knitr,
+  chartR,
+  rhandsontable,
   tibble,
   tidyr,
-  fs,
-  chartR
+  shinydashboard,
+  purrr,
+  quarto,
+  shinybusy

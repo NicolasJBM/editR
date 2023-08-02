@@ -2,7 +2,7 @@
 % Please edit documentation in R/code_edit_server.R
 \name{code_edit_server}
 \alias{code_edit_server}
-\title{Edit functions, templates, and css}
+\title{Edit functions, templates, and styles}
 \usage{
 code_edit_server(id, course_paths)
 }
@@ -12,10 +12,10 @@ code_edit_server(id, course_paths)
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
 }
 \value{
-Save the new or modified function in the folder "1_preparation/functions".
+Save the new or modified function in the appropriate function, template, or edition folder.
 }
 \description{
-Module facilitating the quick creation or modification of functions, templates, or css used in documents.
+Module facilitating the quick creation or modification of functions, templates, or stylesheets used as or on documents.
 }
 \author{
 Nicolas Mangin

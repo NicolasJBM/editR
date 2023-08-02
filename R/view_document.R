@@ -1,20 +1,19 @@
 #' @name view_document
-#' @title Display a document for view only.
+#' @title Preview a document.
 #' @author Nicolas Mangin
 #' @description Function creating the user interface to see formatted documents.
 #' @param selected Tibble. Selected document.
 #' @param original Logical. Whether the document is the original (TRUE) or a translation (FALSE).
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @return User interface showing the formatted document.
-#' @importFrom knitr knit2html
-#' @importFrom rmarkdown render
-#' @importFrom shiny column
-#' @importFrom shiny fluidRow
-#' @importFrom shiny HTML
-#' @importFrom shiny withMathJax
-#' @importFrom shinydashboardPlus box
-#' @importFrom fs dir_delete
 #' @importFrom quarto quarto_render
+#' @importFrom shiny h2
+#' @importFrom shiny req
+#' @importFrom shinybusy remove_modal_spinner
+#' @importFrom shinybusy show_modal_spinner
+#' @importFrom shinydashboardPlus box
+#' @importFrom stringr str_detect
+#' @importFrom stringr str_remove
 #' @export
 
 view_document <- function(selected, original, course_paths){

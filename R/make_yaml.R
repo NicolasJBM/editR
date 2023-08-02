@@ -1,11 +1,10 @@
 #' @name make_yaml
 #' @title Create yaml for various documents
 #' @author Nicolas Mangin
-#' @description Make YAML to be inserted at the beginning of the document to render via quarto.
+#' @description Make YAML to be inserted at the beginning of the document exported to be rendered via quarto.
 #' @param selected Tibble. Document for which the de YAML should be created.
 #' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (Questions have no YAML).
 #' @return YAML as a character vector.
-#' @importFrom dplyr filter
 #' @export
 
 make_yaml <- function(selected, doctype){

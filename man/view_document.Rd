@@ -2,7 +2,7 @@
 % Please edit documentation in R/view_document.R
 \name{view_document}
 \alias{view_document}
-\title{Display a document for view only.}
+\title{Preview a document.}
 \usage{
 view_document(selected, original, course_paths)
 }

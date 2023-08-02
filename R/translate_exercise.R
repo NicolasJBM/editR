@@ -1,14 +1,14 @@
 #' @name translate_exercise
 #' @title Translate exercise
 #' @author Nicolas Mangin
-#' @description Function replacing propositions and explanation by their translations
+#' @description Function replacing propositions and explanations by their translations
 #' @param exercise Tibble. Exercise table in the main language.
 #' @param translations Tibble. Table associating translations to propositions.
-#' @param languiso Character. ISO2 code of the language.
-#' @return Tibble. Tanslated exercise.
+#' @param languiso Character. ISO2 code of the language in which propositions and explanations should be translated.
+#' @return Tibble. Translated exercise.
 #' @importFrom dplyr filter
-#' @importFrom dplyr select
 #' @importFrom dplyr left_join
+#' @importFrom dplyr select
 #' @export
 
 
@@ -33,5 +33,5 @@ translate_exercise <- function(exercise, translations, languiso){
     dplyr::select(-explanation, -proposition) |>
     dplyr::left_join(selection, by = "item")
   
-  translated[,base::names(exercise)]
+  translated[, base::names(exercise)]
 }

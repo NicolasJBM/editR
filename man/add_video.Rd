@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_video.R
 \name{add_video}
 \alias{add_video}
-\title{Embed video}
+\title{Embed a video}
 \usage{
 add_video(vid, width = "100\%", height = "100\%", start = 0, host = "Youtube")
 }
@@ -21,7 +21,7 @@ add_video(vid, width = "100\%", height = "100\%", start = 0, host = "Youtube")
 Write the HTML code embedding the videos.
 }
 \description{
-Function embedding a video as an ifram in an html page
+Function embedding a video as an iframe in a html page
 }
 \author{
 Nicolas Mangin

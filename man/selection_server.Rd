@@ -2,7 +2,7 @@
 % Please edit documentation in R/selection_server.R
 \name{selection_server}
 \alias{selection_server}
-\title{Sleect from a vector}
+\title{Select dynamically from a vector}
 \usage{
 selection_server(id, selection_base)
 }
@@ -12,10 +12,10 @@ selection_server(id, selection_base)
 \item{selection_base}{Reactive. Function containing a list of values from which to choose.}
 }
 \value{
-A list of course data.
+The selected element of the supplied vector.
 }
 \description{
-Module facilitating the selection of a specific value in a vector.
+Module facilitating the selection of a specific value in a vector by cycling through elements of a vector.
 }
 \author{
 Nicolas Mangin

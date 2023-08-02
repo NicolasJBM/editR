@@ -3,14 +3,13 @@
 #' @author Nicolas Mangin
 #' @description Function reformating a note as a blog post with adequate tags.
 #' @param selected_document Character. Name of the note destined to be published.
-#' @param course_paths List.
+#' @param course_paths List. List of paths to either databases or documents.
 #' @param translation Logical. Whether the source document is in the folder "translated" rather than "original".
 #' @return Write post in the folder "4_materials/blog".
-#' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom dplyr starts_with
 #' @importFrom shinyalert shinyalert
-#' @importFrom shinybusy remove_modal_spinner
+#' @importFrom stringr str_detect
 #' @importFrom stringr str_extract
 #' @importFrom stringr str_remove_all
 #' @export

@@ -12,17 +12,17 @@ add_form(
 )
 }
 \arguments{
-\item{sourcename}{Character.}
+\item{sourcename}{Character. Name of the publication (blogpost, textbook, or presentation)}
 
-\item{filename}{Character.}
+\item{filename}{Character. Code and language of the document.}
 
-\item{message}{Character.}
+\item{message}{Character. Comment entered by the reader.}
 }
 \value{
 Write the HTML code for the form in the page
 }
 \description{
-Function writing the HTML code to give the possibility to make comments.
+Function writing the HTML code to give the possibility to make comments at the end of a page or presentation. Note that this requires to adapt the javascript function so that the comment goes to the appropriate Google form.
 }
 \author{
 Nicolas Mangin

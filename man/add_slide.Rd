@@ -66,7 +66,7 @@ add_slide(
 Character. Write the first rows of a RevealJS slide formatted for quarto.
 }
 \description{
-Function writing a quarto revealjs slide according to the user specifications.
+Function writing a quarto revealjs slide according to the user's specifications.
 }
 \author{
 Nicolas Mangin

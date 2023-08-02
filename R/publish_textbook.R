@@ -2,10 +2,10 @@
 #' @title Compile a textbook
 #' @author Nicolas Mangin
 #' @description Function loading a tree and compiling the corresponding textbook. Pages are formatted and organized so that they can then be added to a quarto website.
-#' @param tree List.
-#' @param course_paths List.
-#' @param languages Tibble
-#' @return Write folders and pages to disk in the folder "4_materials/textbooks".
+#' @param tree List. Selected tree to retrieve the position of the presentation.
+#' @param course_paths List. List of paths to either databases or documents.
+#' @param languages Tibble. List of managed languages.
+#' @return Write folders and pages to disk in the textbook folder.
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select

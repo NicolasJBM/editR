@@ -1,9 +1,9 @@
 #' @name name_new_item
 #' @title New item name
 #' @author Nicolas Mangin
-#' @description Function creating a name for a new item in feedbacks.
+#' @description Function creating a new ID for a new item in the propositions database. Note that item IDs which have been removed will be reassigned.
 #' @param existing_names Character vector. Item names already assigned.
-#' @return Character string. New item name.
+#' @return Character string. New item ID.
 #' @importFrom stringr str_remove_all
 #' @export
 

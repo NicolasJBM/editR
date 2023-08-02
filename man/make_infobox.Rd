@@ -11,7 +11,7 @@ make_infobox(course_data, selected_file, infotype)
 
 \item{selected_file}{Character. Name of the file for which statistics should be displayed.}
 
-\item{infotype}{Character. Whether the infobox should display statistics about ratings, views, results, or comments.}
+\item{infotype}{Character. Whether the infobox should display statistics about "ratings", "views", or "results" (comments are not implemented yet).}
 }
 \value{
 Shinydashboard infoboxes

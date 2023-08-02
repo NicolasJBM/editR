@@ -24,7 +24,7 @@ add_animated_letters(
 Write the quarto code for the animation.
 }
 \description{
-Apply css animation separately for each letter of the entered text
+Apply css animation separately for each letter of the entered text.
 }
 \author{
 Nicolas Mangin

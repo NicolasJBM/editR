@@ -1,7 +1,7 @@
 #' @name make_tree_path
-#' @title Report the position of a document in a tree
+#' @title Report the position of a document in a tree.
 #' @author Nicolas Mangin
-#' @description Function showing the path to the selected document.
+#' @description Function showing the path to the selected document in the selected tree.
 #' @param doc Character. File name of the selected document.
 #' @param tree Tibble. Tree in which the document should be positioned.
 #' @return Character string indicating the path to the document in the tree.

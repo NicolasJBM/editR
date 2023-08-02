@@ -1,12 +1,12 @@
 #' @name selection_server
-#' @title Sleect from a vector
+#' @title Select dynamically from a vector
 #' @author Nicolas Mangin
-#' @description Module facilitating the selection of a specific value in a vector.
+#' @description Module facilitating the selection of a specific value in a vector by cycling through elements of a vector.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param selection_base Reactive. Function containing a list of values from which to choose.
-#' @return A list of course data.
-#' @importFrom shiny moduleServer
+#' @return The selected element of the supplied vector.
 #' @importFrom shiny NS
+#' @importFrom shiny moduleServer
 #' @importFrom shiny observe
 #' @importFrom shiny observeEvent
 #' @importFrom shiny reactive

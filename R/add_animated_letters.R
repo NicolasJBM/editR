@@ -1,7 +1,7 @@
 #' @name add_animated_letters
 #' @title Apply css animation
 #' @author Nicolas Mangin
-#' @description Apply css animation separately for each letter of the entered text
+#' @description Apply css animation separately for each letter of the entered text.
 #' @param text Character Text to which the animation should be applied letter by letter.
 #' @param animation Character. The kind of animation: "semi-fade-out", "grow", "shrink", "zoom-in", "strike", "fade-out", "fade-up", "fade-down", "fade-right", "fade-left", "highlight-red", "highlight-green", "highlight-blue"
 #' @param color Character. CSS specification of the font size.

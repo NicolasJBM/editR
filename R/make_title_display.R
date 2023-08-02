@@ -1,20 +1,18 @@
 #' @name make_title_display
 #' @title Create a title for a document
 #' @author Nicolas Mangin
-#' @description Function making a title with all relevant information for document displays
+#' @description Function making a title with all relevant information about the document, including icons for associated tags.
 #' @param selected_document Tibble. Document selected for display.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
 #' @return Character. Title to display for the document.
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom dplyr starts_with
-#' @importFrom tidyr pivot_longer
-#' @importFrom stats na.omit
-#' @importFrom dplyr left_join
-#' @importFrom dplyr select
-#' @importFrom dplyr mutate
 #' @importFrom purrr map
-#' @importFrom shiny span
 #' @importFrom shiny icon
+#' @importFrom shiny span
+#' @importFrom tidyr pivot_longer
 #' @export
 
 

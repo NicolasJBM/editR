@@ -12,10 +12,10 @@ selection_ui(id, selection_label = "Document:")
 \item{selection_label}{Character. Label to indicate what is being selected.}
 }
 \value{
-A list of course data.
+The selected element of the supplied vector.
 }
 \description{
-Module facilitating the selection of a specific value in a vector.
+Module facilitating the selection of a specific value in a vector by cycling through elements of a vector.
 }
 \author{
 Nicolas Mangin

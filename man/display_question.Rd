@@ -2,7 +2,7 @@
 % Please edit documentation in R/display_question.R
 \name{display_question}
 \alias{display_question}
-\title{Display a question in the interface.}
+\title{Display the preview of a question.}
 \usage{
 display_question(selected, course_paths, test_parameters = NA)
 }
@@ -17,7 +17,7 @@ display_question(selected, course_paths, test_parameters = NA)
 User interface showing the question within the interface, not as a modal.
 }
 \description{
-Function creating the user interface to see formatted documents.
+Function creating a preview of a question embedded in a shiny dashboard, not as a model.
 }
 \author{
 Nicolas Mangin

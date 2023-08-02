@@ -9,7 +9,7 @@ publish_note(selected_document, course_paths, translation = FALSE)
 \arguments{
 \item{selected_document}{Character. Name of the note destined to be published.}
 
-\item{course_paths}{List.}
+\item{course_paths}{List. List of paths to either databases or documents.}
 
 \item{translation}{Logical. Whether the source document is in the folder "translated" rather than "original".}
 }

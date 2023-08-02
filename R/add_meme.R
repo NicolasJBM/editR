@@ -1,7 +1,7 @@
 #' @name add_meme
-#' @title Insert a slide
+#' @title Insert a meme slide
 #' @author Nicolas Mangin
-#' @description Function writing a revealjs slide according to the user specifications.
+#' @description Function writing a meme as a revealjs slide.
 #' @param text_above Character. Sentence written above the image_url or video.
 #' @param image_url Character. Address of the background image_url.
 #' @param text_below Character. Sentence written below the image_url or video. 
@@ -9,7 +9,6 @@
 #' @param trans_back Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
 #' @param trans_data Character. Type of transition for data: fade, slide, convex, concave, or zoom.
 #' @return Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.
-#' @importFrom dplyr case_when
 #' @export
 
 

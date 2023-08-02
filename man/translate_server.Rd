@@ -18,7 +18,7 @@ translate_server(id, filtered, course_data, tree, course_paths)
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
 }
 \value{
-Create and save documents' translations in a dedicated folder.
+Create and save documents' translations in the dedicated basis subfolder.
 }
 \description{
 Module facilitating the translation of documents.

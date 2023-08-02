@@ -1,7 +1,7 @@
 #' @name add_slide
 #' @title Insert a slide
 #' @author Nicolas Mangin
-#' @description Function writing a quarto revealjs slide according to the user specifications.
+#' @description Function writing a quarto revealjs slide according to the user's specifications.
 #' @param title Character. Title of the slide. If NA, the slide does not include separation.
 #' @param section Logical. True if this is a section-title slide.
 #' @param color Character. Background color.

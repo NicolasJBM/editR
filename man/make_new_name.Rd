@@ -15,7 +15,7 @@ make_new_name(firstletter, course_paths)
 Character. Name of a new document to be created.
 }
 \description{
-Function listing the names of the existing documents and making a new name by adding one to the highest value. This ensures that no old number is assigned again.
+Function listing the names of existing documents and making a new name by adding one to the highest existing increment. This ensures that no old number is assigned again.
 }
 \author{
 Nicolas Mangin

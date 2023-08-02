@@ -1,21 +1,24 @@
 #' @name publish_presentation
 #' @title Export a slide presentation
 #' @author Nicolas Mangin
-#' @description Function copying a presentation in the appropriate tree folder in 4_materials/presentation
-#' @param tree List.
+#' @description Function copying a presentation in the appropriate tree subfolder in the presentation folder
+#' @param tree List. Selected tree to retrieve the position of the presentation.
 #' @param selected_document Character. Name of the note destined to be published.
-#' @param course_paths List.
-#' @return Write presentation in the folder "4_materials/presentation".
+#' @param course_paths List. List of paths to either databases or documents.
+#' @return Write presentation in the appropriate subfolder of presentations.
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom fs dir_copy
+#' @importFrom quarto quarto_render
 #' @importFrom shinyalert shinyalert
+#' @importFrom shinybusy remove_modal_spinner
+#' @importFrom shinybusy show_modal_spinner
+#' @importFrom stringr fixed
 #' @importFrom stringr str_detect
 #' @importFrom stringr str_extract_all
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_remove_all
-#' @importFrom quarto quarto_render
+#' @importFrom stringr str_replace_all
 #' @export
 
 

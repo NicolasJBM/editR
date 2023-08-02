@@ -10,10 +10,10 @@ name_new_item(existing_names = NULL)
 \item{existing_names}{Character vector. Item names already assigned.}
 }
 \value{
-Character string. New item name.
+Character string. New item ID.
 }
 \description{
-Function creating a name for a new item in feedbacks.
+Function creating a new ID for a new item in the propositions database. Note that item IDs which have been removed will be reassigned.
 }
 \author{
 Nicolas Mangin

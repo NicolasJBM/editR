@@ -9,16 +9,17 @@
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", "Case" , or question
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
+#' @importFrom chartR display_curve
 #' @importFrom dplyr anti_join
 #' @importFrom dplyr arrange
 #' @importFrom dplyr bind_rows
-#' @importFrom dplyr case_when
 #' @importFrom dplyr desc
 #' @importFrom dplyr filter
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr mutate_if
 #' @importFrom dplyr select
+#' @importFrom knitr knit2html
 #' @importFrom rhandsontable hot_col
 #' @importFrom rhandsontable hot_cols
 #' @importFrom rhandsontable hot_context_menu
@@ -26,6 +27,8 @@
 #' @importFrom rhandsontable renderRHandsontable
 #' @importFrom rhandsontable rhandsontable
 #' @importFrom rstudioapi navigateToFile
+#' @importFrom shiny HTML
+#' @importFrom shiny NS
 #' @importFrom shiny actionButton
 #' @importFrom shiny column
 #' @importFrom shiny fluidRow
@@ -34,17 +37,17 @@
 #' @importFrom shiny modalButton
 #' @importFrom shiny modalDialog
 #' @importFrom shiny moduleServer
-#' @importFrom shiny NS
 #' @importFrom shiny observeEvent
 #' @importFrom shiny reactive
 #' @importFrom shiny removeModal
+#' @importFrom shiny renderPlot
 #' @importFrom shiny renderUI
 #' @importFrom shiny req
 #' @importFrom shiny selectInput
 #' @importFrom shiny showModal
 #' @importFrom shiny sliderInput
 #' @importFrom shiny tagList
-#' @importFrom shiny wellPanel
+#' @importFrom shiny withMathJax
 #' @importFrom shinyAce aceEditor
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinydashboardPlus box
@@ -52,7 +55,6 @@
 #' @importFrom stringr str_replace_all
 #' @importFrom stringr str_split
 #' @importFrom tibble tibble
-#' @importFrom utils browseURL
 #' @export
 
 

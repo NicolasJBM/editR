@@ -13,7 +13,7 @@ get_tags(path)
 A single-row tibble with all the tags from a document.
 }
 \description{
-Function reading a document and retrieving the tags in meta-information.
+Function reading a document and retrieving the tags listed in the meta-information at the end.
 }
 \author{
 Nicolas Mangin

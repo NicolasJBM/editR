@@ -3,13 +3,14 @@
 #' @author Nicolas Mangin
 #' @description Module facilitating the translation of documents.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
-#' @return Create and save documents' translations in a dedicated folder.
+#' @return Create and save documents' translations in the dedicated basis subfolder.
+#' @importFrom rhandsontable rHandsontableOutput
+#' @importFrom shiny NS
+#' @importFrom shiny actionButton
 #' @importFrom shiny column
 #' @importFrom shiny fluidRow
 #' @importFrom shiny icon
-#' @importFrom shiny NS
 #' @importFrom shiny uiOutput
-#' @importFrom shinyWidgets checkboxGroupButtons
 #' @export
 
 

@@ -7,14 +7,14 @@
 publish_textbook(tree, course_paths, languages)
 }
 \arguments{
-\item{tree}{List.}
+\item{tree}{List. Selected tree to retrieve the position of the presentation.}
 
-\item{course_paths}{List.}
+\item{course_paths}{List. List of paths to either databases or documents.}
 
-\item{languages}{Tibble}
+\item{languages}{Tibble. List of managed languages.}
 }
 \value{
-Write folders and pages to disk in the folder "4_materials/textbooks".
+Write folders and pages to disk in the textbook folder.
 }
 \description{
 Function loading a tree and compiling the corresponding textbook. Pages are formatted and organized so that they can then be added to a quarto website.

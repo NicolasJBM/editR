@@ -11,13 +11,13 @@ translate_exercise(exercise, translations, languiso)
 
 \item{translations}{Tibble. Table associating translations to propositions.}
 
-\item{languiso}{Character. ISO2 code of the language.}
+\item{languiso}{Character. ISO2 code of the language in which propositions and explanations should be translated.}
 }
 \value{
-Tibble. Tanslated exercise.
+Tibble. Translated exercise.
 }
 \description{
-Function replacing propositions and explanation by their translations
+Function replacing propositions and explanations by their translations
 }
 \author{
 Nicolas Mangin

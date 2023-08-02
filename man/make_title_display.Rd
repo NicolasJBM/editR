@@ -15,7 +15,7 @@ make_title_display(selected_document, course_data)
 Character. Title to display for the document.
 }
 \description{
-Function making a title with all relevant information for document displays
+Function making a title with all relevant information about the document, including icons for associated tags.
 }
 \author{
 Nicolas Mangin

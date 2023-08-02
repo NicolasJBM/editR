@@ -1,15 +1,15 @@
 #' @name selection_ui
 #' @title Select from a vector
 #' @author Nicolas Mangin
-#' @description Module facilitating the selection of a specific value in a vector.
+#' @description Module facilitating the selection of a specific value in a vector by cycling through elements of a vector.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param selection_label Character. Label to indicate what is being selected.
-#' @return A list of course data.
+#' @return The selected element of the supplied vector.
+#' @importFrom shiny NS
 #' @importFrom shiny actionButton
 #' @importFrom shiny column
 #' @importFrom shiny fluidRow
 #' @importFrom shiny icon
-#' @importFrom shiny NS
 #' @importFrom shiny selectInput
 #' @importFrom shiny uiOutput
 #' @export

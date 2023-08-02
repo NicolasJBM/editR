@@ -1,13 +1,14 @@
 #' @name publish_script
 #' @title Format a video as a script
 #' @author Nicolas Mangin
-#' @description Function taking only the lines supposed to be uttered and exporting them into a .txt file which can be read by a prompter.
+#' @description Function taking only the lines supposed to be uttered and exporting them into a .txt file which can be read for a prompter.
 #' @param selected_document Character. Name of the note destined to be published.
-#' @param course_paths List.
+#' @param course_paths List. List of paths to either databases or documents.
 #' @param translation Logical. Whether the source document is in the folder "translated" rather than "original".
 #' @return Write post in the folder "4_materials/blog".
 #' @importFrom shinyalert shinyalert
 #' @importFrom stringr str_detect
+#' @importFrom stringr str_extract
 #' @importFrom stringr str_remove_all
 #' @export
 

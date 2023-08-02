@@ -1,17 +1,17 @@
 #' @name code_edit_server
-#' @title Edit functions, templates, and css
+#' @title Edit functions, templates, and styles
 #' @author Nicolas Mangin
-#' @description Module facilitating the quick creation or modification of functions, templates, or css used in documents.
+#' @description Module facilitating the quick creation or modification of functions, templates, or stylesheets used as or on documents.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
-#' @return Save the new or modified function in the folder "1_preparation/functions".
+#' @return Save the new or modified function in the appropriate function, template, or edition folder.
 #' @importFrom rstudioapi navigateToFile
+#' @importFrom shiny NS
 #' @importFrom shiny actionButton
 #' @importFrom shiny icon
 #' @importFrom shiny modalButton
 #' @importFrom shiny modalDialog
 #' @importFrom shiny moduleServer
-#' @importFrom shiny NS
 #' @importFrom shiny observeEvent
 #' @importFrom shiny reactive
 #' @importFrom shiny removeModal
@@ -21,8 +21,9 @@
 #' @importFrom shiny showModal
 #' @importFrom shiny textInput
 #' @importFrom shinyAce aceEditor
-#' @importFrom shinyalert shinyalert
 #' @importFrom shinyWidgets radioGroupButtons
+#' @importFrom shinyalert shinyalert
+#' @importFrom stringr str_detect
 #' @export
 
 

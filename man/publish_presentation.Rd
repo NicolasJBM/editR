@@ -7,17 +7,17 @@
 publish_presentation(tree, selected_document, course_paths)
 }
 \arguments{
-\item{tree}{List.}
+\item{tree}{List. Selected tree to retrieve the position of the presentation.}
 
 \item{selected_document}{Character. Name of the note destined to be published.}
 
-\item{course_paths}{List.}
+\item{course_paths}{List. List of paths to either databases or documents.}
 }
 \value{
-Write presentation in the folder "4_materials/presentation".
+Write presentation in the appropriate subfolder of presentations.
 }
 \description{
-Function copying a presentation in the appropriate tree folder in 4_materials/presentation
+Function copying a presentation in the appropriate tree subfolder in the presentation folder
 }
 \author{
 Nicolas Mangin

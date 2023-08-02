@@ -7,7 +7,7 @@
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
 #' @param tree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
-#' @return Create and save documents' translations in a dedicated folder.
+#' @return Create and save documents' translations in the dedicated basis subfolder.
 #' @importFrom dplyr anti_join
 #' @importFrom dplyr arrange
 #' @importFrom dplyr bind_rows
@@ -16,6 +16,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr mutate_all
 #' @importFrom dplyr select
+#' @importFrom knitr knit2html
 #' @importFrom purrr map
 #' @importFrom purrr map_lgl
 #' @importFrom rhandsontable hot_col
@@ -25,6 +26,22 @@
 #' @importFrom rhandsontable renderRHandsontable
 #' @importFrom rhandsontable rhandsontable
 #' @importFrom rstudioapi navigateToFile
+#' @importFrom shiny HTML
+#' @importFrom shiny NS
+#' @importFrom shiny actionButton
+#' @importFrom shiny column
+#' @importFrom shiny fluidRow
+#' @importFrom shiny icon
+#' @importFrom shiny isolate
+#' @importFrom shiny modalDialog
+#' @importFrom shiny moduleServer
+#' @importFrom shiny observeEvent
+#' @importFrom shiny reactive
+#' @importFrom shiny renderUI
+#' @importFrom shiny req
+#' @importFrom shiny showModal
+#' @importFrom shiny tagList
+#' @importFrom shiny withMathJax
 #' @importFrom shinyAce aceEditor
 #' @importFrom shinyWidgets radioGroupButtons
 #' @importFrom shinyalert shinyalert

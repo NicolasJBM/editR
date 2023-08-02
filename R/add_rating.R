@@ -1,10 +1,10 @@
 #' @name add_rating
 #' @title Add star rating
 #' @author Nicolas Mangin
-#' @description Function writing the HTML code to include the page star rating.
-#' @param sourcename Character. 
-#' @param filename Character. 
-#' @param message Character. 
+#' @description Function writing the HTML code to include the page star rating. Note that this requires to adapt the javascript function so that the comment goes to the appropriate Google form.
+#' @param sourcename Character. Name of the publication (blogpost, textbook, or presentation)
+#' @param filename Character. Code and language of the document.
+#' @param message Character. Comment entered by the reader.
 #' @return Write the HTML code for the star rating in the page
 #' @export
 

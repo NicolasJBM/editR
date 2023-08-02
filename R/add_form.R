@@ -1,10 +1,10 @@
 #' @name add_form
 #' @title Add a form for comments
 #' @author Nicolas Mangin
-#' @description Function writing the HTML code to give the possibility to make comments.
-#' @param sourcename Character. 
-#' @param filename Character. 
-#' @param message Character. 
+#' @description Function writing the HTML code to give the possibility to make comments at the end of a page or presentation. Note that this requires to adapt the javascript function so that the comment goes to the appropriate Google form.
+#' @param sourcename Character. Name of the publication (blogpost, textbook, or presentation)
+#' @param filename Character. Code and language of the document.
+#' @param message Character. Comment entered by the reader.
 #' @return Write the HTML code for the form in the page
 #' @export
 

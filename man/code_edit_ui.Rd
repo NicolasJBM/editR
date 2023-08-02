@@ -10,10 +10,10 @@ code_edit_ui(id)
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
 }
 \value{
-Save the new or modified function in the folder "1_preparation/functions".
+Save the new or modified function in the appropriate function, template, or edition folder.
 }
 \description{
-Module facilitating the quick creation or modification of functions used in documents.
+Module facilitating the quick creation or modification of functions, templates, or stylesheets used as or on documents.
 }
 \author{
 Nicolas Mangin

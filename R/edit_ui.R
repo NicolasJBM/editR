@@ -5,11 +5,11 @@
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @return Save the new or modified document in the original documents folder.
 #' @importFrom rhandsontable rHandsontableOutput
+#' @importFrom shiny NS
 #' @importFrom shiny actionButton
 #' @importFrom shiny column
 #' @importFrom shiny fluidRow
 #' @importFrom shiny icon
-#' @importFrom shiny NS
 #' @importFrom shiny plotOutput
 #' @importFrom shiny uiOutput
 #' @export

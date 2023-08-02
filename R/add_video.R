@@ -1,7 +1,7 @@
 #' @name add_video
-#' @title Embed video
+#' @title Embed a video
 #' @author Nicolas Mangin
-#' @description Function embedding a video as an ifram in an html page
+#' @description Function embedding a video as an iframe in a html page
 #' @param vid Character. ID of the video.
 #' @param width Character. Width of the video.
 #' @param height Character. Height of the video.

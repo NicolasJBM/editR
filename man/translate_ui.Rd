@@ -10,7 +10,7 @@ translate_ui(id)
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
 }
 \value{
-Create and save documents' translations in a dedicated folder.
+Create and save documents' translations in the dedicated basis subfolder.
 }
 \description{
 Module facilitating the translation of documents.

@@ -1,16 +1,17 @@
 #' @name code_edit_ui
 #' @title Edit functions
 #' @author Nicolas Mangin
-#' @description Module facilitating the quick creation or modification of functions used in documents.
+#' @description Module facilitating the quick creation or modification of functions, templates, or stylesheets used as or on documents.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
-#' @return Save the new or modified function in the folder "1_preparation/functions".
+#' @return Save the new or modified function in the appropriate function, template, or edition folder.
+#' @importFrom shiny NS
 #' @importFrom shiny actionButton
 #' @importFrom shiny column
 #' @importFrom shiny fluidRow
 #' @importFrom shiny icon
-#' @importFrom shiny NS
 #' @importFrom shiny uiOutput
 #' @importFrom shinyWidgets radioGroupButtons
+#' @importFrom shinydashboardPlus box
 #' @export
 
 

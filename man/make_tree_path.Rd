@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_tree_path.R
 \name{make_tree_path}
 \alias{make_tree_path}
-\title{Report the position of a document in a tree}
+\title{Report the position of a document in a tree.}
 \usage{
 make_tree_path(doc, tree)
 }
@@ -15,7 +15,7 @@ make_tree_path(doc, tree)
 Character string indicating the path to the document in the tree.
 }
 \description{
-Function showing the path to the selected document.
+Function showing the path to the selected document in the selected tree.
 }
 \author{
 Nicolas Mangin

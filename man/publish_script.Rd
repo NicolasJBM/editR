@@ -9,7 +9,7 @@ publish_script(selected_document, course_paths, translation = FALSE)
 \arguments{
 \item{selected_document}{Character. Name of the note destined to be published.}
 
-\item{course_paths}{List.}
+\item{course_paths}{List. List of paths to either databases or documents.}
 
 \item{translation}{Logical. Whether the source document is in the folder "translated" rather than "original".}
 }
@@ -17,7 +17,7 @@ publish_script(selected_document, course_paths, translation = FALSE)
 Write post in the folder "4_materials/blog".
 }
 \description{
-Function taking only the lines supposed to be uttered and exporting them into a .txt file which can be read by a prompter.
+Function taking only the lines supposed to be uttered and exporting them into a .txt file which can be read for a prompter.
 }
 \author{
 Nicolas Mangin

@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_meme.R
 \name{add_meme}
 \alias{add_meme}
-\title{Insert a slide}
+\title{Insert a meme slide}
 \usage{
 add_meme(
   text_above = "",
@@ -30,7 +30,7 @@ add_meme(
 Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.
 }
 \description{
-Function writing a revealjs slide according to the user specifications.
+Function writing a meme as a revealjs slide.
 }
 \author{
 Nicolas Mangin

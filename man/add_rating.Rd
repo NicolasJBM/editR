@@ -12,17 +12,17 @@ add_rating(
 )
 }
 \arguments{
-\item{sourcename}{Character.}
+\item{sourcename}{Character. Name of the publication (blogpost, textbook, or presentation)}
 
-\item{filename}{Character.}
+\item{filename}{Character. Code and language of the document.}
 
-\item{message}{Character.}
+\item{message}{Character. Comment entered by the reader.}
 }
 \value{
 Write the HTML code for the star rating in the page
 }
 \description{
-Function writing the HTML code to include the page star rating.
+Function writing the HTML code to include the page star rating. Note that this requires to adapt the javascript function so that the comment goes to the appropriate Google form.
 }
 \author{
 Nicolas Mangin

@@ -15,7 +15,7 @@ make_yaml(selected, doctype)
 YAML as a character vector.
 }
 \description{
-Make YAML to be inserted at the beginning of the document to render via quarto.
+Make YAML to be inserted at the beginning of the document exported to be rendered via quarto.
 }
 \author{
 Nicolas Mangin
