@@ -37,7 +37,7 @@ code_edit_server <- function(id, course_paths){
       if (input$codetype == "Function"){
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("Function"),
+          choices = "Function",
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
@@ -51,7 +51,7 @@ code_edit_server <- function(id, course_paths){
       } else if (input$codetype == "Report"){
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("Report"),
+          choices = "Report",
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )

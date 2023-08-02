@@ -49,7 +49,7 @@ publish_script <- function(selected_document, course_paths, translation = FALSE)
   lines <- base::readLines(document)
   lines <- lines[stringr::str_detect(lines, "^>")]
   
-  script <- c()
+  script <- base::character(0)
   for (i in base::seq_len(base::length(lines))) script <- c(script, lines[i], "")
   script <- stringr::str_remove_all(script, "> ")
   

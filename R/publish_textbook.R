@@ -107,8 +107,8 @@ publish_textbook <- function(tree, course_paths, languages){
       '    contents:'
     )
     
-    quarto_yaml2 <- c()
-    for (i in 1:base::nrow(textbook)){
+    quarto_yaml2 <- base::character(0)
+    for (i in base::seq_len(base::nrow(textbook))){
       level = base::nchar(textbook$section[[i]])
       if (i < base::nrow(textbook)){
         nextlev <- base::nchar(textbook$section[[i+1]])

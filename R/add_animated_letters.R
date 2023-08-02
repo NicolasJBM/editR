@@ -14,9 +14,9 @@ add_animated_letters <- function(
   text = "You can write here a sentence.", animation = "neon", color = "#FFF;", size = "1em"
 ){
   text <- base::unlist(base::strsplit(text, " "))
-  words <- c()
-  for (w in 1:base::length(text)){
-    letters <- c()
+  words <- base::character(0)
+  for (w in base::seq_len(base::length(text))){
+    letters <- base::character(0)
     for (l in 1:base::nchar(text[w])){
       letters[l] <- base::paste0("<span>", substr(text[w], l, l),"</span>")
     }
