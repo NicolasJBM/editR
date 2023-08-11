@@ -51,7 +51,7 @@ code_edit_server <- function(id, course_paths){
       } else if (input$codetype == "Report"){
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = "Report",
+          choices = c("Feedback","Analysis"),
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
@@ -79,7 +79,8 @@ code_edit_server <- function(id, course_paths){
         Tutorial = course_paths()$subfolders$templates_tutorial,
         Case = course_paths()$subfolders$templates_case,
         Question = course_paths()$subfolders$templates_question,
-        Report = course_paths()$subfolders$templates_report,
+        Feedback = course_paths()$subfolders$templates_report,
+        Analysis = course_paths()$subfolders$templates_report,
         tex = course_paths()$subfolders$exams,
         css = course_paths()$subfolders$css,
         js = course_paths()$subfolders$js
@@ -89,6 +90,14 @@ code_edit_server <- function(id, course_paths){
     code_list <- shiny::reactive({
       shiny::req(!base::is.null(folder_path()))
       codelist <- base::list.files(folder_path(), full.names = FALSE)
+      if (input$subtype == "Feedback"){
+        codelist <- codelist[stringr::str_detect(codelist, "feedback_.._")]
+        codelist <- codelist[stringr::str_detect(codelist, ".Rmd$")]
+      }
+      if (input$subtype == "Analysis"){
+        codelist <- codelist[stringr::str_detect(codelist, "analysis_.._")]
+        codelist <- codelist[stringr::str_detect(codelist, ".qmd$")]
+      }
       if (input$subtype == "tex"){
         codelist <- codelist[stringr::str_detect(codelist, base::paste0(input$subtype, "$"))]
       }
