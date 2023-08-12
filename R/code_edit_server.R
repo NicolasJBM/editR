@@ -44,7 +44,7 @@ code_edit_server <- function(id, course_paths){
       } else if (input$codetype == "Document"){
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("Note","Page","Slide","Video","Game","Tutorial","Case","Question"),
+          choices = c("Note","Slide","Video","Page","Tutorial","Game","Case","Question"),
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
@@ -120,11 +120,11 @@ code_edit_server <- function(id, course_paths){
         input$subtype,
         Function = "r",
         Note = "markdown",
-        Page = "markdown",
         Slide = "markdown",
         Video = "markdown",
-        Game = "markdown",
+        Page = "markdown",
         Tutorial = "markdown",
+        Game = "markdown",
         Case = "markdown",
         Question = "markdown",
         Report = "markdown",
