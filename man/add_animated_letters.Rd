@@ -7,14 +7,14 @@
 add_animated_letters(
   text = "You can write here a sentence.",
   animation = "neon",
-  color = "#FFF;",
+  color = "#FFF",
   size = "1em"
 )
 }
 \arguments{
 \item{text}{Character Text to which the animation should be applied letter by letter.}
 
-\item{animation}{Character. The kind of animation: "semi-fade-out", "grow", "shrink", "zoom-in", "strike", "fade-out", "fade-up", "fade-down", "fade-right", "fade-left", "highlight-red", "highlight-green", "highlight-blue"}
+\item{animation}{Character. The kind of animation: "bouncing", "infire", or "neon".}
 
 \item{color}{Character. CSS specification of the font size.}
 
