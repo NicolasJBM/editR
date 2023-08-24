@@ -88,7 +88,7 @@ edit_server <- function(
       shiny::req(!base::is.null(filtered()))
       if (doctype == "Question"){
         filtered() |>
-          dplyr::filter(type %in% c("Statements","Alternatives","Computation","Essay","Problem"))
+          dplyr::filter(type %in% c("Free","Statements","Alternatives","Computation","Essay","Problem"))
       } else {
         filtered() |>
           dplyr::filter(type == doctype)
@@ -172,7 +172,6 @@ edit_server <- function(
     })
     
     output$questioncurve <- shiny::renderPlot({
-      shiny::req(doctype == "Question")
       shiny::req(!base::is.null(selected_document()))
       shiny::req(!base::is.null(course_data()$document_models))
       shiny::req(selected_document() %in% course_data()$document_models$file)
