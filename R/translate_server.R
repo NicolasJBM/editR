@@ -363,7 +363,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     })
     
     shiny::observeEvent(input$originalpreview, {
-      if (document_to_translate()$type %in% c("Statements","Alternatives","Computation","Essay","Problem")){
+      if (document_to_translate()$type %in% c("Free","Statements","Alternatives","Computation","Essay","Problem")){
         base::load(course_paths()$databases$propositions)
         base::load(course_paths()$databases$translations)
         test_parameters <- NA
@@ -382,7 +382,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           easyClose = TRUE
         ))
       } else {
-        editR::view_document(document_to_translate(),TRUE,course_data,course_paths)
+        editR::view_document(document_to_translate(),TRUE,course_paths)
       }
     })
     
@@ -467,7 +467,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     })
     
     shiny::observeEvent(input$translationpreview, {
-      if (translated_document()$type %in% c("Statements","Alternatives","Computation","Essay","Problem")){
+      if (translated_document()$type %in% c("Free","Statements","Alternatives","Computation","Essay","Problem")){
         base::load(course_paths()$databases$propositions)
         base::load(course_paths()$databases$translations)
         test_parameters <- NA
@@ -486,7 +486,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           easyClose = TRUE
         ))
       } else {
-        editR::view_document(translated_document(),FALSE,course_data,course_paths)
+        editR::view_document(translated_document(),FALSE,course_paths)
       }
     })
     
