@@ -375,6 +375,7 @@ edit_server <- function(
     propositions <- shiny::reactive({
       shiny::req(doctype %in% c("Note","Page","Slide","Video","Question"))
       input$refreshprop
+      input$acknowledgesaveprop
       base::load(course_paths()$databases$propositions)
       propositions
     })
@@ -434,12 +435,6 @@ edit_server <- function(
           ns("saveprop"), "Save propositions",
           icon = shiny::icon("floppy-disk"),
           style = "background-color:#006600;color:#FFF;width:100%"
-        ),
-        shiny::tags$hr(),
-        shiny::actionButton(
-          ns("refreshprop"), "Refresh propositions",
-          icon = shiny::icon("rotate"),
-          style = "background-color:#006699;color:#FFF;width:100%"
         ),
         shiny::tags$hr(),
         shiny::selectInput(
@@ -588,6 +583,8 @@ edit_server <- function(
         dplyr::filter(proposition != "", !base::is.na(proposition))
       
       base::save(propositions, file = course_paths()$databases$propositions)
+      
+      base::Sys.sleep(1)
       
       shinyalert::shinyalert(
         "Propositions saved!", "Refresh to see changes.",
