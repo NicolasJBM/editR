@@ -43,12 +43,12 @@ edit_ui <- function(id){
     ),
     shiny::fluidRow(
       shiny::column(
-        3,
+        2,
         shiny::uiOutput(ns("pathintree")),
         shiny::tags$hr(),
         shiny::uiOutput(ns("docinfo"))
       ),
-      shiny::column(5, shiny::uiOutput(ns("editdoc"))),
+      shiny::column(6, shiny::uiOutput(ns("editdoc"))),
       shiny::column(
         4,
         shiny::uiOutput(ns("ratingsstatistics")),
