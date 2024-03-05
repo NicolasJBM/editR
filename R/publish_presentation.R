@@ -100,9 +100,10 @@ publish_presentation <- function(tree, selected_document, course_paths){
   
   # Get document position in tree and
   position <- tree$tbltree |>
+    dplyr::mutate(code = stringr::str_remove_all(file, "_...Rmd$")) |>
     dplyr::filter(code == slctcode) |>
     dplyr::select(position, title) |>
-    dplyr::mutate(position = stringr::str_remove_all(stringr::str_remove_all(position, "\\."), "[0]+$")) |>
+    dplyr::mutate(position = stringr::str_remove_all(position, "-")) |>
     dplyr::select(position)
   
   # Identify all languages for the selected presentation and build quarto presentation

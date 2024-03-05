@@ -9,11 +9,12 @@
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom quarto quarto_render
+#' @importFrom tidyr separate
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinybusy remove_modal_spinner
 #' @importFrom shinybusy show_modal_spinner
 #' @importFrom stringr str_remove
+#' @importFrom stringr str_remove_all
 #' @importFrom stringr str_replace_all
 #' @importFrom stringr str_to_lower
 #' @export
@@ -47,9 +48,11 @@ publish_textbook <- function(tree, course_paths, languages){
     )
     
     # Create quarto YAML
-    textbook <- tree$textbook
+    textbook <- tree$textbook |>
+      tidyr::separate(file, into = c("code","language"), sep = "_", remove = FALSE) |>
+      dplyr::mutate(language = base::tolower(stringr::str_remove_all(language, "\\.Rmd")))
     
-    # define useful paths
+    # Define useful paths
     formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
     datafolder <- base::paste0(course_paths$subfolders$edit, "/data")
     templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/textbooks")
@@ -287,17 +290,11 @@ publish_textbook <- function(tree, course_paths, languages){
       overwrite = TRUE
     )
     
-    base::try(base::suppressWarnings(
-      quarto::quarto_render(yamlpath, quiet = TRUE)
-    )) 
-    
     
     
     # Publish other languages files:
     # copy textbook in new folder and
     # replace original files by translated files when exists.
-    
-    
     
     
     

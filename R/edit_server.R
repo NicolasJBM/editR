@@ -81,6 +81,7 @@ edit_server <- function(
     code <- NULL
     tags <- NULL
     answers <- NULL
+    retire <- NULL
 
     # Load data ################################################################
 
@@ -515,6 +516,7 @@ edit_server <- function(
         scale = base::factor(levelscale[1], levels = levelscale),
         explanation = base::as.character(NA),
         keywords = base::as.character(NA),
+        retire = FALSE,
         answers = base::as.numeric(NA),
         success = base::as.numeric(NA),
         discrimination = base::as.numeric(NA)
@@ -535,7 +537,7 @@ edit_server <- function(
           ) |>
           dplyr::select(
             item, language, code, type, document, modifications, proposition,
-            value, scale, explanation, keywords, answers, success, discrimination
+            value, scale, explanation, keywords, retire, answers, success, discrimination
           ) |>
           dplyr::bind_rows(tmprow)
       } else {
@@ -546,11 +548,11 @@ edit_server <- function(
         rhandsontable::rhandsontable(
           height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
         ) |>
-        rhandsontable::hot_col(c(1,2,12,13), readOnly = TRUE) |>
+        rhandsontable::hot_col(c(1,2,13,14,15), readOnly = TRUE) |>
         rhandsontable::hot_cols(
           colWidths = c(
             "6%","2%","6%","6%","7%","3%","18%","3%",
-            "5%","25%","10%","3%","3%","3%"
+            "5%","22%","10%","3%","3%","3%","3%"
           ),
           manualColumnResize = TRUE
         ) |>
