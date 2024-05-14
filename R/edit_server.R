@@ -86,6 +86,7 @@ edit_server <- function(
     # Load data ################################################################
 
     selection <- shiny::reactive({
+      shiny::req(base::length(course_paths()) == 2)
       shiny::req(!base::is.null(filtered()))
       if (doctype == "Question"){
         filtered() |>
@@ -111,6 +112,7 @@ edit_server <- function(
     })
 
     templates_path <- shiny::reactive({
+      shiny::req(base::length(course_paths()) == 2)
       base::switch(
         doctype,
         Note = course_paths()$subfolders$templates_note,
@@ -125,6 +127,7 @@ edit_server <- function(
     })
 
     template_files <- shiny::reactive({
+      shiny::req(!base::is.null(templates_path()))
       base::list.files(templates_path())
     })
     
@@ -374,6 +377,7 @@ edit_server <- function(
     # Edit propositions ########################################################
     
     propositions <- shiny::reactive({
+      shiny::req(base::length(course_paths()) == 2)
       shiny::req(doctype %in% c("Note","Page","Slide","Video","Question"))
       input$refreshprop
       input$acknowledgesaveprop
