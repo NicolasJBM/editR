@@ -81,6 +81,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     answers <- NULL
     flag <- NULL
     
+    
     languages <- shiny::reactive({
       course_data()$languages
     })
@@ -187,9 +188,12 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
     shiny::observeEvent(input$createnewtranslation, {
       shiny::req(!base::is.null(document_to_translate()))
       shiny::req(input$slctlang)
+      
       selected_language_status <- language_status() |>
         dplyr::filter(langiso == input$slctlang)
+      
       if (selected_language_status$status == "Missing"){
+        
         original_language <- language_status() |>
           dplyr::filter(type == "original")
         translated_document <- document_to_translate()
@@ -201,10 +205,27 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         translated_document$filepath <- base::paste0(
           course_paths()$subfolders$translated, "/", translated_document$file
         )
-        base::file.copy(
-          from = document_to_translate()$filepath,
-          to = translated_document$filepath
+        
+        translation <- document_to_translate()$filepath |>
+          editR::translate_document(langiso = base::tolower(input$slctlang))
+        
+        base::writeLines(
+          base::unlist(translation$translated),
+          translated_document$filepath
         )
+        
+        base::load(course_paths()$databases$propositions)
+        base::load(course_paths()$databases$translations)
+        langiso <- input$slctlang
+        
+        translations <- editR::translate_propositions(
+          propositions,
+          translations,
+          langiso
+        )
+        
+        base::save(translations, file = course_paths()$databases$translations)
+        
         shinyalert::shinyalert(
           "Translation created",
           "Update documents and reload the course to edit it.",
