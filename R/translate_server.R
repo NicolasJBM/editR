@@ -547,12 +547,19 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         dplyr::filter(code == selected_code()) |>
         dplyr::select(type, code, document) |>
         base::unique()
-      if (selection$type %in% c("Note","Page","Slide","Video","Game","Case","Statements")){
+      if (selection$type %in% c("Note","Page","Slide","Video")){
         propositions |>
           dplyr::mutate(keep = purrr::map_lgl(document, function(x,y){
             stringr::str_detect(y, x)
           }, selection$document)) |>
           dplyr::filter(keep == TRUE) |>
+          dplyr::select(-keep)
+      } else if (selection$type == "Statements") {
+        propositions |>
+          dplyr::mutate(keep = purrr::map_lgl(document, function(x,y){
+            stringr::str_detect(y, x)
+          }, selection$document)) |>
+          dplyr::filter(keep == TRUE, type == "Statements") |>
           dplyr::select(-keep)
       } else {
         propositions |>
@@ -590,7 +597,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         rhandsontable::rhandsontable(
           height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
         ) |>
-        rhandsontable::hot_col(c(1,2,3,5,7,8), readOnly = TRUE) |>
+        rhandsontable::hot_col(c(1,2,7,8), readOnly = TRUE) |>
         rhandsontable::hot_cols(
           colWidths = c("8%","3%","20%","20%","20%","20%","3%","3%","3%")
         ) |>
