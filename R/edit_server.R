@@ -469,7 +469,7 @@ edit_server <- function(
       shiny::req(!base::is.null(input$slctpropval))
       propositions_for_document() |>
         dplyr::filter(
-          document %in% input$slctpropdoc,
+          document %in% c(NA, input$slctpropdoc),
           type %in% input$slctproptype,
           value >= input$slctpropval[1],
           value <= input$slctpropval[2]
@@ -505,7 +505,7 @@ edit_server <- function(
         leveltype <- selected_document$type
       }
       levellanguage <- selected_document$language
-      leveldocs <- targeted_documents()
+      leveldocs <- base::union(targeted_documents(), propositions_to_edit()$document)
       levelscale <- c("logical","qualitative","percentage")
       
       tmprow <- tibble::tibble(
