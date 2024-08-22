@@ -597,7 +597,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         rhandsontable::rhandsontable(
           height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
         ) |>
-        rhandsontable::hot_col(c(1,2,7,8), readOnly = TRUE) |>
+        rhandsontable::hot_col(c(1,2,3,5,7,8,9), readOnly = TRUE) |>
         rhandsontable::hot_cols(
           colWidths = c("8%","3%","20%","20%","20%","20%","3%","3%","3%")
         ) |>
