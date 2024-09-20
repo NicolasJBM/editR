@@ -9,6 +9,7 @@ add_meme(
   image_url = "",
   text_below = "",
   font_size = 2.5,
+  bkg_fit = "contain",
   trans_back = "slide",
   trans_data = "fade"
 )
@@ -21,6 +22,8 @@ add_meme(
 \item{text_below}{Character. Sentence written below the image_url or video.}
 
 \item{font_size}{Numeric. Size of the font in "em".}
+
+\item{bkg_fit}{Character. "cover" or "contain".}
 
 \item{trans_back}{Character. Type of transition for the background: fade, slide, convex, concave, or zoom.}
 

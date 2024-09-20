@@ -6,6 +6,7 @@
 #' @param image_url Character. Address of the background image_url.
 #' @param text_below Character. Sentence written below the image_url or video. 
 #' @param font_size Numeric. Size of the font in "em".
+#' @param bkg_fit Character. "cover" or "contain".
 #' @param trans_back Character. Type of transition for the background: fade, slide, convex, concave, or zoom.
 #' @param trans_data Character. Type of transition for data: fade, slide, convex, concave, or zoom.
 #' @return Character. Write the first two rows of a RevealJS slide formatted for rmarkdown.
@@ -18,11 +19,13 @@ add_meme <- function(
     image_url = "",
     text_below = "",
     font_size = 2.5,
+    bkg_fit = "contain",
     trans_back = "slide",
     trans_data = "fade"
 ) {
   properties <- base::paste0(
     '## {data-transition="', trans_data,
+    '" data-background-size="', bkg_fit,
     '" data-background-transition="', trans_back,
     '" data-background-color="#222',
     '" data-background="', image_url,
