@@ -4,11 +4,9 @@
 \alias{translate}
 \title{Translate a character string}
 \usage{
-translate(progress = NA, text, langiso)
+translate(text, langiso)
 }
 \arguments{
-\item{progress}{Charater. Identify the item or row which is being translated.}
-
 \item{text}{Charater. Character string which is being translated.}
 
 \item{langiso}{Character. ISO2 code of the language in which propositions and explanations should be translated.}

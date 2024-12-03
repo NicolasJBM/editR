@@ -54,6 +54,7 @@
 #' @importFrom tidyr replace_na
 #' @importFrom tidyr unite
 #' @importFrom tidyr unnest
+#' @importFrom shinybusy show_modal_spinner
 #' @export
 
 
@@ -194,6 +195,11 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
       
       if (selected_language_status$status == "Missing"){
         
+        shinybusy::show_modal_spinner(
+          spin = "orbit",
+          text = "Translating the document..."
+        )
+        
         original_language <- language_status() |>
           dplyr::filter(type == "original")
         translated_document <- document_to_translate()
@@ -225,6 +231,8 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
         )
         
         base::save(translations, file = course_paths()$databases$translations)
+        
+        shinybusy::remove_modal_spinner()
         
         shinyalert::shinyalert(
           "Translation created",

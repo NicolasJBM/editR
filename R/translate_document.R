@@ -36,7 +36,9 @@ translate_document <- function(filepath, langiso){
   ) |>
     tibble::rowid_to_column("item") |>
     dplyr::mutate(
-      chunk = base::as.numeric(stringr::str_detect(original, "```") | stringr::str_detect(original, stringr::fixed("$$"))),
+      chunk = base::as.numeric(stringr::str_detect(original, "^```") |
+                                 stringr::str_detect(original, "^\\$\\$")
+                               ),
       chunk = base::cumsum(chunk),
       chunk = chunk %% 2 == 1,
       characters = base::nchar(original),
@@ -45,17 +47,11 @@ translate_document <- function(filepath, langiso){
       meta = meta %% 2 == 1
     )
   
-  shiny::withProgress({
-    translation <- lines |>
-      dplyr::filter(chunk == FALSE, characters > 5, meta == FALSE) |>
-      tibble::rowid_to_column("progress") |>
-      dplyr::mutate(progress = base::as.numeric(progress)) |>
-      dplyr::mutate(progress = progress / base::max(progress)) |>
-      dplyr::mutate(
-        translated = purrr::map2_chr(progress, original, editR::translate, langiso = langiso)
-      ) |>
-      dplyr::select(-progress)
-  })
+  translation <- lines |>
+    dplyr::filter(chunk == FALSE, characters > 5, meta == FALSE) |>
+    dplyr::mutate(
+      translated = purrr::map_chr(original, editR::translate, langiso = langiso)
+    )
   
   export <- lines |>
     dplyr::anti_join(translation, by = "item") |>
@@ -66,11 +62,18 @@ translate_document <- function(filepath, langiso){
       meta == TRUE ~ original,
       TRUE ~ translated
     )) |>
-    dplyr::mutate(translated = stringr::str_replace_all(
-      translated,
-      'language.?=.?"en"',
-      base::paste0('language = "', langiso, '"')
-    )) |>
+    dplyr::mutate(
+      translated = stringr::str_replace_all(
+        translated,
+        'language.?=.?"en"',
+        base::paste0('language = "', langiso, '"')
+      ),
+      translated = stringr::str_replace_all(
+        translated,
+        'language.?=.?"us"',
+        base::paste0('language = "', langiso, '"')
+      )
+    ) |>
     dplyr::arrange(item)
   
   return(export)
