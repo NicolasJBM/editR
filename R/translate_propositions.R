@@ -38,8 +38,8 @@ translate_propositions <- function(propositions, translations, langiso){
   if (base::nrow(to_translate) > 0){
     translated <- to_translate |>
       dplyr::mutate(
-        translated_proposition = purrr::map2_chr(item, proposition, editR::translate, langiso = langiso),
-        translated_explanation = purrr::map2_chr(item, explanation, editR::translate, langiso = langiso)
+        translated_proposition = purrr::map_chr(proposition, editR::translate, langiso = langiso),
+        translated_explanation = purrr::map_chr(explanation, editR::translate, langiso = langiso)
       ) |>
       dplyr::mutate(translated_proposition = dplyr::case_when(
         type == "Computation" ~ proposition,
