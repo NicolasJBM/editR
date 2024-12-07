@@ -46,7 +46,12 @@ edit_ui <- function(id){
         2,
         shiny::uiOutput(ns("pathintree")),
         shiny::tags$hr(),
-        shiny::uiOutput(ns("docinfo"))
+        shiny::uiOutput(ns("docinfo")),
+        shiny::tags$hr(),
+        shiny::actionButton(
+          ns("editmetainfo"), "Meta information", icon = shiny::icon("edit"),
+          style = "background-color:#006699;color:#FFF;width:100%;margin-top:10px;"
+        )
       ),
       shiny::column(6, shiny::uiOutput(ns("editdoc"))),
       shiny::column(

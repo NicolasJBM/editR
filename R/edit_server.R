@@ -82,6 +82,10 @@ edit_server <- function(
     tags <- NULL
     answers <- NULL
     retire <- NULL
+    V1 <- NULL
+    tag <- NULL
+    translations <- NULL
+    
 
     # Load data ################################################################
 
@@ -153,6 +157,127 @@ edit_server <- function(
       shiny::req(base::length(selected_document()) == 1 & selected_document() != "")
       editR::make_tree_path(selected_document(), tree()$tbltree) |>
         shiny::HTML()
+    })
+    
+    
+    # Edit metainformation #####################################################
+    
+    shiny::observeEvent(input$editmetainfo, {
+      
+      shiny::req(!base::is.null(selected_document()))
+      tags <- course_data()$tags
+      documents <- course_data()$documents
+      selected_file <- selected_document()
+      
+      preptags <- tags |>
+        dplyr::filter(value != "", !base::is.na(value)) |>
+        dplyr::select(tag, value)
+      
+      doclist <- documents$code
+      base::names(doclist) <- base::paste(documents$code, documents$title, sep = " - ")
+      
+      document <- documents |>
+        dplyr::filter(file == selected_file)
+      
+      filename <- document$file[1]
+      
+      commontags <- c("title","authors","type","document")
+      
+      document <- document |>
+        dplyr::select(-file,-code,-language,-translations,-modified) |>
+        base::t() |>
+        base::as.data.frame() |>
+        dplyr::rename(input = V1) |>
+        tibble::rownames_to_column("tag") |>
+        dplyr::left_join(preptags, by = "tag") |>
+        dplyr::group_by(tag, input) |>
+        dplyr::summarise(choices = base::list(value), .groups = "drop") |>
+        dplyr::mutate(
+          input = purrr::map_chr(input, function(x) if (base::is.na(x) | x == "") NA else x),
+          choices = dplyr::case_when(
+            tag == "document" ~ base::list(doclist),
+            TRUE ~ choices
+          )
+        )
+      
+      document <- document |>
+        dplyr::mutate(tag = base::factor(
+          tag,
+          levels = c(commontags, base::setdiff(document$tag, commontags))
+        )) |>
+        dplyr::arrange(tag)
+      
+      ui <- base::list()
+      
+      for (i in 1:base::nrow(document)){
+        
+        possible_choices <- document$choices[[i]] |>
+          base::unlist()
+        
+        if (!base::is.na(possible_choices[1])){
+          ui[[i]] <- shiny::selectInput(
+            inputId = ns(document$tag[[i]]),
+            label = document$tag[[i]],
+            choices = possible_choices,
+            selected = base::unlist(stringr::str_split(document$input[[i]], " ")),
+            multiple = TRUE,
+            width = "100%"
+          )
+        } else {
+          ui[[i]] <- shiny::textInput(
+            inputId = ns(document$tag[[i]]),
+            label = document$tag[[i]],
+            value = document$input[[i]],
+            width = "100%"
+          )
+        }
+      }
+      
+      shiny::showModal(
+        shiny::modalDialog(
+          style = "background-color:#001F3F;color:#FFF;margin-top:50px;",
+          ui,
+          footer = shiny::tagList(
+            shiny::modalButton("Cancel"),
+            shiny::actionButton(
+              ns("writemetainfo"), "Write", icon = shiny::icon("edit"),
+              style = "background-color:#006699;color:#FFF;"
+            )
+          )
+        )
+      )
+    })
+    
+    shiny::observeEvent(input$writemetainfo, {
+      shiny::removeModal()
+      tags <- course_data()$tags
+      selected_file <- selected_document()
+      
+      document_to_edit <- shiny::isolate({ document_to_edit() })
+      shiny::req(base::file.exists(document_to_edit$filepath))
+      editeddoc <- base::readLines(document_to_edit$filepath)
+      end <- base::which(stringr::str_detect(editeddoc, stringr::fixed("exextra[title]")))-1
+      cutdoc <- editeddoc[1:end]
+      
+      alltags <- c("title","authors","type","document", base::unique(tags$tag))
+      metainfo <- base::list()
+      for (tag in alltags){
+        metainfo[[tag]] <- base::paste0(
+          "exextra[", tag,"]: ",
+          base::paste(input[[tag]], collapse = " "),
+          "  "
+        )
+      }
+      metainfo <- base::as.character(metainfo)
+      
+      fulldoc <- c(cutdoc, metainfo, "  ")
+      
+      base::writeLines(fulldoc, document_to_edit$filepath, useBytes = TRUE)
+      
+      shinyalert::shinyalert(
+        "Meta-information updated!", "Refresh the file or reload the course to see it.",
+        type = "success", closeOnEsc = FALSE, closeOnClickOutside = TRUE
+      )
     })
     
     
