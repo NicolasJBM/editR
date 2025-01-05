@@ -33,11 +33,7 @@ publish_note <- function(selected_document, course_paths, translation = FALSE){
   
   title <- tags$title[[1]]
   date <- base::as.character(base::Sys.Date())
-  if ("authors" %in% base::names(tags)) {
-    authors <- tags$authors[[1]]
-  } else {
-    authors <- ""
-  }
+  authors <- tags$authors[[1]]
   
   filename <- selected_document |>
     stringr::str_remove_all(".Rmd$")

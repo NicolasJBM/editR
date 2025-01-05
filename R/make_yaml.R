@@ -9,15 +9,17 @@
 
 make_yaml <- function(selected, doctype){
   
-  if ("authors" %in% base::names(selected)){
-    authors <- selected$authors[[1]]
-  } else authors <- ""
+  title <- selected$title[1]
+  authors <- selected$authors[1]
+  date <- base::as.character(base::Sys.Date())
   
   if (doctype == "Note"){
     
     yaml <- c(
       '---',
-      base::paste0('title: ', selected$title[1]),
+      base::paste0('title: ', title),
+      base::paste0('author: ', authors),
+      base::paste0('date: ', date),
       '',
       'execute:',
       '  eval: true',
