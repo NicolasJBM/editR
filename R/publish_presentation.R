@@ -2,7 +2,7 @@
 #' @title Export a slide presentation
 #' @author Nicolas Mangin
 #' @description Function copying a presentation in the appropriate tree subfolder in the presentation folder
-#' @param tree List. Selected tree to retrieve the position of the presentation.
+#' @param intake List. Selected intake to retrieve the position of the presentation.
 #' @param selected_document Character. Name of the note destined to be published.
 #' @param course_paths List. List of paths to either databases or documents.
 #' @return Write presentation in the appropriate subfolder of presentations.
@@ -23,7 +23,7 @@
 
 
 
-publish_presentation <- function(tree, selected_document, course_paths){
+publish_presentation <- function(intake, selected_document, course_paths){
   
   code <- NULL
   position <- NULL
@@ -48,7 +48,7 @@ publish_presentation <- function(tree, selected_document, course_paths){
   presentationfolder <- course_paths$subfolders$presentations
   
   # Create course folder
-  coursename <- stringr::str_remove(tree$course$tree[[1]], ".RData$")
+  coursename <- intake$intake$intake[1]
   coursefolder <- base::paste0(presentationfolder, "/", coursename)
   if (!base::dir.exists(coursefolder)) base::dir.create(coursefolder)
   
@@ -99,7 +99,7 @@ publish_presentation <- function(tree, selected_document, course_paths){
   }
   
   # Get document position in tree and
-  position <- tree$tbltree |>
+  position <- intake$tbltree |>
     dplyr::mutate(code = stringr::str_remove_all(file, "_...Rmd$")) |>
     dplyr::filter(code == slctcode) |>
     dplyr::select(position, title) |>

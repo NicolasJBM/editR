@@ -4,10 +4,10 @@
 \alias{publish_textbook}
 \title{Compile a textbook}
 \usage{
-publish_textbook(tree, course_paths, languages)
+publish_textbook(intake, course_paths, languages)
 }
 \arguments{
-\item{tree}{List. Selected tree to retrieve the position of the presentation.}
+\item{intake}{List. Selected intake to retrieve the position of the presentation.}
 
 \item{course_paths}{List. List of paths to either databases or documents.}
 

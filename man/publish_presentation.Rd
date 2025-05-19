@@ -4,10 +4,10 @@
 \alias{publish_presentation}
 \title{Export a slide presentation}
 \usage{
-publish_presentation(tree, selected_document, course_paths)
+publish_presentation(intake, selected_document, course_paths)
 }
 \arguments{
-\item{tree}{List. Selected tree to retrieve the position of the presentation.}
+\item{intake}{List. Selected intake to retrieve the position of the presentation.}
 
 \item{selected_document}{Character. Name of the note destined to be published.}
 

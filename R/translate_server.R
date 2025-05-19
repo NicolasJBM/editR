@@ -5,7 +5,7 @@
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param filtered Reactive. List of pre-selected documents.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
-#' @param tree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
+#' @param intake Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @return Create and save documents' translations in the dedicated basis subfolder.
 #' @importFrom dplyr anti_join
@@ -58,7 +58,7 @@
 #' @export
 
 
-translate_server <- function(id, filtered, course_data, tree, course_paths){
+translate_server <- function(id, filtered, course_data, intake, course_paths){
   ns <- shiny::NS(id)
   shiny::moduleServer(id, function(input, output, session) {
     
@@ -262,7 +262,7 @@ translate_server <- function(id, filtered, course_data, tree, course_paths){
           type = "warning"
         )
       } else if (translated_document()$type[1] == "Slide"){
-        editR::publish_presentation(tree(), selected_document, course_paths())
+        editR::publish_presentation(intake(), selected_document, course_paths())
       } else if (translated_document()$type[1] == "Video"){
         editR::publish_script(selected_document, course_paths(), translation = TRUE)
       } else if (translated_document()$type[1] == "Tutorial"){

@@ -2,7 +2,7 @@
 #' @title Compile a textbook
 #' @author Nicolas Mangin
 #' @description Function loading a tree and compiling the corresponding textbook. Pages are formatted and organized so that they can then be added to a quarto website.
-#' @param tree List. Selected tree to retrieve the position of the presentation.
+#' @param intake List. Selected intake to retrieve the position of the presentation.
 #' @param course_paths List. List of paths to either databases or documents.
 #' @param languages Tibble. List of managed languages.
 #' @return Write folders and pages to disk in the textbook folder.
@@ -21,7 +21,7 @@
 
 
 
-publish_textbook <- function(tree, course_paths, languages){
+publish_textbook <- function(intake, course_paths, languages){
 
   langiso <- NULL
   language <- NULL
@@ -32,10 +32,10 @@ publish_textbook <- function(tree, course_paths, languages){
   code <- NULL
   section <- NULL
 
-  if (base::length(tree$textbook) == 1){
+  if (base::length(intake$textbook) == 1){
 
     shinyalert::shinyalert(
-      title = "Please select a tree.",
+      title = "Please select a intake.",
       text = "You must first select a classification tree to perform this action.",
       type = "error"
     )
@@ -48,7 +48,7 @@ publish_textbook <- function(tree, course_paths, languages){
     )
     
     # Create quarto YAML
-    textbook <- tree$textbook |>
+    textbook <- intake$textbook |>
       tidyr::separate(file, into = c("code","language"), sep = "_", remove = FALSE) |>
       dplyr::mutate(language = base::tolower(stringr::str_remove_all(language, "\\.Rmd")))
     
@@ -59,7 +59,7 @@ publish_textbook <- function(tree, course_paths, languages){
     textbookfolder <- course_paths$subfolders$textbooks
     orginal_path <- course_paths$subfolders$original
     translated_path <- course_paths$subfolders$translated
-    coursename <- stringr::str_remove(tree$course$tree[1], ".RData$")
+    coursename <- intake$intake$tree[1]
     
     coursefolder <- base::paste0(textbookfolder, "/", coursename, "_", textbook$language[1])
     if (!base::dir.exists(coursefolder)) base::dir.create(coursefolder)
@@ -161,7 +161,7 @@ publish_textbook <- function(tree, course_paths, languages){
     quarto_yaml3 <- c(
       '  page-navigation: true',
       '  page-footer:',
-      base::paste0('    center: "', tree$course$authors, ' (', tree$course$year, ') ', tree$course$course[1], ' ', '"'),
+      base::paste0('    center: "', intake$intake$teachers, ' (', intake$intake$year, ') ', intake$intake$institution[1], ' ', '"'),
       '    border: true',
       '    background: dark',
       '',

@@ -4,7 +4,7 @@
 \alias{translate_server}
 \title{Translate documents}
 \usage{
-translate_server(id, filtered, course_data, tree, course_paths)
+translate_server(id, filtered, course_data, intake, course_paths)
 }
 \arguments{
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
@@ -13,7 +13,7 @@ translate_server(id, filtered, course_data, tree, course_paths)
 
 \item{course_data}{Reactive. Function containing all the course data loaded with the course.}
 
-\item{tree}{Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR}
+\item{intake}{Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR}
 
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
 }

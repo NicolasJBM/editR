@@ -5,7 +5,7 @@
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param filtered Reactive. List of pre-selected documents.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
-#' @param tree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
+#' @param intake Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", "Case" , or question
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
@@ -59,7 +59,7 @@
 
 
 edit_server <- function(
-    id, filtered, course_data, tree, course_paths, doctype
+    id, filtered, course_data, intake, course_paths, doctype
 ){
   ns <- shiny::NS(id)
   shiny::moduleServer(id, function(input, output, session) {
@@ -155,7 +155,7 @@ edit_server <- function(
     output$pathintree <- shiny::renderUI({
       shiny::req(!base::is.null(selected_document()))
       shiny::req(base::length(selected_document()) == 1 & selected_document() != "")
-      editR::make_tree_path(selected_document(), tree()$tbltree) |>
+      editR::make_tree_path(selected_document(), intake()$tbltree) |>
         shiny::HTML()
     })
     
@@ -660,13 +660,13 @@ edit_server <- function(
             scale = base::factor(scale, levels = levelscale)
           ) |>
           dplyr::arrange(code, document, dplyr::desc(value), proposition) |>
-          dplyr::left_join(
-            course_data()$item_parameters,
-            by = c("item","language")
-          ) |>
+          #dplyr::left_join(
+          #  course_data()$item_parameters,
+          #  by = c("item","language")
+          #) |>
           dplyr::select(
             item, language, code, type, document, modifications, proposition,
-            value, scale, explanation, keywords, retire, answers, success, discrimination
+            value, scale, explanation, keywords, retire#, answers, success, discrimination
           ) |>
           dplyr::bind_rows(tmprow)
       } else {
@@ -731,9 +731,9 @@ edit_server <- function(
       if (doctype == "Note"){
         editR::publish_note(selected_document(), course_paths())
       } else if (doctype == "Page"){
-        editR::publish_textbook(tree(), course_paths(), course_data()$languages)
+        editR::publish_textbook(intake(), course_paths(), course_data()$languages)
       } else if (doctype == "Slide"){
-        editR::publish_presentation(tree(), selected_document(), course_paths())
+        editR::publish_presentation(intake(), selected_document(), course_paths())
       } else if (doctype == "Video"){
         editR::publish_script(selected_document(), course_paths())
       } else if (doctype == "Game"){
