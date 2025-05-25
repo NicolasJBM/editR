@@ -287,17 +287,17 @@ edit_server <- function(
     output$ratingsstatistics <- shiny::renderUI({
       shiny::req(!base::is.null(selected_document()))
       shiny::req(selected_document() != "")
-      make_infobox(course_data, selected_document(), "ratings")
+      editR::make_infobox(course_data, selected_document(), "ratings")
     })
     output$viewsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(selected_document()))
+      shiny::req(!base::is.null(selected_document))
       shiny::req(selected_document() != "")
-      make_infobox(course_data, selected_document(), "views")
+      editR::make_infobox(course_data, selected_document(), "views")
     })
     output$resultsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(selected_document()))
+      shiny::req(!base::is.null(selected_document))
       shiny::req(selected_document() != "")
-      make_infobox(course_data, selected_document(), "results")
+      editR::make_infobox(course_data, selected_document(), "results")
     })
     
     output$questioncurve <- shiny::renderPlot({

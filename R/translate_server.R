@@ -596,12 +596,18 @@ translate_server <- function(id, filtered, course_data, intake, course_paths){
     output$translatepropositions <- rhandsontable::renderRHandsontable({
       shiny::req(!base::is.null(selected_translations()))
       
-      base::load(course_paths()$databases$item_parameters)
-      item_parameters <- item_parameters |>
-        dplyr::select(item, language, answers, success, discrimination)
+      if (base::file.exists(course_paths()$databases$item_parameters)){
+        base::load(course_paths()$databases$item_parameters)
+        item_parameters <- item_parameters |>
+          dplyr::select(item, language, answers, success, discrimination)
+        selected <- selected_translations() |>
+          dplyr::left_join(item_parameters, by = c("item","language"))
+      } else {
+        selected <- selected_translations() |>
+          dplyr::mutate(answers = NA, success = NA, discrimination = NA)
+      }
       
-      selected_translations() |>
-        dplyr::left_join(item_parameters, by = c("item","language")) |>
+      selected |>
         rhandsontable::rhandsontable(
           height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
         ) |>

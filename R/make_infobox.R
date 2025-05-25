@@ -15,41 +15,41 @@
 
 
 make_infobox <- function(course_data, selected_file, infotype){
-
   if (infotype == "ratings"){
-    page_ratings <- course_data()$page_ratings |>
+    shiny::req(!base::is.na(course_data()$ratings[1]))
+    ratings <- course_data()$ratings |>
       dplyr::filter(file == selected_file) |>
       stats::na.omit()
 
-    if (base::nrow(page_ratings) == 1){
+    if (base::nrow(ratings) == 1){
       shiny::fluidRow(
         shiny::column(
           4,
           shinydashboard::valueBox(
-            page_ratings$rates,
+            ratings$rates,
             "Rates",
             icon = shiny::icon("users"),
-            color = page_ratings$rates_color,
+            color = ratings$rates_color,
             width = 12
           )
         ),
         shiny::column(
           4,
           shinydashboard::valueBox(
-            page_ratings$average,
+            ratings$average,
             "Average",
             icon = shiny::icon("star-half-stroke"),
-            color = page_ratings$average_color,
+            color = ratings$average_color,
             width = 12
           )
         ),
         shiny::column(
           4,
           shinydashboard::valueBox(
-            page_ratings$dispersion,
+            ratings$dispersion,
             "Dispersion",
             icon = shiny::icon("left-right"),
-            color = page_ratings$dispersion_color,
+            color = ratings$dispersion_color,
             width = 12
           )
         )
@@ -57,61 +57,61 @@ make_infobox <- function(course_data, selected_file, infotype){
     }
 
   } else if (infotype == "views"){
-
-    video_views <- course_data()$video_views |>
+    shiny::req(!base::is.na(course_data()$views[1]))
+    views <- course_data()$views |>
       dplyr::filter(file == selected_file) |>
       stats::na.omit()
 
-    if (base::nrow(video_views) == 1){
+    if (base::nrow(views) == 1){
       shiny::fluidRow(
         shiny::column(
           4,
           shinydashboard::valueBox(
-            video_views$views,
+            views$views,
             "Views",
             icon = shiny::icon("eye"),
-            color = video_views$views_color,
+            color = views$views_color,
             width = 12
           ),
           shinydashboard::valueBox(
-            video_views$viewers,
+            views$viewers,
             "Viewers",
             icon = shiny::icon("users"),
-            color = video_views$viewers_color,
+            color = views$viewers_color,
             width = 12
           )
         ),
         shiny::column(
           4,
           shinydashboard::valueBox(
-            video_views$watchtime,
+            views$watchtime,
             "Watchtime",
             icon = shiny::icon("clock"),
-            color = video_views$watchtime_color,
+            color = views$watchtime_color,
             width = 12
           ),
           shinydashboard::valueBox(
-            video_views$duration,
+            views$duration,
             "Duration",
             icon = shiny::icon("hourglass"),
-            color = video_views$duration_color,
+            color = views$duration_color,
             width = 12
           )
         ),
         shiny::column(
           4,
           shinydashboard::valueBox(
-            video_views$retention,
+            views$retention,
             "Retention",
             icon = shiny::icon("battery-half"),
-            color = video_views$retention_color,
+            color = views$retention_color,
             width = 12
           ),
           shinydashboard::valueBox(
-            video_views$repetition,
+            views$repetition,
             "Repetition",
             icon = shiny::icon("rotate-right"),
-            color = video_views$repetition_color,
+            color = views$repetition_color,
             width = 12
           )
         )
@@ -119,7 +119,7 @@ make_infobox <- function(course_data, selected_file, infotype){
     }
 
   } else if (infotype == "results") {
-
+    shiny::req(!base::is.na(course_data()$document_parameters[1]))
     document_parameters <- course_data()$document_parameters |>
       dplyr::filter(file == selected_file) |>
       stats::na.omit()
