@@ -22,7 +22,13 @@ translate_ui <- function(id){
         6,
         editR::selection_ui(ns("selectdoc"))
       ),
-      shiny::column(4, shiny::uiOutput(ns("slctlanguage"))),
+      shiny::column(2, shiny::uiOutput(ns("slctlanguage"))),
+      shiny::column(2, shinyWidgets::materialSwitch(
+        inputId = ns("maketranslation"),
+        label = "Translate", 
+        status = "primary",
+        right = FALSE
+      )),
       shiny::column(
         2,
         shiny::actionButton(

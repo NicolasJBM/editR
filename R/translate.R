@@ -15,5 +15,6 @@ translate <- function(text, langiso){
   safe_translation <- purrr::quietly(polyglotr::create_translation_table)
   langiso <- base::tolower(langiso)
   z <- safe_translation(text, languages = langiso)
-  base::as.character(z$result[langiso])
+  base::as.character(z$result[langiso]) |>
+    base::iconv(from = "UTF-8", to = "ISO-8859-1")
 }

@@ -212,8 +212,12 @@ translate_server <- function(id, filtered, course_data, intake, course_paths){
           course_paths()$subfolders$translated, "/", translated_document$file
         )
         
-        translation <- document_to_translate()$filepath |>
-          editR::translate_document(langiso = base::tolower(input$slctlang))
+        if (input$maketranslation){
+          translation <- document_to_translate()$filepath |>
+            editR::translate_document(langiso = base::tolower(input$slctlang))
+        } else {
+          translation <- base::list(translated = base::readLines(document_to_translate()$filepath))
+        }
         
         base::writeLines(
           base::unlist(translation$translated),
