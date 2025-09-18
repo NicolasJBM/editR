@@ -584,6 +584,31 @@ edit_server <- function(
         shiny::sliderInput(
           ns("slctpropval"), "Select a value range:",
           min = 0, max = 1, value = c(0,1)
+        ),
+        
+        shinyWidgets::materialSwitch(
+          inputId = ns("sortbydoc"),
+          label = "Sort by document", 
+          status = "primary",
+          value = FALSE
+        ),
+        shinyWidgets::materialSwitch(
+          inputId = ns("sortbyval"),
+          label = "Sort by value", 
+          status = "primary",
+          value = FALSE
+        ),
+        shinyWidgets::materialSwitch(
+          inputId = ns("sortbyprp"),
+          label = "Sort by proposition", 
+          status = "primary",
+          value = FALSE
+        ),
+        shinyWidgets::materialSwitch(
+          inputId = ns("sortbyitm"),
+          label = "Sort by item", 
+          status = "primary",
+          value = TRUE
         )
       )
     })
@@ -658,8 +683,14 @@ edit_server <- function(
             type = base::factor(type, levels = leveltype),
             document = base::factor(document, levels = leveldocs),
             scale = base::factor(scale, levels = levelscale)
-          ) |>
-          dplyr::arrange(code, document, dplyr::desc(value), proposition) |>
+          )
+        
+        if (input$sortbyitm) itemsublist <- dplyr::arrange(itemsublist, item)
+        if (input$sortbyprp) itemsublist <- dplyr::arrange(itemsublist, proposition)
+        if (input$sortbyval) itemsublist <- dplyr::arrange(itemsublist, dplyr::desc(value))
+        if (input$sortbydoc) itemsublist <- dplyr::arrange(itemsublist, document)
+        
+        itemsublist <- itemsublist |>
           #dplyr::left_join(
           #  course_data()$item_parameters,
           #  by = c("item","language")
