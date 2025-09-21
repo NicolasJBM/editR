@@ -4,10 +4,12 @@
 \alias{name_new_item}
 \title{New item name}
 \usage{
-name_new_item(existing_names = NULL)
+name_new_item(existing_names = NULL, itmnbr = 1)
 }
 \arguments{
 \item{existing_names}{Character vector. Item names already assigned.}
+
+\item{itmnbr}{Integer. Number of items to create}
 }
 \value{
 Character string. New item ID.

@@ -3,12 +3,13 @@
 #' @author Nicolas Mangin
 #' @description Function creating a new ID for a new item in the propositions database. Note that item IDs which have been removed will be reassigned.
 #' @param existing_names Character vector. Item names already assigned.
+#' @param itmnbr Integer. Number of items to create
 #' @return Character string. New item ID.
 #' @importFrom stringr str_remove_all
 #' @export
 
 
-name_new_item <- function(existing_names = NULL){
+name_new_item <- function(existing_names = NULL, itmnbr = 1){
   base::stopifnot(!base::is.null(existing_names))
   
   existing_numbers <- base::as.numeric(
@@ -21,16 +22,19 @@ name_new_item <- function(existing_names = NULL){
     maximum <- 0
   }
   
-  assign <- maximum + 1
+  newnames <- base::vector(mode = "character", length = itmnbr)
   
-  newname <- base::paste(
-    c(
-      "I",
-      base::paste(base::rep(0,9-base::nchar(assign)), collapse = ""),
-      assign
-    ),
-    collapse = ""
-  )
+  for (i in base::seq_len(itmnbr)){
+    assign <- maximum + i
+    newnames[i] <- base::paste(
+      c(
+        "I",
+        base::paste(base::rep(0,9-base::nchar(assign)), collapse = ""),
+        assign
+      ),
+      collapse = ""
+    )
+  }
   
-  return(newname)
+  return(newnames)
 }

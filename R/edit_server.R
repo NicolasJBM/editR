@@ -585,7 +585,11 @@ edit_server <- function(
           ns("slctpropval"), "Select a value range:",
           min = 0, max = 1, value = c(0,1)
         ),
-        
+        shiny::tags$hr(),
+        shiny::numericInput(
+          ns("itmnbr"), "Additional items:",
+          min = 1, max = 100, step = 1 ,value = 1
+        ),
         shinyWidgets::materialSwitch(
           inputId = ns("sortbydoc"),
           label = "Sort by document", 
@@ -639,7 +643,7 @@ edit_server <- function(
       existing_names <- propositions() |>
         dplyr::select(item) |> base::unlist() |>
         base::as.character() |> base::unique()
-      newitemid <- editR::name_new_item(existing_names)
+      newitemid <- editR::name_new_item(existing_names, input$itmnbr)
       
       if (selected_document$type %in% c("Note","Page","Slide","Video")){
         levelcode <- base::unique(c(targeted_documents(), propositions_to_edit()$code))
