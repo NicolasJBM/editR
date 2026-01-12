@@ -259,7 +259,7 @@ translate_server <- function(id, filtered, course_data, intake, course_paths){
     shiny::observeEvent(input$publishtranslation, {
       selected_document <- translated_document()$file[1]
       if (translated_document()$type == "Note"){
-        editR::publish_note(selected_document, course_paths(), translation = TRUE)
+        editR::publish_paper(selected_document, course_paths(), translation = TRUE)
       } else if (translated_document()$type[1] == "Page"){
         shinyalert::shinyalert(
           "Go to design!", "All languages in multi-language textbooks are published at once with the main version.",
@@ -268,7 +268,7 @@ translate_server <- function(id, filtered, course_data, intake, course_paths){
       } else if (translated_document()$type[1] == "Slide"){
         editR::publish_presentation(intake(), selected_document, course_paths())
       } else if (translated_document()$type[1] == "Video"){
-        editR::publish_script(selected_document, course_paths(), translation = TRUE)
+        editR::publish_video(selected_document, course_paths(), translation = TRUE)
       } else if (translated_document()$type[1] == "Tutorial"){
         
       } else if (translated_document()$type[1] == "Game"){

@@ -1,4 +1,4 @@
-#' @name publish_note
+#' @name publish_paper
 #' @title Format a note as a blog post
 #' @author Nicolas Mangin
 #' @description Function reformating a note as a blog post with adequate tags.
@@ -16,7 +16,7 @@
 
 
 
-publish_note <- function(selected_document, course_paths, translation = FALSE){
+publish_paper <- function(selected_document, course_paths, translation = FALSE){
   
   authors <- NULL
   

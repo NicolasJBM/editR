@@ -7,7 +7,7 @@
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
 #' @param intake Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
-#' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", "Case" , or question
+#' @param doctype Character. Whether the document is a "Presentation", "Video" ,"Page", "Paper", or question
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
 #' @importFrom chartR display_curve
 #' @importFrom dplyr anti_join
@@ -94,7 +94,7 @@ edit_server <- function(
       shiny::req(!base::is.null(filtered()))
       if (doctype == "Question"){
         filtered() |>
-          dplyr::filter(type %in% c("Free","Statements","Alternatives","Computation","Essay","Problem"))
+          dplyr::filter(type %in% c("Statements","Alternatives","Computation","Essay","Problem"))
       } else {
         filtered() |>
           dplyr::filter(type == doctype)
@@ -104,13 +104,10 @@ edit_server <- function(
     prefix <- shiny::reactive({
       base::switch(
         doctype,
-        Note = "N",
-        Page = "P",
-        Slide = "S",
+        Presentation = "S",
         Video = "V",
-        Game = "G",
-        Tutorial = "T",
-        Case = "C",
+        Page = "P",
+        Paper = "N",
         Question = "Q"
       )
     })
@@ -119,13 +116,10 @@ edit_server <- function(
       shiny::req(base::length(course_paths()) == 2)
       base::switch(
         doctype,
-        Note = course_paths()$subfolders$templates_note,
+        Paper = course_paths()$subfolders$templates_paper,
         Page = course_paths()$subfolders$templates_page,
-        Slide = course_paths()$subfolders$templates_slide,
+        Presentation = course_paths()$subfolders$templates_presentation,
         Video = course_paths()$subfolders$templates_video,
-        Game = course_paths()$subfolders$templates_game,
-        tutorial = course_paths()$subfolders$templates_tutorial,
-        Case = course_paths()$subfolders$templates_case,
         Question = course_paths()$subfolders$templates_question
       )
     })
@@ -503,7 +497,7 @@ edit_server <- function(
     
     propositions <- shiny::reactive({
       shiny::req(base::length(course_paths()) == 2)
-      shiny::req(doctype %in% c("Note","Page","Slide","Video","Question"))
+      shiny::req(doctype %in% c("Paper","Page","Presentation","Video","Question"))
       input$refreshprop
       input$acknowledgesaveprop
       base::load(course_paths()$databases$propositions)
@@ -528,7 +522,7 @@ edit_server <- function(
       shiny::req(!base::is.null(targeted_documents()))
       selected_document <- selection() |>
         dplyr::filter(file == selected_document())
-      if (selected_document$type %in% c("Note","Page","Slide","Video")) {
+      if (selected_document$type %in% c("Paper","Page","Presentation","Video")) {
         propositions() |>
           dplyr::filter(
             document %in% targeted_documents()
@@ -645,7 +639,7 @@ edit_server <- function(
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_names, input$itmnbr)
       
-      if (selected_document$type %in% c("Note","Page","Slide","Video")){
+      if (selected_document$type %in% c("Presentation","Video","Page","Paper")){
         levelcode <- base::unique(c(targeted_documents(), propositions_to_edit()$code))
         slctcode <- NA
         leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
@@ -763,20 +757,14 @@ edit_server <- function(
     # Publish document #########################################################
 
     shiny::observeEvent(input$publishdocs, {
-      if (doctype == "Note"){
-        editR::publish_note(selected_document(), course_paths())
-      } else if (doctype == "Page"){
-        editR::publish_textbook(intake(), course_paths(), course_data()$languages)
-      } else if (doctype == "Slide"){
+      if (doctype == "Presentation"){
         editR::publish_presentation(intake(), selected_document(), course_paths())
       } else if (doctype == "Video"){
-        editR::publish_script(selected_document(), course_paths())
-      } else if (doctype == "Game"){
-
-      } else if (doctype == "Tutorial"){
-        
-      } else if (doctype == "Case"){
-
+        editR::publish_video(selected_document(), course_paths())
+      } else if (doctype == "Page"){
+        editR::publish_textbook(intake(), course_paths(), course_data()$languages)
+      } else if (doctype == "Paper"){
+        editR::publish_paper(selected_document(), course_paths())
       } else if (doctype == "Question"){
         shinyalert::shinyalert(
           "Go to test", "Questions can only be published in tests.",
@@ -789,21 +777,15 @@ edit_server <- function(
     # Open folder ##############################################################
     
     shiny::observeEvent(input$openfolder, {
-      if (doctype == "Note"){
-        folder <- course_paths()$subfolders$blog
-      } else if (doctype == "Page"){
-        folder <- course_paths()$subfolders$textbooks
-      } else if (doctype == "Slide"){
+      if (doctype == "Presentation"){
         folder <- course_paths()$subfolders$presentations
       } else if (doctype == "Video"){
-        folder <- course_paths()$subfolders$scripts
-      } else if (doctype == "Tutorial"){
-        folder <- course_paths()$subfolders$tutorials
-      } else if (doctype == "Game"){
-        folder <- course_paths()$subfolders$games
-      } else if (doctype == "Case"){
-        folder <- course_paths()$subfolders$cases
-      } else if (doctype == "Question"){
+        folder <- course_paths()$subfolders$videos
+      } else if (doctype == "Page"){
+        folder <- course_paths()$subfolders$textbooks
+      } else if (doctype == "Paper"){
+        folder <- course_paths()$subfolders$papers
+      } else if(doctype == "Question"){
         folder <- course_paths()$subfolders$original
       }
       if (base::dir.exists(folder)){
