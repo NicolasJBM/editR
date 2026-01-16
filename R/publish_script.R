@@ -1,5 +1,5 @@
-#' @name publish_video
-#' @title Format a video as a script
+#' @name publish_script
+#' @title Format a script
 #' @author Nicolas Mangin
 #' @description Function taking only the lines supposed to be uttered and exporting them into a .txt file which can be read for a prompter.
 #' @param selected_document Character. Name of the note destined to be published.
@@ -14,7 +14,7 @@
 
 
 
-publish_video <- function(selected_document, course_paths, translation = FALSE){
+publish_script <- function(selected_document, course_paths, translation = FALSE){
   
   if (translation){
     source_folder <- course_paths$subfolders$translated

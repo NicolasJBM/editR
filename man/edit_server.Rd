@@ -4,16 +4,18 @@
 \alias{edit_server}
 \title{Edit documents}
 \usage{
-edit_server(id, filtered, course_data, intake, course_paths, doctype)
+edit_server(id, filtered, tree, tbltree, course_data, course_paths, doctype)
 }
 \arguments{
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
 
 \item{filtered}{Reactive. List of pre-selected documents.}
 
-\item{course_data}{Reactive. Function containing all the course data loaded with the course.}
+\item{tree}{Character. Name of the tree.}
 
-\item{intake}{Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR}
+\item{tbltree}{Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR.}
+
+\item{course_data}{Reactive. Function containing all the course data loaded with the course.}
 
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
 

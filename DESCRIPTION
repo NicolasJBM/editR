@@ -32,6 +32,8 @@ Imports:
     quarto,
     shinybusy,
     polyglotr,
-    chartR
+    chartR,
+    classR
 Remotes:
-    NicolasJBM/chartR
+    NicolasJBM/chartR,
+    NicolasJBM/classR

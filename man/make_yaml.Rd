@@ -9,7 +9,7 @@ make_yaml(selected, doctype)
 \arguments{
 \item{selected}{Tibble. Document for which the de YAML should be created.}
 
-\item{doctype}{Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (Questions have no YAML).}
+\item{doctype}{Character. Whether the document is a "Note", "Page", "Slide", "Script", "Game", or "Case" (Questions have no YAML).}
 }
 \value{
 YAML as a character vector.

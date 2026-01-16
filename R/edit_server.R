@@ -4,8 +4,9 @@
 #' @description Module facilitating the quick creation or modification of documents.
 #' @param id Character. ID of the module to connect the user interface to the appropriate server side.
 #' @param filtered Reactive. List of pre-selected documents.
+#' @param tree Character. Name of the tree.
+#' @param tbltree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
-#' @param intake Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @param doctype Character. Whether the document is a "Presentation", "Video" ,"Page", "Paper", or question
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
@@ -59,7 +60,7 @@
 
 
 edit_server <- function(
-    id, filtered, course_data, intake, course_paths, doctype
+    id, filtered, tree, tbltree, course_data, course_paths, doctype
 ){
   ns <- shiny::NS(id)
   shiny::moduleServer(id, function(input, output, session) {
@@ -149,7 +150,10 @@ edit_server <- function(
     output$pathintree <- shiny::renderUI({
       shiny::req(!base::is.null(selected_document()))
       shiny::req(base::length(selected_document()) == 1 & selected_document() != "")
-      editR::make_tree_path(selected_document(), intake()$tbltree) |>
+      
+      
+      
+      editR::make_tree_path(selected_document(), tbltree()) |>
         shiny::HTML()
     })
     
@@ -758,11 +762,11 @@ edit_server <- function(
 
     shiny::observeEvent(input$publishdocs, {
       if (doctype == "Presentation"){
-        editR::publish_presentation(intake(), selected_document(), course_paths())
-      } else if (doctype == "Video"){
-        editR::publish_video(selected_document(), course_paths())
+        editR::publish_presentation(tree, tbltree(), selected_document(), course_paths())
+      } else if (doctype == "Script"){
+        editR::publish_script(selected_document(), course_paths())
       } else if (doctype == "Page"){
-        editR::publish_textbook(intake(), course_paths(), course_data()$languages)
+        editR::publish_textbook(tree, tbltree(), course_paths(), course_data()$languages)
       } else if (doctype == "Paper"){
         editR::publish_paper(selected_document(), course_paths())
       } else if (doctype == "Question"){

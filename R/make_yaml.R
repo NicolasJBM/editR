@@ -3,7 +3,7 @@
 #' @author Nicolas Mangin
 #' @description Make YAML to be inserted at the beginning of the document exported to be rendered via quarto.
 #' @param selected Tibble. Document for which the de YAML should be created.
-#' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Video", "Game", or "Case" (Questions have no YAML).
+#' @param doctype Character. Whether the document is a "Note", "Page", "Slide", "Script", "Game", or "Case" (Questions have no YAML).
 #' @return YAML as a character vector.
 #' @export
 
@@ -134,7 +134,7 @@ make_yaml <- function(selected, doctype){
       ""
     )
     
-  } else if (doctype == "Video"){
+  } else if (doctype == "Script"){
     
     yaml <- c(
       '---',
@@ -156,7 +156,7 @@ make_yaml <- function(selected, doctype){
       '    fig-width: 9',
       '    fig-height: 5',
       '    css:',
-      '      - format/css/videos.css',
+      '      - format/css/scripts.css',
       '      - "https://cdn.jsdelivr.net/npm/reveal.js-plugins/menu/font-awesome/css/fontawesome.css"',
       '',
       'csl: format/csl/apa.csl',
