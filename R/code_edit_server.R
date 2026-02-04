@@ -44,7 +44,7 @@ code_edit_server <- function(id, course_paths){
       } else if (input$codetype == "Document"){
         shinyWidgets::radioGroupButtons(
           inputId = ns("subtype"),label = "Sub-type:", 
-          choices = c("Note","Slide","Script","Page","Tutorial","Game","Case","Question"),
+          choices = c("Presentation","Script","Page","Paper","Question"),
           status = "danger", justified = TRUE, size = "sm",
           checkIcon = base::list(yes = shiny::icon("check"))
         )
@@ -71,13 +71,10 @@ code_edit_server <- function(id, course_paths){
       base::switch(
         input$subtype,
         Function = course_paths()$subfolders$functions,
-        Note = course_paths()$subfolders$templates_note,
-        Page = course_paths()$subfolders$templates_page,
-        Slide = course_paths()$subfolders$templates_slide,
+        Presentation = course_paths()$subfolders$templates_presentation,
         Script = course_paths()$subfolders$templates_script,
-        Game = course_paths()$subfolders$templates_game,
-        Tutorial = course_paths()$subfolders$templates_tutorial,
-        Case = course_paths()$subfolders$templates_case,
+        Page = course_paths()$subfolders$templates_page,
+        Paper = course_paths()$subfolders$templates_paper,
         Question = course_paths()$subfolders$templates_question,
         Feedback = course_paths()$subfolders$templates_report,
         Analysis = course_paths()$subfolders$templates_report,
@@ -119,13 +116,10 @@ code_edit_server <- function(id, course_paths){
       codemode <- base::switch(
         input$subtype,
         Function = "r",
-        Note = "markdown",
-        Slide = "markdown",
+        Presentation = "markdown",
         Script = "markdown",
         Page = "markdown",
-        Tutorial = "markdown",
-        Game = "markdown",
-        Case = "markdown",
+        Paper = "markdown",
         Question = "markdown",
         Report = "markdown",
         tex = "tex",

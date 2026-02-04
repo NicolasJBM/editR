@@ -8,6 +8,7 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
+#' @importFrom dplyr filter
 #' @importFrom dplyr starts_with
 #' @importFrom purrr map
 #' @importFrom shiny icon
@@ -35,6 +36,10 @@ make_title_display <- function(selected_document, course_data){
     ) |>
     stats::na.omit() |>
     dplyr::left_join(course_data()$tags, by = c("tag","value")) |>
+    dplyr::filter(icon != "triangle-exclamation") |>
+    stats::na.omit()
+  
+  selection_tags <- selection_tags |>
     dplyr::select(icon) |>
     dplyr::mutate(icon = purrr::map(icon, shiny::icon))
 

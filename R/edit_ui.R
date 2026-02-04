@@ -19,25 +19,26 @@ edit_ui <- function(id){
   ns <- shiny::NS(id)
   base::list(
     shiny::fluidRow(
-      shiny::column(10, editR::selection_ui(ns("slctdoc"))),
       shiny::column(
         2,
-        shiny::fluidRow(
-          shiny::column(
-            12,
-            shiny::actionButton(
-              ns("newdoc"), "New", icon = shiny::icon("wand-magic-sparkles"),
-              style = "background-color:#000066;color:#FFF;width:100%;margin-bottom:10px;"
-            ),
-            shiny::actionButton(
-              ns("publishdocs"), "Publish", icon = shiny::icon("print"),
-              style = "background-color:#330066;color:#FFF;width:100%;margin-bottom:10px;"
-            ),
-            shiny::actionButton(
-              ns("openfolder"), "Open folder", icon = shiny::icon("folder-open"),
-              style = "background-color:#660000;color:#FFF;width:100%;margin-bottom:10px;"
-            )
-          )
+        shiny::actionButton(
+          ns("newdoc"), "New", icon = shiny::icon("wand-magic-sparkles"),
+          style = "background-color:#000066;color:#FFF;width:100%;height:115px;margin-bottom:10px;"
+        )
+      ),
+      shiny::column(6, editR::selection_ui(ns("slctdoc"))),
+      shiny::column(
+        2,
+        shiny::actionButton(
+          ns("publishdocs"), "Publish", icon = shiny::icon("print"),
+          style = "background-color:#330066;color:#FFF;width:100%;height:115px;margin-bottom:10px;"
+        )
+      ),
+      shiny::column(
+        2,
+        shiny::actionButton(
+          ns("openfolder"), "Open folder", icon = shiny::icon("folder-open"),
+          style = "background-color:#660000;color:#FFF;width:100%;height:115px;margin-bottom:10px;"
         )
       )
     ),
@@ -50,8 +51,9 @@ edit_ui <- function(id){
         shiny::tags$hr(),
         shiny::actionButton(
           ns("editmetainfo"), "Meta information", icon = shiny::icon("edit"),
-          style = "background-color:#006699;color:#FFF;width:100%;margin-top:10px;"
-        )
+          style = "background-color:#006699;color:#FFF;width:100%;height:115px;margin-top:10px;"
+        ),
+        shiny::uiOutput(ns("opendefexui"))
       ),
       shiny::column(6, shiny::uiOutput(ns("editdoc"))),
       shiny::column(

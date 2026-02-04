@@ -86,6 +86,8 @@ edit_server <- function(
     V1 <- NULL
     tag <- NULL
     translations <- NULL
+    label <- NULL
+    outcome <- NULL
     
 
     # Load data ################################################################
@@ -150,9 +152,6 @@ edit_server <- function(
     output$pathintree <- shiny::renderUI({
       shiny::req(!base::is.null(selected_document()))
       shiny::req(base::length(selected_document()) == 1 & selected_document() != "")
-      
-      
-      
       editR::make_tree_path(selected_document(), tbltree()) |>
         shiny::HTML()
     })
@@ -163,23 +162,40 @@ edit_server <- function(
     shiny::observeEvent(input$editmetainfo, {
       
       shiny::req(!base::is.null(selected_document()))
-      tags <- course_data()$tags
-      documents <- course_data()$documents
+      
       selected_file <- selected_document()
       
-      preptags <- tags |>
-        dplyr::filter(value != "", !base::is.na(value)) |>
-        dplyr::select(tag, value)
+      types <- course_data()$document_types$type
       
+      outcomelist <- course_data()$outcomes |>
+        dplyr::left_join(dplyr::filter(course_data()$outlabels, language  == "US"), by = "outcome") |>
+        dplyr::select(outcome, label) |>
+        base::unique()
+      outcomes <- outcomelist$outcome
+      base::names(outcomes) <- outcomelist$label
+      
+      documents <- course_data()$documents
       doclist <- documents$code
       base::names(doclist) <- base::paste(documents$code, documents$title, sep = " - ")
+      
+      commontags <- tibble::tibble(
+        tag = c("title","authors","type","document"),
+        filter = c("pattern","pattern","selection","multiple"),
+        choices = base::list(c(""),c(""),types,doclist)
+      )
+      
+      preptags <- course_data()$tags |>
+        dplyr::select(tag, filter, value) |>
+        stats::na.omit() |>
+        base::unique() |>
+        dplyr::group_by(tag, filter) |>
+        dplyr::summarise(choices = base::list(value)) |>
+        dplyr::bind_rows(commontags)
       
       document <- documents |>
         dplyr::filter(file == selected_file)
       
       filename <- document$file[1]
-      
-      commontags <- c("title","authors","type","document")
       
       document <- document |>
         dplyr::select(-file,-code,-language,-translations,-modified) |>
@@ -187,38 +203,42 @@ edit_server <- function(
         base::as.data.frame() |>
         dplyr::rename(input = V1) |>
         tibble::rownames_to_column("tag") |>
-        dplyr::left_join(preptags, by = "tag") |>
-        dplyr::group_by(tag, input) |>
-        dplyr::summarise(choices = base::list(value), .groups = "drop") |>
-        dplyr::mutate(
-          input = purrr::map_chr(input, function(x) if (base::is.na(x) | x == "") NA else x),
-          choices = dplyr::case_when(
-            tag == "document" ~ base::list(doclist),
-            TRUE ~ choices
-          )
-        )
-      
-      document <- document |>
-        dplyr::mutate(tag = base::factor(
-          tag,
-          levels = c(commontags, base::setdiff(document$tag, commontags))
-        )) |>
-        dplyr::arrange(tag)
+        dplyr::full_join(preptags, by = "tag")
       
       ui <- base::list()
       
       for (i in 1:base::nrow(document)){
         
-        possible_choices <- document$choices[[i]] |>
-          base::unlist()
+        if (document$tag[[i]] == "tag_outcome")
+          possible_choices <- outcomes else
+            possible_choices <- base::unlist(document$choices[[i]])
         
-        if (!base::is.na(possible_choices[1])){
+        if (document$filter[[i]] == "selection"){
+          ui[[i]] <- shiny::selectInput(
+            inputId = ns(document$tag[[i]]),
+            label = document$tag[[i]],
+            choices = possible_choices,
+            selected = base::unlist(stringr::str_split(document$input[[i]], " ")),
+            multiple = FALSE,
+            width = "100%"
+          )
+        } else if (document$filter[[i]] == "multiple"){
           ui[[i]] <- shiny::selectInput(
             inputId = ns(document$tag[[i]]),
             label = document$tag[[i]],
             choices = possible_choices,
             selected = base::unlist(stringr::str_split(document$input[[i]], " ")),
             multiple = TRUE,
+            width = "100%"
+          )
+        } else if (document$filter[[i]] %in% c("value","range")){
+          if (document$input[[i]] == "" | document$input[[i]] == "NA"){
+            val <- 0
+          } else val <- base::as.numeric(document$input[[i]])
+          ui[[i]] <- shiny::numericInput(
+            inputId = ns(document$tag[[i]]),
+            label = document$tag[[i]],
+            value = val,
             width = "100%"
           )
         } else {
@@ -277,6 +297,39 @@ edit_server <- function(
         type = "success", closeOnEsc = FALSE, closeOnClickOutside = TRUE
       )
     })
+    
+    output$opendefexui <- shiny::renderUI({
+      if (doctype %in% c("Presentation","Script","Page","Paper")){
+        lab <- "Edit definitions"
+      } else {
+        lab <- "Edit exercices"
+      }
+      shiny::actionButton(
+        ns("opendefex"), label = lab, icon = shiny::icon("edit"),
+        style = "background-color:#006699;color:#FFF;width:100%;height:115px;margin-top:10px;"
+      )
+    })
+    
+    shiny::observeEvent(input$opendefex, {
+      if (doctype %in% c("Presentation","Script","Page","Paper")){
+        pathfile <- base::paste0(course_paths()$subfolders$databases, "/definitions.xlsx")
+      } else {
+        pathfile <- base::paste0(course_paths()$subfolders$databases, "/exercises.xlsx")
+      }
+      if (base::file.exists(pathfile)){
+        if (base::Sys.info()[1] == "Windows"){
+          base::shell.exec(pathfile)
+        } else {
+          base::system2(pathfile)
+        }
+      } else {
+        shinyalert::shinyalert(
+          "Non-existing file", "It seems that the file you are trying to open does not exist. Did you already create it?",
+          type = "error"
+        )
+      }
+    })
+    
     
     
     
@@ -501,7 +554,7 @@ edit_server <- function(
     
     propositions <- shiny::reactive({
       shiny::req(base::length(course_paths()) == 2)
-      shiny::req(doctype %in% c("Paper","Page","Presentation","Video","Question"))
+      shiny::req(doctype %in% c("Presentation","Script","Page","Paper","Question"))
       input$refreshprop
       input$acknowledgesaveprop
       base::load(course_paths()$databases$propositions)
@@ -526,7 +579,7 @@ edit_server <- function(
       shiny::req(!base::is.null(targeted_documents()))
       selected_document <- selection() |>
         dplyr::filter(file == selected_document())
-      if (selected_document$type %in% c("Paper","Page","Presentation","Video")) {
+      if (selected_document$type %in% c("Presentation","Script","Page","Paper")) {
         propositions() |>
           dplyr::filter(
             document %in% targeted_documents()
@@ -643,7 +696,7 @@ edit_server <- function(
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_names, input$itmnbr)
       
-      if (selected_document$type %in% c("Presentation","Video","Page","Paper")){
+      if (selected_document$type %in% c("Presentation","Scrip^t","Page","Paper")){
         levelcode <- base::unique(c(targeted_documents(), propositions_to_edit()$code))
         slctcode <- NA
         leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
@@ -783,7 +836,7 @@ edit_server <- function(
     shiny::observeEvent(input$openfolder, {
       if (doctype == "Presentation"){
         folder <- course_paths()$subfolders$presentations
-      } else if (doctype == "Video"){
+      } else if (doctype == "Script"){
         folder <- course_paths()$subfolders$videos
       } else if (doctype == "Page"){
         folder <- course_paths()$subfolders$textbooks

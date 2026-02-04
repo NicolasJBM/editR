@@ -13,7 +13,7 @@ make_yaml <- function(selected, doctype){
   authors <- selected$authors[1]
   date <- base::as.character(base::Sys.Date())
   
-  if (doctype == "Note"){
+  if (doctype == "Paper"){
     
     yaml <- c(
       '---',
@@ -79,7 +79,7 @@ make_yaml <- function(selected, doctype){
       '---'
     )
     
-  } else if (doctype == "Slide"){
+  } else if (doctype == "Presentation"){
     
     doctitle <- selected$title[[1]]
     docauthor <- authors
@@ -123,7 +123,7 @@ make_yaml <- function(selected, doctype){
       '    reference-location: document',
       base::paste0('    footer: "', doctitle, " - ", docauthor, " - ", docdate,'"'),
       '    css:',
-      '      - format/css/slides.css',
+      '      - format/css/presentations.css',
       '      - format/css/all.css',
       '      - "https://cdn.jsdelivr.net/npm/reveal.js-plugins/menu/font-awesome/css/fontawesome.css"',
       '',
@@ -165,30 +165,6 @@ make_yaml <- function(selected, doctype){
       '---'
     )
     
-  } else if (doctype == "Game"){
-    
-    yaml <- c(
-      '---',
-      base::paste0('title: ', selected$title[1]),
-      '---'
-    )
-    
-  } else if (doctype == "Tutorial"){
-    
-    yaml <- c(
-      '---',
-      base::paste0('title: ', selected$title[1]),
-      '---'
-    )
-    
-  } else if (doctype == "Case"){
-    
-    yaml <- c(
-      '---',
-      base::paste0('title: ', selected$title[1]),
-      '---'
-    )
-    
   } else { # Report
     
     yaml <- c(
@@ -211,7 +187,7 @@ make_yaml <- function(selected, doctype){
       '    fig-width: 9',
       '    fig-height: 5',
       '    css:',
-      '      - format/css/reports.css',
+      '      - format/css/papers.css',
       '      - format/css/all.css',
       '      - "https://cdn.jsdelivr.net/npm/reveal.js-plugins/menu/font-awesome/css/fontawesome.css"',
       '',
