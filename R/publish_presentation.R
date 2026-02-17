@@ -174,7 +174,7 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
       '    reference-location: document',
       base::paste0('    footer: "', doctitle, " - ", docauthor, " - ", docdate,'"'),
       '    css:',
-      '      - slides.css',
+      '      - presentations.css',
       '      - all.css',
       '      - "https://cdn.jsdelivr.net/npm/reveal.js-plugins/menu/font-awesome/css/fontawesome.css"',
       '',
@@ -188,11 +188,11 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
     presentation <- c(yaml, doccontent)
     base::writeLines(presentation, qmdpath, useBytes = TRUE)
     
-    cssslidesfile <- base::paste0(formatfolder, "/css/slides.css")
+    cssslidesfile <- base::paste0(formatfolder, "/css/presentations.css")
     if (base::file.exists(cssslidesfile)) {
       base::file.copy(
         from = cssslidesfile,
-        to = base::paste0(qmdfolder, "/slides.css"),
+        to = base::paste0(qmdfolder, "/presentations.css"),
         overwrite = TRUE
       )
     }
