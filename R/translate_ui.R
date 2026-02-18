@@ -19,30 +19,25 @@ translate_ui <- function(id){
   base::list(
     shiny::fluidRow(
       shiny::column(
-        6,
+        8,
         editR::selection_ui(ns("selectdoc"))
       ),
-      shiny::column(2, shiny::uiOutput(ns("slctlanguage"))),
-      shiny::column(2, shinyWidgets::materialSwitch(
-        inputId = ns("maketranslation"),
-        label = "Translate", 
-        status = "primary",
-        right = FALSE
-      )),
       shiny::column(
         2,
         shiny::actionButton(
           ns("createnewtranslation"),"New",
           icon = shiny::icon("wand-magic-sparkles"),
-          style = "background-color:#000066; color:#FFF; width:100%;margin-bottom:10px;"
-        ),
-        shiny::actionButton(
-          ns("publishtranslation"), "Publish", icon = shiny::icon("print"),
-          style = "background-color:#330066;color:#FFF;width:100%;margin-bottom:10px;"
-        ),
-        shiny::actionButton(
-          ns("opentransfolder"), "Open folder", icon = shiny::icon("folder-open"),
-          style = "background-color:#660000;color:#FFF;width:100%;margin-bottom:10px;"
+          style = "background-color:#000066;color:#FFF;width:100%;height:115px;margin-bottom:10px;"
+        )
+      ),
+      shiny::column(
+        2,
+        shiny::uiOutput(ns("slctlanguage")),
+        shinyWidgets::materialSwitch(
+          inputId = ns("maketranslation"),
+          label = "Pre-translate", 
+          status = "primary",
+          right = FALSE
         )
       )
     ),

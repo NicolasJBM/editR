@@ -255,67 +255,6 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
     
     
     
-    # Publish translation ######################################################
-    
-    shiny::observeEvent(input$publishtranslation, {
-      selected_document <- translated_document()$file[1]
-      if (translated_document()$type == "Note"){
-        editR::publish_paper(selected_document, course_paths(), translation = TRUE)
-      } else if (translated_document()$type[1] == "Page"){
-        shinyalert::shinyalert(
-          "Go to design!", "All languages in multi-language textbooks are published at once with the main version.",
-          type = "warning"
-        )
-      } else if (translated_document()$type[1] == "Slide"){
-        editR::publish_presentation(tree, tbltree(), selected_document, course_paths())
-      } else if (translated_document()$type[1] == "Script"){
-        editR::publish_script(selected_document, course_paths(), translation = TRUE)
-      } else {
-        shinyalert::shinyalert(
-          "Go to test!", "Questions can only be published in tests.",
-          type = "warning"
-        )
-      }
-      
-    })
-    
-    
-    # Open publication folder ##################################################
-    shiny::observeEvent(input$opentransfolder, {
-      doctype <- translated_document()$type[1]
-      if (doctype == "Note"){
-        folder <- course_paths()$subfolders$blog
-      } else if (doctype == "Page"){
-        folder <- course_paths()$subfolders$textbooks
-      } else if (doctype == "Slide"){
-        folder <- course_paths()$subfolders$presentations
-      } else if (doctype == "Script"){
-        folder <- course_paths()$subfolders$scripts
-      } else if (doctype == "Tutorial"){
-        folder <- course_paths()$subfolders$tutorials
-      } else if (doctype == "Game"){
-        folder <- course_paths()$subfolders$games
-      } else if (doctype == "Case"){
-        folder <- course_paths()$subfolders$cases
-      } else if (doctype == "Question"){
-        folder <- course_paths()$subfolders$original
-      }
-      if (base::dir.exists(folder)){
-        if (.Platform['OS.type'] == "windows"){
-          shell.exec(folder)
-        } else {
-          system2("open", folder)
-        }
-      } else {
-        shinyalert::shinyalert(
-          "Non-existing folder", "It seems that the folder you are trying to open does not exist. Did you already export files in it?",
-          type = "error"
-        )
-      }
-    })
-    
-    
-    
     # Original ##############################################################
     
     output$editoriginal <- shiny::renderUI({
