@@ -76,7 +76,7 @@ code_edit_server <- function(id, course_paths){
         Page = course_paths()$subfolders$templates_page,
         Paper = course_paths()$subfolders$templates_paper,
         Question = course_paths()$subfolders$templates_question,
-        Feedback = course_paths()$subfolders$templates_report,
+        Feedback = course_paths()$subfolders$templates_feedback,
         Analysis = course_paths()$subfolders$templates_report,
         tex = course_paths()$subfolders$exams,
         css = course_paths()$subfolders$css,
