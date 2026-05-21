@@ -55,18 +55,14 @@ edit_ui <- function(id){
         ),
         shiny::uiOutput(ns("opendefexui"))
       ),
-      shiny::column(6, shiny::uiOutput(ns("editdoc"))),
-      shiny::column(
-        4,
-        shiny::uiOutput(ns("ratingsstatistics")),
-        shiny::uiOutput(ns("viewsstatistics")),
-        shiny::uiOutput(ns("resultsstatistics")),
-        shiny::plotOutput(ns("questioncurve"))
-      )
+      shiny::column(5, shiny::uiOutput(ns("editdoc"))),
+      shiny::column(5, shiny::uiOutput(ns("previewdoc")))
     ),
     shiny::fluidRow(
-      shiny::column(2, shiny::uiOutput(ns("selectprop"))),
-      shiny::column(10, rhandsontable::rHandsontableOutput(ns("editprop")))
+      shiny::uiOutput(ns("ratingsstatistics")),
+      shiny::uiOutput(ns("viewsstatistics")),
+      shiny::uiOutput(ns("resultsstatistics")),
+      shiny::plotOutput(ns("questioncurve"))
     )
   )
 }

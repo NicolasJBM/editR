@@ -459,6 +459,13 @@ edit_server <- function(
       )
     })
     
+    
+    
+    
+    
+    
+    
+    
     shiny::observeEvent(input$docpreview, {
       if (doctype == "Question"){
         base::load(course_paths()$databases$propositions)
@@ -466,22 +473,22 @@ edit_server <- function(
         test_parameters <- NA
         docformat <- "html"
         record_solution <- FALSE
-        shiny::showModal(shiny::modalDialog(
-          title = "Question preview",
-          shiny::renderUI({
-            base::suppressWarnings(
-              shiny::withMathJax(shiny::HTML(knitr::knit2html(
-                text = base::readLines(document_to_edit()$filepath),
-                quiet = TRUE, template = FALSE
-              )))
-            )
-          }),
-          easyClose = TRUE
-        ))
+        shiny::withMathJax(shiny::HTML(knitr::knit2html(
+          text = base::readLines(document_to_edit()$filepath),
+          quiet = TRUE, template = FALSE
+        )))
       } else {
         editR::view_document(document_to_edit(),TRUE,course_paths)
       }
     })
+    
+    
+    output$previewdoc <- shiny::renderUI({
+      
+    })
+    
+    
+    
 
 
 
@@ -550,7 +557,68 @@ edit_server <- function(
     })
 
 
-    # Edit propositions ########################################################
+    # Publish document #########################################################
+
+    shiny::observeEvent(input$publishdocs, {
+      if (doctype == "Presentation"){
+        editR::publish_presentation(tree, tbltree(), selected_document(), course_paths())
+      } else if (doctype == "Script"){
+        editR::publish_script(selected_document(), course_paths())
+      } else if (doctype == "Page"){
+        editR::publish_textbook(tree, tbltree(), course_paths(), course_data()$languages)
+      } else if (doctype == "Paper"){
+        editR::publish_paper(selected_document(), course_paths())
+      } else if (doctype == "Question"){
+        shinyalert::shinyalert(
+          "Go to test", "Questions can only be published in tests.",
+          type = "warning"
+        )
+      }
+    })
+    
+    
+    # Open folder ##############################################################
+    
+    shiny::observeEvent(input$openfolder, {
+      if (doctype == "Presentation"){
+        folder <- course_paths()$subfolders$presentations
+      } else if (doctype == "Script"){
+        folder <- course_paths()$subfolders$videos
+      } else if (doctype == "Page"){
+        folder <- course_paths()$subfolders$textbooks
+      } else if (doctype == "Paper"){
+        folder <- course_paths()$subfolders$papers
+      } else if(doctype == "Question"){
+        folder <- course_paths()$subfolders$original
+      }
+      if (base::dir.exists(folder)){
+        if (.Platform['OS.type'] == "windows"){
+          shell.exec(folder)
+        } else {
+          system2("open", folder)
+        }
+      } else {
+        shinyalert::shinyalert(
+          "Non-existing folder", "It seems that the folder you are trying to open does not exist. Did you already export files in it?",
+          type = "error"
+        )
+      }
+    })
+    
+    
+    
+    
+    
+    # TO REDESIGN LATER ########################################################
+    
+    
+    output$editpropositions <- shiny::renderUI({
+      shiny::fluidRow(
+        shiny::column(2, shiny::uiOutput(ns("selectprop"))),
+        shiny::column(10, rhandsontable::rHandsontableOutput(ns("editprop")))
+      )
+    })
+    
     
     propositions <- shiny::reactive({
       shiny::req(base::length(course_paths()) == 2)
@@ -807,56 +875,6 @@ edit_server <- function(
         "Propositions saved!", "Refresh to see changes.",
         type = "success", inputId = "acknowledgesaveprop"
       )
-    })
-
-    
-    
-    # Publish document #########################################################
-
-    shiny::observeEvent(input$publishdocs, {
-      if (doctype == "Presentation"){
-        editR::publish_presentation(tree, tbltree(), selected_document(), course_paths())
-      } else if (doctype == "Script"){
-        editR::publish_script(selected_document(), course_paths())
-      } else if (doctype == "Page"){
-        editR::publish_textbook(tree, tbltree(), course_paths(), course_data()$languages)
-      } else if (doctype == "Paper"){
-        editR::publish_paper(selected_document(), course_paths())
-      } else if (doctype == "Question"){
-        shinyalert::shinyalert(
-          "Go to test", "Questions can only be published in tests.",
-          type = "warning"
-        )
-      }
-    })
-    
-    
-    # Open folder ##############################################################
-    
-    shiny::observeEvent(input$openfolder, {
-      if (doctype == "Presentation"){
-        folder <- course_paths()$subfolders$presentations
-      } else if (doctype == "Script"){
-        folder <- course_paths()$subfolders$videos
-      } else if (doctype == "Page"){
-        folder <- course_paths()$subfolders$textbooks
-      } else if (doctype == "Paper"){
-        folder <- course_paths()$subfolders$papers
-      } else if(doctype == "Question"){
-        folder <- course_paths()$subfolders$original
-      }
-      if (base::dir.exists(folder)){
-        if (.Platform['OS.type'] == "windows"){
-          shell.exec(folder)
-        } else {
-          system2("open", folder)
-        }
-      } else {
-        shinyalert::shinyalert(
-          "Non-existing folder", "It seems that the folder you are trying to open does not exist. Did you already export files in it?",
-          type = "error"
-        )
-      }
     })
 
 
