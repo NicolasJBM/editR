@@ -4,7 +4,7 @@
 \alias{edit_server}
 \title{Edit documents}
 \usage{
-edit_server(id, filtered, tree, tbltree, course_data, course_paths, doctype)
+edit_server(id, filtered, tree, tbltree, course_data, course_paths)
 }
 \arguments{
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
@@ -18,8 +18,6 @@ edit_server(id, filtered, tree, tbltree, course_data, course_paths, doctype)
 \item{course_data}{Reactive. Function containing all the course data loaded with the course.}
 
 \item{course_paths}{Reactive. Function containing a list of paths to the different folders and databases on local disk.}
-
-\item{doctype}{Character. Whether the document is a "Presentation", "Video" ,"Page", "Paper", or question}
 }
 \value{
 Save the new or modified page in the folder "2_documents/main_language/".

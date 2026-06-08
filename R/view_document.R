@@ -22,19 +22,15 @@ view_document <- function(selected, original, course_paths){
   
   doctype <- selected$type[1]
   filepath <- selected$filepath
-    
+  previewpath <- selected$preview
+  qmdpath <- stringr::str_replace(previewpath, "html$", "qmd")
+  
   shinybusy::show_modal_spinner(
     spin = "orbit",
     text = "Preparing the document..."
   )
   
-  qmdpath <- base::paste0(course_paths()$subfolders$edit, "/index.qmd")
-  htmlpath1 <- base::paste0(course_paths()$subfolders$edit, "/index.html")
-  htmlpath2 <- stringr::str_remove(
-    htmlpath1,
-    base::paste0(course_paths()$subfolders$course, "/")
-  )
-  if (base::file.exists(htmlpath1)) base::file.remove(htmlpath1)
+  if (base::file.exists(previewpath)) base::file.remove(previewpath)
   doc <- base::readLines(filepath)
   
   if (!original){
@@ -51,17 +47,6 @@ view_document <- function(selected, original, course_paths){
   base::writeLines(doc, qmdpath, useBytes = TRUE)
   
   base::try(quarto::quarto_render(qmdpath, quiet = TRUE), silent = TRUE)
-  
-  if (!base::file.exists(htmlpath1)){
-    ui <- shinydashboardPlus::box(
-      width = 12, title = title, solidHeader = TRUE, status = "primary",
-      collapsible = FALSE, collapsed = FALSE, height = "500px",
-      shiny::h2("The document could not be rendered. Try to correct it and then refresh.")
-    )
-  } else {
-    shiny::req(base::file.exists(htmlpath2))
-    utils::browseURL(htmlpath2)
-  }
   
   shinybusy::remove_modal_spinner()
 }

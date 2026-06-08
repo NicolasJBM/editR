@@ -8,7 +8,6 @@
 #' @param tbltree Reactive. Function containing a list of documents as a classification tree compatible with jsTreeR.
 #' @param course_data Reactive. Function containing all the course data loaded with the course.
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
-#' @param doctype Character. Whether the document is a "Presentation", "Video" ,"Page", "Paper", or question
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
 #' @importFrom chartR display_curve
 #' @importFrom dplyr anti_join
@@ -60,7 +59,7 @@
 
 
 edit_server <- function(
-    id, filtered, tree, tbltree, course_data, course_paths, doctype
+    id, filtered, tree, tbltree, course_data, course_paths
 ){
   ns <- shiny::NS(id)
   shiny::moduleServer(id, function(input, output, session) {
@@ -89,65 +88,42 @@ edit_server <- function(
     label <- NULL
     outcome <- NULL
     
-
-    # Load data ################################################################
-
-    selection <- shiny::reactive({
-      shiny::req(base::length(course_paths()) == 2)
-      shiny::req(!base::is.null(filtered()))
-      if (doctype == "Question"){
-        filtered() |>
-          dplyr::filter(type %in% c("Statements","Alternatives","Computation","Essay","Problem"))
-      } else {
-        filtered() |>
-          dplyr::filter(type == doctype)
-      }
-    })
-
-    prefix <- shiny::reactive({
-      base::switch(
-        doctype,
-        Presentation = "S",
-        Video = "V",
-        Page = "P",
-        Paper = "N",
-        Question = "Q"
-      )
-    })
-
-    templates_path <- shiny::reactive({
-      shiny::req(base::length(course_paths()) == 2)
-      base::switch(
-        doctype,
-        Paper = course_paths()$subfolders$templates_paper,
-        Page = course_paths()$subfolders$templates_page,
-        Presentation = course_paths()$subfolders$templates_presentation,
-        Video = course_paths()$subfolders$templates_video,
-        Question = course_paths()$subfolders$templates_question
-      )
-    })
-
-    template_files <- shiny::reactive({
-      shiny::req(!base::is.null(templates_path()))
-      base::list.files(templates_path())
-    })
     
-
 
     # Select document ##########################################################
     document_list <- shiny::reactive({
-      shiny::req(!base::is.null(selection()))
-      shiny::req(nrow(selection()) > 0)
-      if (base::length(selection()$title) > 0){
-        doc_list <- c(selection()$file)
+      shiny::req(!base::is.null(filtered()))
+      shiny::req(nrow(filtered()) > 0)
+      if (base::length(filtered()$title) > 0){
+        doc_list <- c(filtered()$file)
         base::names(doc_list) <- c(
-          base::paste(selection()$code, " - ", selection()$title)
+          base::paste(filtered()$code, " - ", filtered()$title)
         )
       }  else doc_list <- ""
       doc_list
     })
 
     selected_document <- editR::selection_server("slctdoc", document_list)
+    
+    document_to_edit <- shiny::reactive({
+      shiny::req(!base::is.null(filtered()))
+      shiny::req(selected_document())
+      shiny::req(selected_document() %in% filtered()$file)
+      to_edit <- filtered() |>
+        dplyr::filter(file == selected_document())
+      to_edit$filepath <- base::paste0(
+        course_paths()$subfolders$original, "/", to_edit$file
+      )
+      to_edit$preview <- base::paste0(
+        course_paths()$subfolders$preview, "/",
+        stringr::str_replace(to_edit$file, ".Rmd$",".html")
+      )
+      to_edit
+    })
+    
+    output$docinfo <- shiny::renderUI({
+      editR::make_title_display(document_to_edit(), course_data)
+    })
     
     output$pathintree <- shiny::renderUI({
       shiny::req(!base::is.null(selected_document()))
@@ -156,6 +132,39 @@ edit_server <- function(
         shiny::HTML()
     })
     
+    prefix <- shiny::reactive({
+      shiny::req(!base::is.null(document_to_edit()))
+      base::switch(
+        document_to_edit()$type[[1]],
+        Presentation = "S",
+        Video = "V",
+        Page = "P",
+        Paper = "N",
+        Statements = "Q",
+        Alternatives = "Q",
+        Computation = "Q",
+        Essay = "Q",
+        Problem = "Q"
+      )
+    })
+    
+    templates_path <- shiny::reactive({
+      shiny::req(base::length(course_paths()) == 2)
+      shiny::req(!base::is.null(document_to_edit()))
+      base::switch(
+        document_to_edit()$type[[1]],
+        Paper = course_paths()$subfolders$templates_paper,
+        Page = course_paths()$subfolders$templates_page,
+        Presentation = course_paths()$subfolders$templates_presentation,
+        Video = course_paths()$subfolders$templates_video,
+        Question = course_paths()$subfolders$templates_question
+      )
+    })
+    
+    template_files <- shiny::reactive({
+      shiny::req(!base::is.null(templates_path()))
+      base::list.files(templates_path())
+    })
     
     # Edit metainformation #####################################################
     
@@ -299,7 +308,8 @@ edit_server <- function(
     })
     
     output$opendefexui <- shiny::renderUI({
-      if (doctype %in% c("Presentation","Script","Page","Paper")){
+      shiny::req(!base::is.null(document_to_edit()))
+      if (document_to_edit()$type[[1]] %in% c("Presentation","Script","Page","Paper")){
         lab <- "Edit definitions"
       } else {
         lab <- "Edit exercices"
@@ -311,7 +321,8 @@ edit_server <- function(
     })
     
     shiny::observeEvent(input$opendefex, {
-      if (doctype %in% c("Presentation","Script","Page","Paper")){
+      shiny::req(!base::is.null(document_to_edit()))
+      if (document_to_edit()$type[[1]] %in% c("Presentation","Script","Page","Paper")){
         pathfile <- base::paste0(course_paths()$subfolders$databases, "/definitions.xlsx")
       } else {
         pathfile <- base::paste0(course_paths()$subfolders$databases, "/exercises.xlsx")
@@ -328,56 +339,6 @@ edit_server <- function(
           type = "error"
         )
       }
-    })
-    
-    
-    
-    
-    # Display statistics #######################################################
-
-    output$ratingsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(selected_document()))
-      shiny::req(selected_document() != "")
-      editR::make_infobox(course_data, selected_document(), "ratings")
-    })
-    output$viewsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(selected_document))
-      shiny::req(selected_document() != "")
-      editR::make_infobox(course_data, selected_document(), "views")
-    })
-    output$resultsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(selected_document))
-      shiny::req(selected_document() != "")
-      editR::make_infobox(course_data, selected_document(), "results")
-    })
-    
-    output$questioncurve <- shiny::renderPlot({
-      shiny::req(!base::is.null(selected_document()))
-      shiny::req(!base::is.null(course_data()$document_models))
-      shiny::req(selected_document() %in% course_data()$document_models$file)
-      selected_model <- course_data()$document_models |>
-        dplyr::filter(file == selected_document())
-      chartR::display_curve(selected_model$data[[1]])
-    })
-    
-    
-    
-    # Display document #########################################################
-
-    document_to_edit <- shiny::reactive({
-      shiny::req(!base::is.null(selection()))
-      shiny::req(selected_document())
-      shiny::req(selected_document() %in% selection()$file)
-      to_edit <- selection() |>
-        dplyr::filter(file == selected_document())
-      to_edit$filepath <- base::paste0(
-        course_paths()$subfolders$original, "/", to_edit$file
-      )
-      to_edit
-    })
-    
-    output$docinfo <- shiny::renderUI({
-      editR::make_title_display(document_to_edit(), course_data)
     })
     
     
@@ -466,29 +427,49 @@ edit_server <- function(
     
     
     
+    
+    
+    
+    
+    
+    
     shiny::observeEvent(input$docpreview, {
-      if (doctype == "Question"){
-        base::load(course_paths()$databases$propositions)
-        base::load(course_paths()$databases$translations)
-        test_parameters <- NA
-        docformat <- "html"
-        record_solution <- FALSE
-        shiny::withMathJax(shiny::HTML(knitr::knit2html(
-          text = base::readLines(document_to_edit()$filepath),
-          quiet = TRUE, template = FALSE
-        )))
+      if (document_to_edit()$type[[1]] %in%
+          c("Statements","Alternatives","Computation","Essay","Problem")){
+        shinybusy::show_modal_spinner(
+          spin = "orbit",
+          text = "Preparing the document..."
+        )
+        exams2forms::exams2webquiz(
+          file = document_to_edit()$file[[1]],
+          name = stringr::str_remove(document_to_edit()$file[[1]], ".Rmd$"),
+          title = NULL, #document_to_edit()$title[[1]],
+          dir = course_paths()$subfolders$preview,
+          edir = course_paths()$subfolders$original,
+          check = TRUE, box = FALSE, solution = TRUE
+        )
+        shinybusy::remove_modal_spinner()
       } else {
         editR::view_document(document_to_edit(),TRUE,course_paths)
       }
     })
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
     output$previewdoc <- shiny::renderUI({
-      
+      shiny::req(!base::is.null(document_to_edit()))
+      shiny::req(base::file.exists(document_to_edit()$preview[[1]]))
+      lines <- base::readLines(document_to_edit()$preview[[1]])
+      shiny::tags$iframe(srcdoc = lines, width = 600, height = 600)
     })
-    
-    
-    
 
 
 
@@ -514,6 +495,8 @@ edit_server <- function(
     })
 
     shiny::observeEvent(input$createdoc, {
+      shiny::req(!base::is.null(prefix()))
+      shiny::req(!base::is.null(document_to_edit()))
       shiny::removeModal()
       newname <- editR::make_new_name(prefix(), course_paths)
       newfile <- base::paste0(newname, ".Rmd")
@@ -524,7 +507,7 @@ edit_server <- function(
           "Meta-information",
           "================",
           "exextra[title]:New document.  ",
-          "exextra[type]:", doctype, "  ",
+          "exextra[type]:", document_to_edit()$type[[1]], "  ",
           base::paste0(
             "exextra[document]:",
             stringr::str_remove(newname, "_...Rmd$"),
@@ -555,20 +538,20 @@ edit_server <- function(
         type = "success", closeOnEsc = FALSE, closeOnClickOutside = TRUE
       )
     })
-
+    
 
     # Publish document #########################################################
 
     shiny::observeEvent(input$publishdocs, {
-      if (doctype == "Presentation"){
+      if (document_to_edit()$type[[1]] == "Presentation"){
         editR::publish_presentation(tree, tbltree(), selected_document(), course_paths())
-      } else if (doctype == "Script"){
+      } else if (document_to_edit()$type[[1]] == "Script"){
         editR::publish_script(selected_document(), course_paths())
-      } else if (doctype == "Page"){
+      } else if (document_to_edit()$type[[1]] == "Page"){
         editR::publish_textbook(tree, tbltree(), course_paths(), course_data()$languages)
-      } else if (doctype == "Paper"){
+      } else if (document_to_edit()$type[[1]] == "Paper"){
         editR::publish_paper(selected_document(), course_paths())
-      } else if (doctype == "Question"){
+      } else if (document_to_edit()$type[[1]] == "Question"){
         shinyalert::shinyalert(
           "Go to test", "Questions can only be published in tests.",
           type = "warning"
@@ -580,15 +563,15 @@ edit_server <- function(
     # Open folder ##############################################################
     
     shiny::observeEvent(input$openfolder, {
-      if (doctype == "Presentation"){
+      if (document_to_edit()$type[[1]] == "Presentation"){
         folder <- course_paths()$subfolders$presentations
-      } else if (doctype == "Script"){
+      } else if (document_to_edit()$type[[1]] == "Script"){
         folder <- course_paths()$subfolders$videos
-      } else if (doctype == "Page"){
+      } else if (document_to_edit()$type[[1]] == "Page"){
         folder <- course_paths()$subfolders$textbooks
-      } else if (doctype == "Paper"){
+      } else if (document_to_edit()$type[[1]] == "Paper"){
         folder <- course_paths()$subfolders$papers
-      } else if(doctype == "Question"){
+      } else if(document_to_edit()$type[[1]] == "Question"){
         folder <- course_paths()$subfolders$original
       }
       if (base::dir.exists(folder)){
@@ -607,8 +590,6 @@ edit_server <- function(
     
     
     
-    
-    
     # TO REDESIGN LATER ########################################################
     
     
@@ -622,7 +603,7 @@ edit_server <- function(
     
     propositions <- shiny::reactive({
       shiny::req(base::length(course_paths()) == 2)
-      shiny::req(doctype %in% c("Presentation","Script","Page","Paper","Question"))
+      shiny::req(document_to_edit()$type[[1]] %in% c("Presentation","Script","Page","Paper","Question"))
       input$refreshprop
       input$acknowledgesaveprop
       base::load(course_paths()$databases$propositions)
@@ -632,8 +613,8 @@ edit_server <- function(
     targeted_documents <- shiny::reactive({
       shiny::req(!base::is.null(propositions()))
       shiny::req(selected_document())
-      shiny::req(!base::is.null(selection()))
-      selected_document <- selection() |>
+      shiny::req(!base::is.null(filtered()))
+      selected_document <- filtered() |>
         dplyr::filter(file == selected_document())
       targeted_documents <- selected_document$document[1] |>
         stringr::str_split(pattern = " ", simplify = TRUE) |>
@@ -645,7 +626,7 @@ edit_server <- function(
     propositions_for_document <- shiny::reactive({
       shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(targeted_documents()))
-      selected_document <- selection() |>
+      selected_document <- filtered() |>
         dplyr::filter(file == selected_document())
       if (selected_document$type %in% c("Presentation","Script","Page","Paper")) {
         propositions() |>
@@ -756,7 +737,7 @@ edit_server <- function(
       shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(propositions_to_edit()))
       
-      selected_document <- selection() |>
+      selected_document <- filtered() |>
         dplyr::filter(file == selected_document())
       
       existing_names <- propositions() |>
@@ -875,6 +856,35 @@ edit_server <- function(
         "Propositions saved!", "Refresh to see changes.",
         type = "success", inputId = "acknowledgesaveprop"
       )
+    })
+    
+    
+    
+    # Display statistics #######################################################
+    
+    output$ratingsstatistics <- shiny::renderUI({
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(selected_document() != "")
+      editR::make_infobox(course_data, selected_document(), "ratings")
+    })
+    output$viewsstatistics <- shiny::renderUI({
+      shiny::req(!base::is.null(selected_document))
+      shiny::req(selected_document() != "")
+      editR::make_infobox(course_data, selected_document(), "views")
+    })
+    output$resultsstatistics <- shiny::renderUI({
+      shiny::req(!base::is.null(selected_document))
+      shiny::req(selected_document() != "")
+      editR::make_infobox(course_data, selected_document(), "results")
+    })
+    
+    output$questioncurve <- shiny::renderPlot({
+      shiny::req(!base::is.null(selected_document()))
+      shiny::req(!base::is.null(course_data()$document_models))
+      shiny::req(selected_document() %in% course_data()$document_models$file)
+      selected_model <- course_data()$document_models |>
+        dplyr::filter(file == selected_document())
+      chartR::display_curve(selected_model$data[[1]])
     })
 
 
