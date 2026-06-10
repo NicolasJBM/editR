@@ -468,7 +468,7 @@ edit_server <- function(
       shiny::req(!base::is.null(document_to_edit()))
       shiny::req(base::file.exists(document_to_edit()$preview[[1]]))
       lines <- base::readLines(document_to_edit()$preview[[1]])
-      shiny::tags$iframe(srcdoc = lines, width = 600, height = 600)
+      shiny::tags$iframe(srcdoc = lines, width = "100%", height = 600)
     })
 
 
