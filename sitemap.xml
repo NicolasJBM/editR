@@ -13,6 +13,8 @@
 <url><loc>/reference/code_edit_server.html</loc></url>
 <url><loc>/reference/code_edit_ui.html</loc></url>
 <url><loc>/reference/display_question.html</loc></url>
+<url><loc>/reference/edit_propositions_server.html</loc></url>
+<url><loc>/reference/edit_propositions_ui.html</loc></url>
 <url><loc>/reference/edit_server.html</loc></url>
 <url><loc>/reference/edit_ui.html</loc></url>
 <url><loc>/reference/get_tags.html</loc></url>
@@ -29,10 +31,7 @@
 <url><loc>/reference/publish_textbook.html</loc></url>
 <url><loc>/reference/selection_server.html</loc></url>
 <url><loc>/reference/selection_ui.html</loc></url>
-<url><loc>/reference/translate.html</loc></url>
-<url><loc>/reference/translate_document.html</loc></url>
 <url><loc>/reference/translate_exercise.html</loc></url>
-<url><loc>/reference/translate_propositions.html</loc></url>
 <url><loc>/reference/translate_server.html</loc></url>
 <url><loc>/reference/translate_ui.html</loc></url>
 <url><loc>/reference/view_document.html</loc></url>
