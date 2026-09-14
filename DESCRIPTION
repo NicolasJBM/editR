@@ -30,7 +30,6 @@ Imports:
     purrr,
     quarto,
     shinybusy,
-    polyglotr,
     exams2forms,
     chartR,
     classR

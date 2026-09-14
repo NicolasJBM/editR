@@ -148,6 +148,8 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
       )
     })
     
+    
+    
     document_to_translate <- shiny::reactive({
       shiny::req(selected_code())
       shiny::req(!base::is.null(filtered()))
@@ -179,6 +181,10 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
       )
       translated_document$filepath <- base::paste0(
         course_paths()$subfolders$translated, "/", translated_document$file
+      )
+      translated_document$preview  <- base::paste0(
+        course_paths()$subfolders$preview, "/",
+        stringr::str_replace(translated_document$file, ".Rmd$",".html")
       )
       translated_document
     })
@@ -213,29 +219,10 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
           course_paths()$subfolders$translated, "/", translated_document$file
         )
         
-        if (input$maketranslation){
-          translation <- document_to_translate()$filepath |>
-            editR::translate_document(langiso = base::tolower(input$slctlang))
-        } else {
-          translation <- base::list(translated = base::readLines(document_to_translate()$filepath))
-        }
-        
         base::writeLines(
           base::unlist(translation$translated),
           translated_document$filepath
         )
-        
-        base::load(course_paths()$databases$propositions)
-        base::load(course_paths()$databases$translations)
-        langiso <- input$slctlang
-        
-        translations <- editR::translate_propositions(
-          propositions,
-          translations,
-          langiso
-        )
-        
-        base::save(translations, file = course_paths()$databases$translations)
         
         shinybusy::remove_modal_spinner()
         
@@ -254,107 +241,6 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
     })
     
     
-    
-    # Original ##############################################################
-    
-    output$editoriginal <- shiny::renderUI({
-      shiny::req(!base::is.null(document_to_translate()))
-      shiny::req(base::file.exists(document_to_translate()$filepath))
-      lines <- base::readLines(base::paste0(document_to_translate()$filepath))
-      shinydashboardPlus::box(
-        width = 12, title = "Original", solidHeader = TRUE,
-        status = "navy", collapsible = FALSE, collapsed = FALSE,
-        height = "750px",
-        shiny::fluidRow(
-          shiny::column(
-            3,
-            shiny::actionButton(
-              ns("originalinrstudio"), "RStudio",
-              icon = shiny::icon("r-project"),
-              style = "background-color:#003366;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          ),
-          shiny::column(
-            3,
-            shiny::actionButton(
-              ns("originalrefresh"), "Refresh",
-              icon = shiny::icon("rotate"),
-              style = "background-color:#006699;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          ),
-          shiny::column(
-            3,
-            shiny::actionButton(
-              ns("saveoriginal"), "Save",
-              icon = shiny::icon("floppy-disk"),
-              style = "background-color:#006633;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          ),
-          shiny::column(
-            3,
-            shiny::actionButton(
-              ns("originalpreview"), "Preview", icon = shiny::icon("eye"),
-              style = "background-color:#660033;color:#FFF;
-                width:100%;margin-bottom:10px;"
-            )
-          )
-        ),
-        shiny::fluidRow(
-          shiny::column(12, shinyAce::aceEditor(
-            outputId = ns("editedoriginal"), value = lines, mode = "markdown",
-            wordWrap = TRUE, debounce = 10, autoComplete = "live",
-            height = "500"
-          ))
-        )
-      )
-    })
-    
-    shiny::observeEvent(input$originalinrstudio, {
-      document_to_translate <- shiny::isolate({ document_to_translate() })
-      shiny::req(!base::is.null(document_to_translate))
-      rstudioapi::navigateToFile(document_to_translate$filepath)
-    })
-    
-    shiny::observeEvent(input$saveoriginal, {
-      document_to_translate <- shiny::isolate({ document_to_translate() })
-      editedoriginal <- shiny::isolate({ input$editedoriginal })
-      shiny::req(!base::is.null(editedoriginal))
-      base::writeLines(editedoriginal, document_to_translate$filepath, useBytes = TRUE)
-      shinyalert::shinyalert(
-        "Original saved", "Click on the refresh button to display changes.",
-        type = "success"
-      )
-    })
-    
-    shiny::observeEvent(input$originalpreview, {
-      if (document_to_translate()$type %in% c("Free","Statements","Alternatives","Computation","Essay","Problem")){
-        base::load(course_paths()$databases$propositions)
-        base::load(course_paths()$databases$translations)
-        test_parameters <- NA
-        docformat <- "html"
-        record_solution <- FALSE
-        shiny::showModal(shiny::modalDialog(
-          title = "Question preview",
-          shiny::renderUI({
-            base::suppressWarnings(
-              shiny::withMathJax(shiny::HTML(knitr::knit2html(
-                text = base::readLines(document_to_translate()$filepath),
-                quiet = TRUE, template = FALSE
-              )))
-            )
-          }),
-          easyClose = TRUE
-        ))
-      } else {
-        editR::view_document(document_to_translate(),TRUE,course_paths)
-      }
-    })
-    
-    
-    
     # Translation ##############################################################
     
     output$edittranslation <- shiny::renderUI({
@@ -367,7 +253,7 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
         height = "750px",
         shiny::fluidRow(
           shiny::column(
-            3,
+            2,
             shiny::actionButton(
               ns("translationinrstudio"), "RStudio",
               icon = shiny::icon("r-project"),
@@ -376,7 +262,7 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
             )
           ),
           shiny::column(
-            3,
+            2,
             shiny::actionButton(
               ns("translationrefresh"), "Refresh",
               icon = shiny::icon("rotate"),
@@ -385,7 +271,7 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
             )
           ),
           shiny::column(
-            3,
+            2,
             shiny::actionButton(
               ns("savetranslation"), "Save",
               icon = shiny::icon("floppy-disk"),
@@ -396,7 +282,15 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
           shiny::column(
             3,
             shiny::actionButton(
-              ns("translationpreview"), "Preview", icon = shiny::icon("eye"),
+              ns("translationpreview"), "Preview", icon = shiny::icon("print"),
+              style = "background-color:#660033;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            3,
+            shiny::actionButton(
+              ns("opentranslation"), "Open file", icon = shiny::icon("eye"),
               style = "background-color:#660033;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
@@ -433,147 +327,49 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
       )
     })
     
+    
+    
+    
+    
     shiny::observeEvent(input$translationpreview, {
-      if (translated_document()$type %in% c("Free","Statements","Alternatives","Computation","Essay","Problem")){
-        base::load(course_paths()$databases$propositions)
-        base::load(course_paths()$databases$translations)
-        test_parameters <- NA
-        docformat <- "html"
-        record_solution <- FALSE
-        shiny::showModal(shiny::modalDialog(
-          title = "Question preview",
-          shiny::renderUI({
-            base::suppressWarnings(
-              shiny::withMathJax(shiny::HTML(knitr::knit2html(
-                text = base::readLines(translated_document()$filepath),
-                quiet = TRUE, template = FALSE
-              )))
-            )
-          }),
-          easyClose = TRUE
-        ))
+      if (document_to_translate()$type[[1]] %in%
+          c("Statements","Alternatives","Computation","Essay","Problem")){
+        shinybusy::show_modal_spinner(
+          spin = "orbit",
+          text = "Preparing the document..."
+        )
+        exams2forms::exams2webquiz(
+          file = translated_document()$file[[1]],
+          name = stringr::str_remove(translated_document()$file[[1]], ".Rmd$"),
+          title = "Preview",
+          dir = course_paths()$subfolders$preview,
+          edir = course_paths()$subfolders$translated,
+          check = TRUE, box = TRUE, solution = TRUE
+        )
+        shinybusy::remove_modal_spinner()
       } else {
         editR::view_document(translated_document(),FALSE,course_paths)
       }
     })
     
-    
-    
-    # Display statistics #######################################################
-    
-    doc_for_stats <- shiny::reactive({
+    shiny::observeEvent(input$opentranslation, {
       shiny::req(!base::is.null(translated_document()))
-      translated_document()$file
+      shiny::req(base::file.exists(translated_document()$preview[[1]]))
+      utils::browseURL(translated_document()$preview[[1]])
     })
     
-    output$ratingsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(doc_for_stats()))
-      shiny::req(doc_for_stats() != "")
-      make_infobox(course_data, doc_for_stats(), "ratings")
-    })
-    output$viewsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(doc_for_stats()))
-      shiny::req(doc_for_stats() != "")
-      make_infobox(course_data, doc_for_stats(), "views")
-    })
-    output$resultsstatistics <- shiny::renderUI({
-      shiny::req(!base::is.null(doc_for_stats()))
-      shiny::req(doc_for_stats() != "")
-      make_infobox(course_data, doc_for_stats(), "results")
+    output$previewtranslation <- shiny::renderUI({
+      shiny::req(!base::is.null(translated_document()))
+      shiny::req(base::file.exists(translated_document()$preview[[1]]))
+      lines <- base::readLines(translated_document()$preview[[1]])
+      shiny::tags$iframe(srcdoc = shiny::HTML(lines), width = "100%", height = 600, seamless="seamless")
     })
     
     
     
-    # Edit propositions ########################################################
     
-    selected_propositions <- shiny::reactive({
-      shiny::req(selected_code())
-      base::load(course_paths()$databases$propositions)
-      selection <- course_data()$documents |>
-        dplyr::filter(code == selected_code()) |>
-        dplyr::select(type, code, document) |>
-        base::unique()
-      if (selection$type %in% c("Note","Page","Slide","Script")){
-        propositions |>
-          dplyr::mutate(keep = purrr::map_lgl(document, function(x,y){
-            stringr::str_detect(y, x)
-          }, selection$document)) |>
-          dplyr::filter(keep == TRUE) |>
-          dplyr::select(-keep)
-      } else if (selection$type == "Statements") {
-        propositions |>
-          dplyr::mutate(keep = purrr::map_lgl(document, function(x,y){
-            stringr::str_detect(y, x)
-          }, selection$document)) |>
-          dplyr::filter(keep == TRUE, type == "Statements") |>
-          dplyr::select(-keep)
-      } else {
-        propositions |>
-          dplyr::filter(code == selected_code())
-      }
-    })
     
-    selected_translations <- shiny::reactive({
-      shiny::req(selected_propositions())
-      shiny::req(input$slctlang)
-      base::load(course_paths()$databases$translations)
-      translations <- translations |>
-        dplyr::mutate_all(base::as.character)|>
-        dplyr::filter(language == input$slctlang)
-      selected_propositions() |>
-        dplyr::select(item, proposition,explanation) |>
-        dplyr::left_join(translations, by = "item") |>
-        tidyr::replace_na(base::list(language = input$slctlang)) |>
-        dplyr::select(
-          item, language,
-          proposition, translated_proposition,
-          explanation, translated_explanation
-        )
-    })
     
-    output$translatepropositions <- rhandsontable::renderRHandsontable({
-      shiny::req(!base::is.null(selected_translations()))
-      
-      if (base::file.exists(course_paths()$databases$item_parameters)){
-        base::load(course_paths()$databases$item_parameters)
-        item_parameters <- item_parameters |>
-          dplyr::select(item, language, answers, success, discrimination)
-        selected <- selected_translations() |>
-          dplyr::left_join(item_parameters, by = c("item","language"))
-      } else {
-        selected <- selected_translations() |>
-          dplyr::mutate(answers = NA, success = NA, discrimination = NA)
-      }
-      
-      selected |>
-        rhandsontable::rhandsontable(
-          height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
-        ) |>
-        rhandsontable::hot_col(c(1,2,3,5,7,8,9), readOnly = TRUE) |>
-        rhandsontable::hot_cols(
-          colWidths = c("8%","3%","20%","20%","20%","20%","3%","3%","3%")
-        ) |>
-        rhandsontable::hot_context_menu(
-          allowRowEdit = FALSE, allowColEdit = FALSE
-        )
-    })
-    
-    shiny::observeEvent(input$saveproptranslation, {
-      shiny::req(!base::is.null(input$translatepropositions))
-      base::load(course_paths()$databases$translations)
-      translated_propositions <- rhandsontable::hot_to_r(input$translatepropositions) |>
-        dplyr::select(item, language, translated_proposition, translated_explanation)
-      not_edited <- translations |>
-        dplyr::anti_join(translated_propositions, by = c("item", "language"))
-      translations <- dplyr::bind_rows(not_edited, translated_propositions) |>
-        dplyr::arrange(item)
-      base::save(translations, file = course_paths()$databases$translations)
-      shinyalert::shinyalert(
-        "Translation saved",
-        "The translations of propositions have been saved. Refresh the question to update it.",
-        "success", TRUE, TRUE
-      )
-    })
     
   })
 }

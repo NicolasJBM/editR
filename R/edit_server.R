@@ -87,7 +87,7 @@ edit_server <- function(
     translations <- NULL
     label <- NULL
     outcome <- NULL
-    
+    modified <- NULL
     
 
     # Select document ##########################################################
@@ -150,14 +150,14 @@ edit_server <- function(
     
     templates_path <- shiny::reactive({
       shiny::req(base::length(course_paths()) == 2)
-      shiny::req(!base::is.null(document_to_edit()))
+      shiny::req(!base::is.null(prefix()))
       base::switch(
-        document_to_edit()$type[[1]],
-        Paper = course_paths()$subfolders$templates_paper,
-        Page = course_paths()$subfolders$templates_page,
-        Presentation = course_paths()$subfolders$templates_presentation,
-        Video = course_paths()$subfolders$templates_video,
-        Question = course_paths()$subfolders$templates_question
+        prefix(),
+        N = course_paths()$subfolders$templates_paper,
+        P = course_paths()$subfolders$templates_page,
+        S = course_paths()$subfolders$templates_presentation,
+        V = course_paths()$subfolders$templates_video,
+        Q = course_paths()$subfolders$templates_question
       )
     })
     
@@ -358,7 +358,7 @@ edit_server <- function(
         height = "750px",
         shiny::fluidRow(
           shiny::column(
-            3,
+            2,
             shiny::actionButton(
               ns("docinrstudio"), "RStudio",
               icon = shiny::icon("r-project"),
@@ -367,7 +367,7 @@ edit_server <- function(
             )
           ),
           shiny::column(
-            3,
+            2,
             shiny::actionButton(
               ns("docrefresh"), "Refresh",
               icon = shiny::icon("rotate"),
@@ -376,7 +376,7 @@ edit_server <- function(
             )
           ),
           shiny::column(
-            3,
+            2,
             shiny::actionButton(
               ns("savedoc"), "Save",
               icon = shiny::icon("floppy-disk"),
@@ -387,7 +387,15 @@ edit_server <- function(
           shiny::column(
             3,
             shiny::actionButton(
-              ns("docpreview"), "Preview", icon = shiny::icon("eye"),
+              ns("docpreview"), "Preview", icon = shiny::icon("print"),
+              style = "background-color:#660033;color:#FFF;
+                width:100%;margin-bottom:10px;"
+            )
+          ),
+          shiny::column(
+            3,
+            shiny::actionButton(
+              ns("openpreview"), "Open file", icon = shiny::icon("eye"),
               style = "background-color:#660033;color:#FFF;
                 width:100%;margin-bottom:10px;"
             )
@@ -421,18 +429,6 @@ edit_server <- function(
     })
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     shiny::observeEvent(input$docpreview, {
       if (document_to_edit()$type[[1]] %in%
           c("Statements","Alternatives","Computation","Essay","Problem")){
@@ -443,10 +439,10 @@ edit_server <- function(
         exams2forms::exams2webquiz(
           file = document_to_edit()$file[[1]],
           name = stringr::str_remove(document_to_edit()$file[[1]], ".Rmd$"),
-          title = NULL, #document_to_edit()$title[[1]],
+          title = "Preview",
           dir = course_paths()$subfolders$preview,
           edir = course_paths()$subfolders$original,
-          check = TRUE, box = FALSE, solution = TRUE
+          check = TRUE, box = TRUE, solution = TRUE
         )
         shinybusy::remove_modal_spinner()
       } else {
@@ -455,20 +451,18 @@ edit_server <- function(
     })
     
     
-    
-    
-    
-    
-    
-    
-    
+    shiny::observeEvent(input$openpreview, {
+      shiny::req(!base::is.null(document_to_edit()))
+      shiny::req(base::file.exists(document_to_edit()$preview[[1]]))
+      utils::browseURL(document_to_edit()$preview[[1]])
+    })
     
     
     output$previewdoc <- shiny::renderUI({
       shiny::req(!base::is.null(document_to_edit()))
       shiny::req(base::file.exists(document_to_edit()$preview[[1]]))
       lines <- base::readLines(document_to_edit()$preview[[1]])
-      shiny::tags$iframe(srcdoc = lines, width = "100%", height = 600)
+      shiny::tags$iframe(srcdoc = shiny::HTML(lines), width = "100%", height = 600, seamless="seamless")
     })
 
 
@@ -586,276 +580,6 @@ edit_server <- function(
           type = "error"
         )
       }
-    })
-    
-    
-    
-    # TO REDESIGN LATER ########################################################
-    
-    
-    output$editpropositions <- shiny::renderUI({
-      shiny::fluidRow(
-        shiny::column(2, shiny::uiOutput(ns("selectprop"))),
-        shiny::column(10, rhandsontable::rHandsontableOutput(ns("editprop")))
-      )
-    })
-    
-    
-    propositions <- shiny::reactive({
-      shiny::req(base::length(course_paths()) == 2)
-      shiny::req(document_to_edit()$type[[1]] %in% c("Presentation","Script","Page","Paper","Question"))
-      input$refreshprop
-      input$acknowledgesaveprop
-      base::load(course_paths()$databases$propositions)
-      propositions
-    })
-    
-    targeted_documents <- shiny::reactive({
-      shiny::req(!base::is.null(propositions()))
-      shiny::req(selected_document())
-      shiny::req(!base::is.null(filtered()))
-      selected_document <- filtered() |>
-        dplyr::filter(file == selected_document())
-      targeted_documents <- selected_document$document[1] |>
-        stringr::str_split(pattern = " ", simplify = TRUE) |>
-        base::unique() |>
-        base::sort()
-      targeted_documents
-    })
-    
-    propositions_for_document <- shiny::reactive({
-      shiny::req(!base::is.null(propositions()))
-      shiny::req(!base::is.null(targeted_documents()))
-      selected_document <- filtered() |>
-        dplyr::filter(file == selected_document())
-      if (selected_document$type %in% c("Presentation","Script","Page","Paper")) {
-        propositions() |>
-          dplyr::filter(
-            document %in% targeted_documents()
-          )
-      } else if (selected_document$type == "Statements") {
-        propositions() |>
-          dplyr::filter(
-            type == selected_document$type,
-            document %in% targeted_documents()
-          )
-      } else {
-        propositions() |>
-          dplyr::filter(
-            code == selected_document$code,
-            type == selected_document$type
-          )
-      }
-    })
-    
-    output$selectprop <- shiny::renderUI({
-      shiny::req(base::length(targeted_documents()) > 0)
-      shiny::req(!base::is.null(propositions_for_document()))
-      tgtdoc <- c(
-        targeted_documents(),
-        base::unique(propositions_for_document()$document)
-      )
-      tgttype <- c(base::unique(propositions_for_document()$type))
-      
-      shinydashboardPlus::box(
-        width = 12, title = "Selection", solidHeader = TRUE,
-        status = "purple", collapsible = FALSE, collapsed = FALSE,
-        height = "250px",
-        shiny::actionButton(
-          ns("saveprop"), "Save propositions",
-          icon = shiny::icon("floppy-disk"),
-          style = "background-color:#006600;color:#FFF;width:100%"
-        ),
-        shiny::tags$hr(),
-        shiny::selectInput(
-          ns("slctpropdoc"), "Select a document:",
-          choices = tgtdoc,
-          selected = tgtdoc,
-          multiple = TRUE
-        ),
-        shiny::tags$hr(),
-        shiny::selectInput(
-          ns("slctproptype"), "Select a type:",
-          choices = tgttype,
-          selected = tgttype,
-          multiple = TRUE
-        ),
-        shiny::tags$hr(),
-        shiny::sliderInput(
-          ns("slctpropval"), "Select a value range:",
-          min = 0, max = 1, value = c(0,1)
-        ),
-        shiny::tags$hr(),
-        shiny::numericInput(
-          ns("itmnbr"), "Additional items:",
-          min = 1, max = 100, step = 1 ,value = 1
-        ),
-        shinyWidgets::materialSwitch(
-          inputId = ns("sortbydoc"),
-          label = "Sort by document", 
-          status = "primary",
-          value = FALSE
-        ),
-        shinyWidgets::materialSwitch(
-          inputId = ns("sortbyval"),
-          label = "Sort by value", 
-          status = "primary",
-          value = FALSE
-        ),
-        shinyWidgets::materialSwitch(
-          inputId = ns("sortbyprp"),
-          label = "Sort by proposition", 
-          status = "primary",
-          value = FALSE
-        ),
-        shinyWidgets::materialSwitch(
-          inputId = ns("sortbyitm"),
-          label = "Sort by item", 
-          status = "primary",
-          value = TRUE
-        )
-      )
-    })
-    
-    propositions_to_edit <- shiny::reactive({
-      shiny::req(!base::is.null(propositions_for_document()))
-      shiny::req(!base::is.null(input$slctpropdoc))
-      shiny::req(!base::is.null(input$slctpropval))
-      propositions_for_document() |>
-        dplyr::filter(
-          document %in% c(NA, input$slctpropdoc),
-          type %in% input$slctproptype,
-          value >= input$slctpropval[1],
-          value <= input$slctpropval[2]
-        )
-    })
-    
-    output$editprop <- rhandsontable::renderRHandsontable({
-      
-      shiny::req(!base::is.null(selected_document()))
-      shiny::req(base::length(targeted_documents()) > 0)
-      shiny::req(!base::is.null(propositions()))
-      shiny::req(!base::is.null(propositions_to_edit()))
-      
-      selected_document <- filtered() |>
-        dplyr::filter(file == selected_document())
-      
-      existing_names <- propositions() |>
-        dplyr::select(item) |> base::unlist() |>
-        base::as.character() |> base::unique()
-      newitemid <- editR::name_new_item(existing_names, input$itmnbr)
-      
-      if (selected_document$type %in% c("Presentation","Scrip^t","Page","Paper")){
-        levelcode <- base::unique(c(targeted_documents(), propositions_to_edit()$code))
-        slctcode <- NA
-        leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
-      } else if (selected_document$type == "Statements") {
-        levelcode <- selected_document$code
-        slctcode <- NA
-        leveltype <- selected_document$type
-      } else {
-        levelcode <- selected_document$code
-        slctcode <- levelcode[1]
-        leveltype <- selected_document$type
-      }
-      levellanguage <- selected_document$language
-      leveldocs <- base::union(targeted_documents(), propositions_to_edit()$document)
-      levelscale <- c("logical","qualitative","percentage")
-      
-      tmprow <- tibble::tibble(
-        item = newitemid,
-        language = base::factor(levellanguage[1], levels = levellanguage),
-        code = base::factor(slctcode, levels = levelcode),
-        type = base::factor(leveltype[1], levels = leveltype),
-        document = base::factor(leveldocs[1], levels = leveldocs),
-        modifications = 1,
-        proposition = base::as.character(NA),
-        value = 0,
-        scale = base::factor(levelscale[1], levels = levelscale),
-        explanation = base::as.character(NA),
-        keywords = base::as.character(NA),
-        retire = FALSE,
-        answers = base::as.numeric(NA),
-        success = base::as.numeric(NA),
-        discrimination = base::as.numeric(NA)
-      )
-      
-      if (base::nrow(propositions_to_edit()) > 0){
-        itemsublist <- propositions_to_edit() |>
-          dplyr::mutate(
-            code = base::factor(code, levels = levelcode),
-            type = base::factor(type, levels = leveltype),
-            document = base::factor(document, levels = leveldocs),
-            scale = base::factor(scale, levels = levelscale)
-          )
-        
-        if (input$sortbyitm) itemsublist <- dplyr::arrange(itemsublist, item)
-        if (input$sortbyprp) itemsublist <- dplyr::arrange(itemsublist, proposition)
-        if (input$sortbyval) itemsublist <- dplyr::arrange(itemsublist, dplyr::desc(value))
-        if (input$sortbydoc) itemsublist <- dplyr::arrange(itemsublist, document)
-        
-        itemsublist <- itemsublist |>
-          #dplyr::left_join(
-          #  course_data()$item_parameters,
-          #  by = c("item","language")
-          #) |>
-          dplyr::select(
-            item, language, code, type, document, modifications, proposition,
-            value, scale, explanation, keywords, retire#, answers, success, discrimination
-          ) |>
-          dplyr::bind_rows(tmprow)
-      } else {
-        itemsublist <- tmprow
-      }
-      
-      itemsublist |>
-        rhandsontable::rhandsontable(
-          height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
-        ) |>
-        rhandsontable::hot_col(c(1,2,13,14,15), readOnly = TRUE) |>
-        rhandsontable::hot_cols(
-          colWidths = c(
-            "6%","2%","6%","6%","7%","3%","18%","3%",
-            "5%","22%","10%","3%","3%","3%","3%"
-          ),
-          manualColumnResize = TRUE
-        ) |>
-        rhandsontable::hot_context_menu(
-          allowRowEdit = FALSE, allowColEdit = FALSE
-        )
-    })
-    
-    shiny::observeEvent(input$saveprop, {
-      shiny::req(!base::is.null(input$editprop))
-      modified <- rhandsontable::hot_to_r(input$editprop) |>
-        dplyr::mutate_if(base::is.factor, base::as.character)
-      
-      if (base::is.na(modified[base::nrow(modified), "proposition"])){
-        modified <- modified[-base::nrow(modified),]
-      }
-      
-      propositions <- shiny::isolate({ propositions() })
-      
-      modified <- modified |>
-        dplyr::select(base::names(propositions))
-      
-      not_modified <- propositions |>
-        dplyr::anti_join(modified, by = c("item","language"))
-      
-      propositions <- not_modified |>
-        dplyr::bind_rows(modified) |>
-        dplyr::filter(!base::is.na(type), !base::is.na(value)) |>
-        dplyr::arrange(item) |>
-        dplyr::filter(proposition != "", !base::is.na(proposition))
-      
-      base::save(propositions, file = course_paths()$databases$propositions)
-      
-      base::Sys.sleep(1)
-      
-      shinyalert::shinyalert(
-        "Propositions saved!", "Refresh to see changes.",
-        type = "success", inputId = "acknowledgesaveprop"
-      )
     })
     
     

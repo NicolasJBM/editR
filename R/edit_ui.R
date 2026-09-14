@@ -57,12 +57,6 @@ edit_ui <- function(id){
       ),
       shiny::column(5, shiny::uiOutput(ns("editdoc"))),
       shiny::column(5, shiny::uiOutput(ns("previewdoc")))
-    ),
-    shiny::fluidRow(
-      shiny::uiOutput(ns("ratingsstatistics")),
-      shiny::uiOutput(ns("viewsstatistics")),
-      shiny::uiOutput(ns("resultsstatistics")),
-      shiny::plotOutput(ns("questioncurve"))
     )
   )
 }

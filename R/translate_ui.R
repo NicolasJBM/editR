@@ -22,6 +22,7 @@ translate_ui <- function(id){
         8,
         editR::selection_ui(ns("selectdoc"))
       ),
+      shiny::column(2,shiny::uiOutput(ns("slctlanguage"))),
       shiny::column(
         2,
         shiny::actionButton(
@@ -29,37 +30,11 @@ translate_ui <- function(id){
           icon = shiny::icon("wand-magic-sparkles"),
           style = "background-color:#000066;color:#FFF;width:100%;height:115px;margin-bottom:10px;"
         )
-      ),
-      shiny::column(
-        2,
-        shiny::uiOutput(ns("slctlanguage")),
-        shinyWidgets::materialSwitch(
-          inputId = ns("maketranslation"),
-          label = "Pre-translate", 
-          status = "primary",
-          right = FALSE
-        )
       )
     ),
     shiny::fluidRow(
-      shiny::column(4, shiny::uiOutput(ns("editoriginal"))),
-      shiny::column(4, shiny::uiOutput(ns("edittranslation"))),
-      shiny::column(
-        4,
-        shiny::uiOutput(ns("ratingsstatistics")),
-        shiny::uiOutput(ns("viewsstatistics")),
-        shiny::uiOutput(ns("resultsstatistics"))
-      )
-    ),
-    shiny::tags$hr(),
-    shiny::fluidRow(
-      shiny::actionButton(
-        ns("saveproptranslation"),
-        "Save", icon = shiny::icon("floppy-disk"),
-        style = "background-color:#006600;color:#FFF;width:300px;"
-      ),
-      shiny::tags$hr(),
-      rhandsontable::rHandsontableOutput(ns("translatepropositions"))
+      shiny::column(6, shiny::uiOutput(ns("edittranslation"))),
+      shiny::column(6, shiny::uiOutput(ns("previewtranslation")))
     )
   )
 }
