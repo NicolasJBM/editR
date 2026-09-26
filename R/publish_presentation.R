@@ -44,8 +44,9 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
   allversions <- alldocuments[stringr::str_detect(alldocuments, slctcode)]
   
   # define useful paths
-  formatfolder <- base::paste0(course_paths$subfolders$edit, "/format")
-  templatefolder <- base::paste0(course_paths$subfolders$edit, "/templates/presentations")
+  cssfolder <- course_paths$subfolders$css
+  cslfolder <- course_paths$subfolders$csl
+  templatefolder <- course_paths$subfolders$templates_presentation
   presentationfolder <- course_paths$subfolders$presentations
   
   # Create course folder
@@ -54,7 +55,7 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
   if (!base::dir.exists(coursefolder)) base::dir.create(coursefolder)
   
   # Populate course folder with common files
-  envfile <- base::paste0(course_paths$subfolders$edit, "/data/environment.RData")
+  envfile <- base::paste0(course_paths$subfolders$data, "/environment.RData")
   if (base::file.exists(envfile)) {
     base::file.copy(
       from = envfile,
@@ -63,7 +64,7 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
     )
   }
   
-  bibfile <- base::paste0(course_paths$subfolders$edit, "/data/references.bib")
+  bibfile <- base::paste0(course_paths$subfolders$data, "/references.bib")
   if (base::file.exists(bibfile)) {
     base::file.copy(
       from = bibfile,
@@ -72,7 +73,7 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
     )
   }
   
-  cslfile <- base::paste0(formatfolder, "/csl/apa.csl")
+  cslfile <- base::paste0(cslfolder, "/apa.csl")
   if (base::file.exists(cslfile)) {
     base::file.copy(
       from = cslfile,
@@ -188,7 +189,7 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
     presentation <- c(yaml, doccontent)
     base::writeLines(presentation, qmdpath, useBytes = TRUE)
     
-    cssslidesfile <- base::paste0(formatfolder, "/css/presentations.css")
+    cssslidesfile <- base::paste0(cssfolder, "/presentations.css")
     if (base::file.exists(cssslidesfile)) {
       base::file.copy(
         from = cssslidesfile,
@@ -197,7 +198,7 @@ publish_presentation <- function(tree, tbltree, selected_document, course_paths)
       )
     }
     
-    cssallfile <- base::paste0(formatfolder, "/css/all.css")
+    cssallfile <- base::paste0(cssfolder, "/all.css")
     if (base::file.exists(cssallfile)) {
       base::file.copy(
         from = cssallfile,
