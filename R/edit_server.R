@@ -10,26 +10,30 @@
 #' @param course_paths Reactive. Function containing a list of paths to the different folders and databases on local disk.
 #' @return Save the new or modified page in the folder "2_documents/main_language/".
 #' @importFrom chartR display_curve
-#' @importFrom dplyr anti_join
-#' @importFrom dplyr arrange
 #' @importFrom dplyr bind_rows
-#' @importFrom dplyr desc
 #' @importFrom dplyr filter
+#' @importFrom dplyr full_join
+#' @importFrom dplyr group_by
 #' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr mutate_if
+#' @importFrom dplyr rename
 #' @importFrom dplyr select
-#' @importFrom knitr knit2html
-#' @importFrom rhandsontable hot_col
-#' @importFrom rhandsontable hot_cols
-#' @importFrom rhandsontable hot_context_menu
-#' @importFrom rhandsontable hot_to_r
-#' @importFrom rhandsontable renderRHandsontable
-#' @importFrom rhandsontable rhandsontable
+#' @importFrom dplyr summarise
+#' @importFrom editR make_infobox
+#' @importFrom editR make_new_name
+#' @importFrom editR make_title_display
+#' @importFrom editR make_tree_path
+#' @importFrom editR publish_paper
+#' @importFrom editR publish_presentation
+#' @importFrom editR publish_script
+#' @importFrom editR publish_textbook
+#' @importFrom editR selection_server
+#' @importFrom editR view_document
+#' @importFrom exams2forms exams2webquiz
 #' @importFrom rstudioapi navigateToFile
 #' @importFrom shiny HTML
 #' @importFrom shiny NS
 #' @importFrom shiny actionButton
+#' @importFrom shiny addResourcePath
 #' @importFrom shiny column
 #' @importFrom shiny fluidRow
 #' @importFrom shiny icon
@@ -37,6 +41,8 @@
 #' @importFrom shiny modalButton
 #' @importFrom shiny modalDialog
 #' @importFrom shiny moduleServer
+#' @importFrom shiny numericInput
+#' @importFrom shiny observe
 #' @importFrom shiny observeEvent
 #' @importFrom shiny reactive
 #' @importFrom shiny removeModal
@@ -45,15 +51,20 @@
 #' @importFrom shiny req
 #' @importFrom shiny selectInput
 #' @importFrom shiny showModal
-#' @importFrom shiny sliderInput
 #' @importFrom shiny tagList
-#' @importFrom shiny withMathJax
+#' @importFrom shiny textInput
 #' @importFrom shinyAce aceEditor
 #' @importFrom shinyalert shinyalert
+#' @importFrom shinybusy remove_modal_spinner
+#' @importFrom shinybusy show_modal_spinner
 #' @importFrom shinydashboardPlus box
+#' @importFrom stringr fixed
+#' @importFrom stringr str_detect
 #' @importFrom stringr str_remove
+#' @importFrom stringr str_replace
 #' @importFrom stringr str_replace_all
 #' @importFrom stringr str_split
+#' @importFrom tibble rownames_to_column
 #' @importFrom tibble tibble
 #' @export
 
@@ -114,10 +125,7 @@ edit_server <- function(
       to_edit$filepath <- base::paste0(
         course_paths()$subfolders$original, "/", to_edit$file
       )
-      to_edit$preview <- base::paste0(
-        course_paths()$subfolders$preview, "/",
-        stringr::str_replace(to_edit$file, ".Rmd$",".html")
-      )
+      to_edit$preview <- stringr::str_replace(to_edit$file, ".Rmd$",".html")
       to_edit
     })
     
@@ -458,11 +466,27 @@ edit_server <- function(
     })
     
     
-    output$previewdoc <- shiny::renderUI({
+    
+    shiny::observe({
       shiny::req(!base::is.null(document_to_edit()))
-      shiny::req(base::file.exists(document_to_edit()$preview[[1]]))
-      lines <- base::readLines(document_to_edit()$preview[[1]])
-      shiny::tags$iframe(srcdoc = shiny::HTML(lines), width = "100%", height = 600, seamless="seamless")
+      previewdir <- course_paths()$subfolders$preview
+      shiny::req(base::dir.exists(previewdir))
+      prefix <- base::paste0(
+        "preview_",
+        session$token
+      )
+      shiny::addResourcePath(
+        prefix = prefix,
+        directoryPath = previewdir
+      )
+      output$previewdoc <- shiny::renderUI({
+        shiny::tags$iframe(
+          src = base::paste0(prefix, "/", document_to_edit()$preview),
+          width = "100%",
+          height = 600,
+          style = "border: none;"
+        )
+      })
     })
 
 
