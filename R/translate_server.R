@@ -150,6 +150,12 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
     
     
     
+    
+    
+    
+    
+    
+    
     document_to_translate <- shiny::reactive({
       shiny::req(selected_code())
       shiny::req(!base::is.null(filtered()))
@@ -163,21 +169,17 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
       document_to_translate
     })
     
+    
     translated_document <- shiny::reactive({
-      shiny::req(input$slctlang)
+      shiny::req(!base::is.null(input$slctlang))
       shiny::req(!base::is.null(language_status()))
       shiny::req(!base::is.null(document_to_translate()))
       if (!base::is.null(input$translationrefresh)) input$translationrefresh
-      selected_language_status <- language_status() |>
-        dplyr::filter(langiso == input$slctlang)
-      shiny::req(selected_language_status$status == "Existing")
-      original_language <- language_status() |>
-        dplyr::filter(type == "original")
       translated_document <- document_to_translate()
       translated_document$file <- stringr::str_replace_all(
         translated_document$file,
-        original_language$langiso[1],
-        selected_language_status$langiso[1]
+        document_to_translate()$language[[1]],
+        input$slctlang
       )
       translated_document$filepath <- base::paste0(
         course_paths()$subfolders$translated, "/", translated_document$file
@@ -190,52 +192,39 @@ translate_server <- function(id, filtered, tree, tbltree, course_data, course_pa
     })
     
     
-    
     # Create translation #######################################################
     
     shiny::observeEvent(input$createnewtranslation, {
       shiny::req(!base::is.null(document_to_translate()))
-      shiny::req(input$slctlang)
+      shiny::req(!base::is.null(translated_document()))
+      shiny::req(!base::is.null(input$slctlang))
       
-      selected_language_status <- language_status() |>
-        dplyr::filter(langiso == input$slctlang)
-      
-      if (selected_language_status$status == "Missing"){
+      if (stringr::str_detect(document_to_translate()$translations[[1]], input$slctlang)){
+        shinyalert::shinyalert(
+          "Existing translation!",
+          "You cannot create a translation which already exists.",
+          "warning", TRUE, TRUE
+        )
+      } else {
         
         shinybusy::show_modal_spinner(
           spin = "orbit",
-          text = "Translating the document..."
+          text = "Creating the translation file..."
         )
         
-        original_language <- language_status() |>
-          dplyr::filter(type == "original")
-        translated_document <- document_to_translate()
-        translated_document$file <- stringr::str_replace_all(
-          translated_document$file,
-          original_language$langiso[1],
-          selected_language_status$langiso[1]
-        )
-        translated_document$filepath <- base::paste0(
-          course_paths()$subfolders$translated, "/", translated_document$file
-        )
+        doc <- base::readLines(document_to_translate()$filepath[[1]])
         
         base::writeLines(
-          base::unlist(translation$translated),
-          translated_document$filepath
+          doc,
+          translated_document()$filepath
         )
         
         shinybusy::remove_modal_spinner()
         
         shinyalert::shinyalert(
-          "Translation created",
+          "Translation file created",
           "Update documents and reload the course to edit it.",
           "success", TRUE, TRUE
-        )
-      } else {
-        shinyalert::shinyalert(
-          "Existing translation!",
-          "You cannot create a translation which already exists.",
-          "warning", TRUE, TRUE
         )
       }
     })
