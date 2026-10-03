@@ -125,7 +125,10 @@ edit_server <- function(
       to_edit$filepath <- base::paste0(
         course_paths()$subfolders$original, "/", to_edit$file
       )
-      to_edit$preview <- stringr::str_replace(to_edit$file, ".Rmd$",".html")
+      to_edit$preview  <- base::paste0(
+        course_paths()$subfolders$preview, "/",
+        stringr::str_replace(to_edit$file, ".Rmd$",".html")
+      )
       to_edit
     })
     
@@ -481,7 +484,10 @@ edit_server <- function(
       )
       output$previewdoc <- shiny::renderUI({
         shiny::tags$iframe(
-          src = base::paste0(prefix, "/", document_to_edit()$preview),
+          src = base::paste0(
+            prefix, "/",
+            stringr::str_replace(document_to_edit()$file, ".Rmd$",".html")
+          ),
           width = "100%",
           height = 600,
           style = "border: none;"
