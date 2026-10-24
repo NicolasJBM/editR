@@ -30,11 +30,11 @@ edit_propositions_ui <- function(id){
     shiny::fluidRow(
       shiny::actionButton(
         ns("saveproptranslation"),
-        "Save", icon = shiny::icon("floppy-disk"),
+        "Save translations", icon = shiny::icon("floppy-disk"),
         style = "background-color:#006600;color:#FFF;width:300px;"
       ),
       shiny::tags$hr(),
-      rhandsontable::rHandsontableOutput(ns("translatepropositions"))
+      rhandsontable::rHandsontableOutput(ns("translateprop"))
     )
   )
 }

@@ -15,6 +15,8 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr mutate_if
 #' @importFrom dplyr select
+#' @importFrom dplyr across
+#' @importFrom dplyr all_of
 #' @importFrom editR name_new_item
 #' @importFrom rhandsontable hot_col
 #' @importFrom rhandsontable hot_cols
@@ -55,6 +57,7 @@ edit_propositions_server <- function(
     language <- NULL
     modifications <- NULL
     proposition <- NULL
+    translated_proposition <- NULL
     retire <- NULL
     slctcode <- NULL
     type <- NULL
@@ -72,6 +75,7 @@ edit_propositions_server <- function(
       shiny::req(base::length(course_paths()) == 2)
       input$refreshprop
       input$acknowledgesaveprop
+      input$acknowledgesavetrans
       base::load(course_paths()$databases$translations)
       translations
     })
@@ -90,18 +94,13 @@ edit_propositions_server <- function(
         dplyr::filter(code %in% selected_documents | document %in% selected_documents)
     })
     
-    selected_translations <- shiny::reactive({
-      shiny::req(!base::is.null(selected_propositions()))
-      translations() |>
-        dplyr::filter(item %in% selected_propositions()$item)
-    })
     
     output$selectprop <- shiny::renderUI({
       shiny::req(!base::is.null(selected_propositions()))
       
-      sorting_options <- c("document","value","proposition","item")
+      sorting_options <- c("code","document","type","value","proposition","item")
       
-      codes <- base::unique(selected_propositions()$code, filtered()$code)
+      codes <- base::unique(c(selected_propositions()$code, filtered()$code))
       if (base::length(codes) > 8){
         selectcodes <- shinyWidgets::virtualSelectInput(
           inputId = ns("slctpropcode"),
@@ -190,7 +189,7 @@ edit_propositions_server <- function(
         shiny::selectInput(
           ns("sortby"), "Sort by:",
           choices = sorting_options,
-          selected = sorting_options,
+          selected = c("code","proposition"),
           multiple = TRUE
         ),
         shiny::numericInput(
@@ -241,16 +240,12 @@ edit_propositions_server <- function(
         ),
         selectitems,
         
-        shinyWidgets::checkboxGroupButtons(
-          inputId = ns("slctproplanguages"),
-          label = "Select languages:", 
+        
+        shiny::selectInput(
+          ns("slctproplanguage"),
+          "Select languages:",
           choices = languages,
-          selected = languages,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
+          selected = languages[1]
         )
       )
     })
@@ -267,47 +262,17 @@ edit_propositions_server <- function(
       
       toedit <- selected_propositions() |>
         dplyr::filter(
-          code %in% c(NA,input$slctpropcode),
-          document %in% c(NA,input$slctpropdoc),
-          type %in% c(NA,input$slctproptype),
-          value %in% c(NA,base::as.numeric(input$slctpropvalue)),
-          scale %in% c(NA,input$slctpropscale),
-          item %in% c(NA,input$slctitems)
+          code %in% input$slctpropcode | base::is.na(code) | code == "",
+          document %in% input$slctpropdoc | base::is.na(document) | document == "",
+          type %in% input$slctproptype,
+          value %in% base::as.numeric(input$slctpropvalue),
+          scale %in% input$slctpropscale,
+          item %in% input$slctitems
         )
       
-      if ("document" %in% input$sortby){
-        toedit <- dplyr::arrange(toedit, document)
-      }
-      
-      if ("value" %in% input$sortby){
-        toedit <- dplyr::arrange(toedit, value)
-      }
-      
-      if ("proposition" %in% input$sortby){
-        toedit <- dplyr::arrange(toedit, proposition)
-      }
-      
-      if ("item" %in% input$sortby){
-        toedit <- dplyr::arrange(toedit, item)
-      }
-      
-      toedit
+      dplyr::arrange(toedit, dplyr::across(dplyr::all_of(input$sortby)))
     })
     
-    translations_to_edit <-  shiny::reactive({
-      shiny::req(!base::is.null(translations()))
-      shiny::req(!base::is.null(propositions_to_edit()))
-      shiny::req(!base::is.null(input$slctproplanguages))
-      
-      translations() |>
-        dplyr::filter(
-          item %in% propositions_to_edit()$item,
-          language %in% input$slctproplanguages
-        ) |>
-        dplyr::mutate(item = base::factor(item, levels = propositions_to_edit()$item)) |>
-        dplyr::arrange(item) |>
-        dplyr::mutate(item = base::as.character(item))
-    })
     
     output$editprop <- rhandsontable::renderRHandsontable({
       shiny::req(!base::is.null(propositions_to_edit()))
@@ -317,18 +282,18 @@ edit_propositions_server <- function(
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_items, input$itmnbr)
       
-      levelcode <- c(NA, base::unique(propositions_to_edit()$code), base::unique(base::setdiff(filtered()$code, propositions_to_edit()$code)))
-      leveltype <- c(NA, "Statements","Alternatives","Computation","Essay","Problem")
+      levelcode <- base::unique(c(propositions_to_edit()$code), base::unique(base::setdiff(filtered()$code, propositions_to_edit()$code)))
+      leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
       levellanguage <- propositions()$language[[1]]
-      levelscale <- c(NA, "logical","percentage","qualitative")
-      leveldoc <- c(NA, base::unique(propositions_to_edit()$document), base::setdiff(course_data()$documents$code, base::unique(propositions_to_edit()$document)))
+      levelscale <- c("logical","percentage","qualitative")
+      leveldoc <- base::unique(c(propositions_to_edit()$document), base::setdiff(course_data()$documents$code, base::unique(propositions_to_edit()$document)))
       
       tmprow <- tibble::tibble(
         item = newitemid,
-        language = base::factor(levellanguage[1], levels = levellanguage),
-        code = base::factor(levelcode[1], levels = levelcode),
-        type = base::factor(leveltype[1], levels = leveltype),
-        document = base::factor(leveldoc[1], levels = leveldoc),
+        language = base::factor(NA, levels = levellanguage),
+        code = base::factor(NA, levels = levelcode),
+        type = base::factor(NA, levels = leveltype),
+        document = base::factor(NA, levels = leveldoc),
         modifications = 1,
         proposition = base::as.character(NA),
         value = 0,
@@ -402,7 +367,11 @@ edit_propositions_server <- function(
         dplyr::bind_rows(modified) |>
         dplyr::filter(!base::is.na(type), !base::is.na(value)) |>
         dplyr::arrange(item) |>
-        dplyr::filter(proposition != "", !base::is.na(proposition))
+        dplyr::filter(
+          proposition != "",
+          !base::is.na(proposition),
+          !base::is.na(code) | type == "Statements"
+        )
       
       base::save(propositions, file = course_paths()$databases$propositions)
       
@@ -413,6 +382,83 @@ edit_propositions_server <- function(
         type = "success", inputId = "acknowledgesaveprop"
       )
     })
+    
+    
+    
+    translations_to_edit <-  shiny::reactive({
+      shiny::req(!base::is.null(translations()))
+      shiny::req(!base::is.null(propositions_to_edit()))
+      shiny::req(!base::is.null(input$slctproplanguage))
+      propositions_to_edit() |>
+        dplyr::select(item) |>
+        dplyr::left_join(
+          dplyr::filter(
+            translations(),
+            item %in% propositions_to_edit()$item,
+            language %in% input$slctproplanguage
+          ),
+          by = "item"
+        ) |>
+        dplyr::mutate(
+          item = base::factor(item, levels = propositions_to_edit()$item),
+          language = dplyr::case_when(
+            base::is.na(language) ~ input$slctproplanguage,
+            TRUE ~ language
+          )
+        ) |>
+        dplyr::arrange(item) |>
+        dplyr::mutate(item = base::as.character(item))
+    })
+    
+    
+    output$translateprop <- rhandsontable::renderRHandsontable({
+      shiny::req(!base::is.null(translations_to_edit()))
+      
+      translations_to_edit() |>
+        rhandsontable::rhandsontable(
+          height = 750, width = "100%", rowHeaders = NULL, stretchH = "all"
+        ) |>
+        rhandsontable::hot_col(c(1,2), readOnly = TRUE) |>
+        rhandsontable::hot_cols(
+          colWidths = c(
+            "10%","5%","25%","45%","15%"
+          ),
+          manualColumnResize = TRUE
+        ) |>
+        rhandsontable::hot_context_menu(
+          allowRowEdit = FALSE, allowColEdit = FALSE
+        )
+    })
+    
+    shiny::observeEvent(input$saveproptranslation, {
+      shiny::req(!base::is.null(input$translateprop))
+      modified <- rhandsontable::hot_to_r(input$translateprop) |>
+        dplyr::mutate_if(base::is.factor, base::as.character)
+      
+      translations <- shiny::isolate({ translations() })
+      
+      not_modified <- translations |>
+        dplyr::anti_join(modified, by = c("item","language"))
+      
+      translations <- not_modified |>
+        dplyr::bind_rows(modified) |>
+        dplyr::filter(!base::is.na(item), !base::is.na(language)) |>
+        dplyr::arrange(item) |>
+        dplyr::filter(
+          translated_proposition != "",
+          !base::is.na(translated_proposition)
+        )
+      
+      base::save(translations, file = course_paths()$databases$translations)
+      
+      base::Sys.sleep(1)
+      
+      shinyalert::shinyalert(
+        "Translations saved!", "Refresh to see changes.",
+        type = "success", inputId = "acknowledgesavetrans"
+      )
+    })
+    
     
   })
 }
