@@ -18,15 +18,18 @@ translate_exercise <- function(exercise, translations, languiso){
   item <- NULL
   language <- NULL
   proposition <- NULL
+  keywords <- NULL
   translated_explanation <- NULL
   translated_proposition <- NULL
+  translated_keywords <- NULL
   
   selection <- translations |>
     dplyr::filter(language == languiso, item %in% exercise$item) |>
     dplyr::select(
       item,
       proposition = translated_proposition,
-      explanation = translated_explanation
+      explanation = translated_explanation,
+      keywords = translated_keywords
     )
   
   translated <- exercise |>
