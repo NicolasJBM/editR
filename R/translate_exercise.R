@@ -33,7 +33,7 @@ translate_exercise <- function(exercise, translations, languiso){
     )
   
   translated <- exercise |>
-    dplyr::select(-explanation, -proposition) |>
+    dplyr::select(-explanation, -proposition, -keywords) |>
     dplyr::left_join(selection, by = "item") |>
     dplyr::mutate(language = languiso)
   
