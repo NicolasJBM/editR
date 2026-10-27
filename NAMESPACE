@@ -9,7 +9,6 @@ export(add_slide)
 export(add_video)
 export(code_edit_server)
 export(code_edit_ui)
-export(display_question)
 export(edit_propositions_server)
 export(edit_propositions_ui)
 export(edit_server)
@@ -33,92 +32,110 @@ export(translate_ui)
 export(view_document)
 importFrom(chartR,display_curve)
 importFrom(classR,trees_structure_textbook)
-importFrom(dplyr,across)
-importFrom(dplyr,all_of)
-importFrom(dplyr,anti_join)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,filter)
-importFrom(dplyr,full_join)
-importFrom(dplyr,group_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,mutate_all)
-importFrom(dplyr,mutate_if)
-importFrom(dplyr,rename)
-importFrom(dplyr,select)
-importFrom(dplyr,starts_with)
-importFrom(dplyr,summarise)
+importFrom(dplyr,
+  across,
+  all_of,
+  anti_join,
+  arrange,
+  bind_rows,
+  case_when,
+  filter,
+  full_join,
+  group_by,
+  left_join,
+  mutate,
+  mutate_all,
+  mutate_if,
+  rename,
+  select,
+  starts_with,
+  summarise
+)
 importFrom(exams2forms,exams2webquiz)
 importFrom(knitr,knit2html)
-importFrom(purrr,map)
-importFrom(purrr,map_dbl)
-importFrom(purrr,map_lgl)
+importFrom(purrr,
+  map,
+  map_dbl,
+  map_lgl
+)
 importFrom(quarto,quarto_render)
-importFrom(rhandsontable,hot_col)
-importFrom(rhandsontable,hot_cols)
-importFrom(rhandsontable,hot_context_menu)
-importFrom(rhandsontable,hot_to_r)
-importFrom(rhandsontable,rHandsontableOutput)
-importFrom(rhandsontable,renderRHandsontable)
-importFrom(rhandsontable,rhandsontable)
+importFrom(rhandsontable,
+  hot_col,
+  hot_cols,
+  hot_context_menu,
+  hot_to_r,
+  rHandsontableOutput,
+  renderRHandsontable,
+  rhandsontable
+)
 importFrom(rstudioapi,navigateToFile)
-importFrom(shiny,HTML)
-importFrom(shiny,NS)
-importFrom(shiny,actionButton)
-importFrom(shiny,addResourcePath)
-importFrom(shiny,column)
-importFrom(shiny,fluidRow)
-importFrom(shiny,h2)
-importFrom(shiny,icon)
-importFrom(shiny,isolate)
-importFrom(shiny,modalButton)
-importFrom(shiny,modalDialog)
-importFrom(shiny,moduleServer)
-importFrom(shiny,numericInput)
-importFrom(shiny,observe)
-importFrom(shiny,observeEvent)
-importFrom(shiny,plotOutput)
-importFrom(shiny,reactive)
-importFrom(shiny,reactiveValues)
-importFrom(shiny,removeModal)
-importFrom(shiny,renderPlot)
-importFrom(shiny,renderUI)
-importFrom(shiny,req)
-importFrom(shiny,selectInput)
-importFrom(shiny,showModal)
-importFrom(shiny,span)
-importFrom(shiny,tagList)
-importFrom(shiny,textInput)
-importFrom(shiny,uiOutput)
-importFrom(shiny,updateSelectInput)
-importFrom(shiny,withMathJax)
+importFrom(shiny,
+  HTML,
+  NS,
+  actionButton,
+  addResourcePath,
+  column,
+  fluidRow,
+  h2,
+  icon,
+  isolate,
+  modalButton,
+  modalDialog,
+  moduleServer,
+  numericInput,
+  observe,
+  observeEvent,
+  plotOutput,
+  reactive,
+  reactiveValues,
+  removeModal,
+  renderPlot,
+  renderUI,
+  req,
+  selectInput,
+  showModal,
+  span,
+  tagList,
+  textInput,
+  uiOutput,
+  updateSelectInput,
+  withMathJax
+)
 importFrom(shinyAce,aceEditor)
-importFrom(shinyWidgets,checkboxGroupButtons)
-importFrom(shinyWidgets,progressBar)
-importFrom(shinyWidgets,radioGroupButtons)
-importFrom(shinyWidgets,virtualSelectInput)
+importFrom(shinyWidgets,
+  checkboxGroupButtons,
+  progressBar,
+  radioGroupButtons,
+  virtualSelectInput
+)
 importFrom(shinyalert,shinyalert)
-importFrom(shinybusy,remove_modal_spinner)
-importFrom(shinybusy,show_modal_spinner)
+importFrom(shinybusy,
+  remove_modal_spinner,
+  show_modal_spinner
+)
 importFrom(shinydashboard,valueBox)
 importFrom(shinydashboardPlus,box)
-importFrom(stringr,fixed)
-importFrom(stringr,str_detect)
-importFrom(stringr,str_extract)
-importFrom(stringr,str_extract_all)
-importFrom(stringr,str_remove)
-importFrom(stringr,str_remove_all)
-importFrom(stringr,str_replace)
-importFrom(stringr,str_replace_all)
-importFrom(stringr,str_split)
-importFrom(stringr,str_to_lower)
-importFrom(tibble,rownames_to_column)
-importFrom(tibble,tibble)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_wider)
-importFrom(tidyr,replace_na)
-importFrom(tidyr,separate)
-importFrom(tidyr,unite)
-importFrom(tidyr,unnest)
+importFrom(stringr,
+  fixed,
+  str_detect,
+  str_extract,
+  str_extract_all,
+  str_remove,
+  str_remove_all,
+  str_replace,
+  str_replace_all,
+  str_split,
+  str_to_lower
+)
+importFrom(tibble,
+  rownames_to_column,
+  tibble
+)
+importFrom(tidyr,
+  pivot_longer,
+  pivot_wider,
+  replace_na,
+  separate,
+  unite,
+  unnest
+)
