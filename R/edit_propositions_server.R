@@ -83,24 +83,15 @@ edit_propositions_server <- function(
     selected_propositions <- shiny::reactive({
       shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(filtered()))
-      selected_documents <- base::unique(c(
-        filtered()$code,
-        base::unique(filtered()$document) |>
-          stringr::str_split(" ") |>
-          base::unlist() |>
-          base::as.character()
-      ))
       propositions() |>
-        dplyr::filter(code %in% selected_documents | document %in% selected_documents)
+        dplyr::filter(code %in% filtered()$code)
     })
     
-    
     output$selectprop <- shiny::renderUI({
-      shiny::req(!base::is.null(selected_propositions()))
       
       sorting_options <- c("code","document","type","value","proposition","item")
       
-      codes <- base::unique(c(selected_propositions()$code, filtered()$code))
+      codes <- base::unique(filtered()$code)
       if (base::length(codes) > 8){
         selectcodes <- shinyWidgets::virtualSelectInput(
           inputId = ns("slctpropcode"),
@@ -124,11 +115,30 @@ edit_propositions_server <- function(
         )
       }
       
-      documents <- base::unique(selected_propositions()$document) |>
-        stringr::str_split(" ") |>
-        base::unlist() |>
-        base::as.character() |>
-        base::unique()
+      
+      if (base::nrow(selected_propositions()) > 0){
+        documents <- base::unique(selected_propositions()$document) |>
+          stringr::str_split(" ") |>
+          base::unlist() |>
+          base::as.character() |>
+          base::unique()
+        types <- base::unique(selected_propositions()$type)
+        values <- base::unique(selected_propositions()$value)
+        scales <- base::unique(selected_propositions()$scale)
+        items <- base::unique(selected_propositions()$item)
+      } else {
+        documents <- base::unique(filtered()$document) |>
+          stringr::str_split(" ") |>
+          base::unlist() |>
+          base::as.character() |>
+          base::unique()
+        types <- c("Statements","Alternatives","Computation","Essay","Problem")
+        values <- c(0,1)
+        scales <- c("logical","percentage","qualitative")
+        items <- NA
+      }
+      
+      
       if (base::length(documents) > 8){
         selectdocuments <- shinyWidgets::virtualSelectInput(
           inputId = ns("slctpropdoc"),
@@ -152,10 +162,6 @@ edit_propositions_server <- function(
         )
       }
       
-      types <- base::unique(selected_propositions()$type)
-      values <- base::unique(selected_propositions()$value)
-      scales <- base::unique(selected_propositions()$scale)
-      items <- base::unique(selected_propositions()$item)
       if (base::length(items) > 8){
         selectitems <- shinyWidgets::virtualSelectInput(
           inputId = ns("slctitems"),
@@ -260,21 +266,26 @@ edit_propositions_server <- function(
       shiny::req(!base::is.null(input$slctitems))
       shiny::req(!base::is.null(input$sortby))
       
-      toedit <- selected_propositions() |>
-        dplyr::filter(
-          code %in% input$slctpropcode | base::is.na(code) | code == "",
-          document %in% input$slctpropdoc | base::is.na(document) | document == "",
-          type %in% input$slctproptype,
-          value %in% base::as.numeric(input$slctpropvalue),
-          scale %in% input$slctpropscale,
-          item %in% input$slctitems
-        )
-      
-      dplyr::arrange(toedit, dplyr::across(dplyr::all_of(input$sortby)))
+      if (base::nrow(selected_propositions()) > 0){
+        toedit <- selected_propositions() |>
+          dplyr::filter(
+            code %in% input$slctpropcode | base::is.na(code) | code == "",
+            document %in% input$slctpropdoc | base::is.na(document) | document == "",
+            type %in% input$slctproptype,
+            value %in% base::as.numeric(input$slctpropvalue),
+            scale %in% input$slctpropscale,
+            item %in% input$slctitems
+          )
+        
+        dplyr::arrange(toedit, dplyr::across(dplyr::all_of(input$sortby)))
+      } else {
+        selected_propositions()
+      }
     })
     
     
     output$editprop <- rhandsontable::renderRHandsontable({
+      
       shiny::req(!base::is.null(propositions_to_edit()))
       
       existing_items <- propositions() |>
@@ -282,22 +293,22 @@ edit_propositions_server <- function(
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_items, input$itmnbr)
       
-      levelcode <- base::unique(c(propositions_to_edit()$code), base::unique(base::setdiff(filtered()$code, propositions_to_edit()$code)))
+      levelcode <- c(NA,base::unique(filtered()$code))
       leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
-      levellanguage <- propositions()$language[[1]]
+      levellanguage <- filtered()$language[[1]]
       levelscale <- c("logical","percentage","qualitative")
-      leveldoc <- base::unique(c(propositions_to_edit()$document), base::setdiff(course_data()$documents$code, base::unique(propositions_to_edit()$document)))
+      leveldoc <- base::unique(course_data()$documents$code)
       
       tmprow <- tibble::tibble(
         item = newitemid,
-        language = base::factor(NA, levels = levellanguage),
-        code = base::factor(NA, levels = levelcode),
-        type = base::factor(NA, levels = leveltype),
+        language = base::factor(levellanguage[[1]], levels = levellanguage),
+        code = base::factor(levelcode[[1]], levels = levelcode),
+        type = base::factor(filtered()$type[[1]], levels = leveltype),
         document = base::factor(NA, levels = leveldoc),
         modifications = 1,
         proposition = base::as.character(NA),
         value = 0,
-        scale = base::factor(levelscale[1], levels = levelscale),
+        scale = base::factor(levelscale[[1]], levels = levelscale),
         explanation = base::as.character(NA),
         keywords = base::as.character(NA),
         retire = FALSE,
@@ -368,9 +379,23 @@ edit_propositions_server <- function(
         dplyr::filter(!base::is.na(type), !base::is.na(value)) |>
         dplyr::arrange(item) |>
         dplyr::filter(
+          !base::is.na(item),
+          item != "",
           proposition != "",
           !base::is.na(proposition),
           !base::is.na(code) | type == "Statements"
+        ) |>
+        dplyr::mutate(
+          language = dplyr::case_when(
+            language == "" ~ filtered()$language[[1]],
+            base::is.na(language) ~ filtered()$language[[1]],
+            TRUE ~ language
+          ),
+          scale = dplyr::case_when(
+            scale == "" ~ "logical",
+            base::is.na(scale) ~ "logical",
+            TRUE ~ scale
+          )
         )
       
       base::save(propositions, file = course_paths()$databases$propositions)
