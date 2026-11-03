@@ -4,7 +4,7 @@
 \alias{selection_server}
 \title{Select dynamically from a vector}
 \usage{
-selection_server(id, selection_base)
+selection_server(id, selection_base, preselected = NA)
 }
 \arguments{
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
