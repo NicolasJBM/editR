@@ -19,25 +19,40 @@
 
 
 
-selection_server <- function(id, selection_base){
+selection_server <- function(id, selection_base, preselected = NA){
   ns <- shiny::NS(id)
   shiny::moduleServer(
     id,
     function(input, output, session) {
       
       modrval <- shiny::reactiveValues()
+      
       shiny::observe({
         shiny::req(!base::is.null(selection_base()))
+        shiny::req(base::length(selection_base()) > 0)
+        
+        shiny::isolate({
+          if (preselected %in% selection_base()){
+            modrval$rank <- base::match(preselected, selection_base())
+            modrval$value <- preselected
+          } else {
+            modrval$rank <- 1
+            modrval$value <- selection_base()[[1]]
+          }
+          value <- modrval$value
+        })
+        
         shiny::updateSelectInput(
           session, "slctvalue",
           choices = selection_base(),
-          selected = selection_base()[1]
+          selected = value
         )
       })
       
       shiny::observeEvent(input$prv, {
         shiny::req(!base::is.null(selection_base()))
         shiny::req(base::length(selection_base()) > 0)
+        shiny::req(!base::is.null(modrval$rank))
         shiny::updateSelectInput(
           session, "slctvalue",
           selected = selection_base()[base::max(c(1, modrval$rank-1))]
