@@ -10,6 +10,8 @@ selection_server(id, selection_base, preselected = NA)
 \item{id}{Character. ID of the module to connect the user interface to the appropriate server side.}
 
 \item{selection_base}{Reactive. Function containing a list of values from which to choose.}
+
+\item{preselected}{Character. Préselected value.}
 }
 \value{
 The selected element of the supplied vector.
