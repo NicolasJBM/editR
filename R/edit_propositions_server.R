@@ -293,7 +293,7 @@ edit_propositions_server <- function(
         base::as.character() |> base::unique()
       newitemid <- editR::name_new_item(existing_items, input$itmnbr)
       
-      levelcode <- c(NA,base::unique(filtered()$code))
+      levelcode <- base::unique(filtered()$code)
       leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
       levellanguage <- filtered()$language[[1]]
       levelscale <- c("logical","percentage","qualitative")
