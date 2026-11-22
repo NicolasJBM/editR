@@ -84,7 +84,7 @@ edit_propositions_server <- function(
       shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(filtered()))
       propositions() |>
-        dplyr::filter(code %in% filtered()$code)
+        dplyr::filter(code %in% filtered()$code | base::is.na(code) | code == "")
     })
     
     output$selectprop <- shiny::renderUI({
