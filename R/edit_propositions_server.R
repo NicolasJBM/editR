@@ -151,11 +151,20 @@ edit_propositions_server <- function(
           ns("sortby"), "Sort by:",
           choices = sorting_options,
           selected = c("item"),
-          multiple = TRUE
+          multiple = TRUE, 
+          width = "100%"
+        ),
+        shiny::selectInput(
+          ns("slctretire"), "Keep:",
+          choices = c("All","Active","Retired"),
+          selected = "All",
+          multiple = FALSE, 
+          width = "100%"
         ),
         shiny::numericInput(
           ns("itmnbr"), "Additional items:",
-          min = 1, max = 100, step = 1 ,value = 1
+          min = 1, max = 100, step = 1 ,value = 1, 
+          width = "100%"
         )
       )
     })
@@ -167,9 +176,18 @@ edit_propositions_server <- function(
       shiny::req(!base::is.null(input$slctproptype))
       shiny::req(!base::is.null(input$slctpropvalue))
       shiny::req(!base::is.null(input$slctpropscale))
+      shiny::req(!base::is.null(input$slctretire))
       shiny::req(!base::is.null(input$sortby))
       
-      toedit <- propositions() |>
+      if (input$slctretire == "Active"){
+        preselected <- dplyr::filter(propositions(), retire == FALSE)
+      } else if (input$slctretire == "Retired"){
+        preselected <- dplyr::filter(propositions(), retire == TRUE)
+      } else {
+        preselected <- propositions()
+      }
+      
+      preselected |>
         dplyr::filter(
           code %in% input$slctpropcode | base::is.na(code) | code == "",
           outcome %in% input$slctpropout | base::is.na(outcome) | outcome == "",
