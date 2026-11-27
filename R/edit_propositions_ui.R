@@ -27,14 +27,26 @@ edit_propositions_ui <- function(id){
         )
       )
     ),
+    shiny::tags$hr(),
     shiny::fluidRow(
-      shiny::actionButton(
-        ns("saveproptranslation"),
-        "Save translations", icon = shiny::icon("floppy-disk"),
-        style = "background-color:#006600;color:#FFF;width:300px;"
+      shiny::column(
+        2,
+        shiny::selectInput(
+          ns("slctproplanguage"),
+          "Select languages:",
+          choices = "FR",
+          selected = "FR"
+        ),
+        shiny::actionButton(
+          ns("saveproptranslation"),
+          "Save translations", icon = shiny::icon("floppy-disk"),
+          style = "background-color:#006600;color:#FFF;width:300px;"
+        )
       ),
-      shiny::tags$hr(),
-      rhandsontable::rHandsontableOutput(ns("translateprop"))
+      shiny::column(
+        10,
+        rhandsontable::rHandsontableOutput(ns("translateprop"))
+      )
     )
   )
 }

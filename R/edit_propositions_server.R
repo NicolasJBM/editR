@@ -50,7 +50,7 @@ edit_propositions_server <- function(
   shiny::moduleServer(id, function(input, output, session) {
     
     code <- NULL
-    document <- NULL
+    outcome <- NULL
     explanation <- NULL
     item <- NULL
     keywords <- NULL
@@ -80,209 +80,105 @@ edit_propositions_server <- function(
       translations
     })
     
-    selected_propositions <- shiny::reactive({
-      shiny::req(!base::is.null(propositions()))
-      shiny::req(!base::is.null(filtered()))
-      propositions() |>
-        dplyr::filter(code %in% filtered()$code | base::is.na(code) | code == "")
-    })
-    
     output$selectprop <- shiny::renderUI({
       
-      sorting_options <- c("code","document","type","value","proposition","item")
+      sorting_options <- c("code","outcome","type","value","proposition","item")
       
       codes <- base::unique(filtered()$code)
-      if (base::length(codes) > 8){
-        selectcodes <- shinyWidgets::virtualSelectInput(
-          inputId = ns("slctpropcode"),
-          label = "Select codes:", 
-          choices = codes,
-          selected = codes,
-          multiple = TRUE,
-          width = "100%"
-        )
-      } else {
-        selectcodes <- shinyWidgets::checkboxGroupButtons(
-          inputId = ns("slctpropcode"), 
-          label = "Select codes:",
-          choices = codes,
-          selected = codes,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
-        )
-      }
+      selectcodes <- shinyWidgets::virtualSelectInput(
+        inputId = ns("slctpropcode"),
+        label = "Select codes:", 
+        choices = codes,
+        selected = codes,
+        multiple = TRUE,
+        width = "100%"
+      )
       
-      
-      if (base::nrow(selected_propositions()) > 0){
-        documents <- base::unique(selected_propositions()$document) |>
-          stringr::str_split(" ") |>
-          base::unlist() |>
-          base::as.character() |>
-          base::unique()
-        types <- base::unique(selected_propositions()$type)
-        values <- base::unique(selected_propositions()$value)
-        scales <- base::unique(selected_propositions()$scale)
-        items <- base::unique(selected_propositions()$item)
-      } else {
-        documents <- base::unique(filtered()$document) |>
-          stringr::str_split(" ") |>
-          base::unlist() |>
-          base::as.character() |>
-          base::unique()
-        types <- c("Statements","Alternatives","Computation","Essay","Problem")
-        values <- c(0,1)
-        scales <- c("logical","percentage","qualitative")
-        items <- NA
-      }
-      
-      
-      if (base::length(documents) > 8){
-        selectdocuments <- shinyWidgets::virtualSelectInput(
-          inputId = ns("slctpropdoc"),
-          label = "Select documents:", 
-          choices = documents,
-          selected = documents,
-          multiple = TRUE, 
-          width = "100%"
-        )
-      } else {
-        selectdocuments <- shinyWidgets::checkboxGroupButtons(
-          inputId = ns("slctpropdoc"),
-          label = "Select documents:", 
-          choices = documents,
-          selected = documents,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
-        )
-      }
-      
-      if (base::length(items) > 8){
-        selectitems <- shinyWidgets::virtualSelectInput(
-          inputId = ns("slctitems"),
-          label = "Select items:", 
-          choices = items,
-          selected = items,
-          multiple = TRUE, 
-          width = "100%"
-        )
-      } else {
-        selectitems <- shinyWidgets::checkboxGroupButtons(
-          inputId = ns("slctitems"),
-          label = "Select items:", 
-          choices = items,
-          selected = items,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
-        )
-      }
-      
-      languages <- base::unique(translations()$language)
+      outcomes <- base::unique(course_data()$outcomes$outcome) |>
+        stringr::str_split(" ") |>
+        base::unlist() |>
+        base::as.character() |>
+        base::unique()
+      types <- c("Statements","Alternatives","Computation","Essay","Problem")
+      values <- c(0,1)
+      scales <- c("logical","percentage","qualitative")
+      selectoutcomes <- shinyWidgets::virtualSelectInput(
+        inputId = ns("slctpropout"),
+        label = "Select outcomes:", 
+        choices = outcomes,
+        selected = outcomes,
+        multiple = TRUE, 
+        width = "100%"
+      )
       
       shinydashboardPlus::box(
         width = 12, title = "Selection", solidHeader = TRUE,
         status = "purple", collapsible = FALSE, collapsed = FALSE,
         height = "250px",
-        
-        shiny::selectInput(
-          ns("sortby"), "Sort by:",
-          choices = sorting_options,
-          selected = c("code","proposition"),
-          multiple = TRUE
-        ),
-        shiny::numericInput(
-          ns("itmnbr"), "Additional items:",
-          min = 1, max = 100, step = 1 ,value = 1
-        ),
         shiny::actionButton(
           ns("saveprop"), "Save propositions",
           icon = shiny::icon("floppy-disk"),
           style = "background-color:#006600;color:#FFF;width:100%"
         ),
-        
         shiny::tags$hr(),
         selectcodes,
-        selectdocuments,
-        shinyWidgets::checkboxGroupButtons(
+        selectoutcomes,
+        shinyWidgets::virtualSelectInput(
           inputId = ns("slctproptype"),
           label = "Select types:", 
           choices = types,
-          selected = types,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
+          selected = types,,
+          multiple = TRUE, 
+          width = "100%"
         ),
-        shinyWidgets::checkboxGroupButtons(
+        shinyWidgets::virtualSelectInput(
           inputId = ns("slctpropvalue"),
           label = "Select values:", 
           choices = values,
           selected = values,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
+          multiple = TRUE, 
+          width = "100%"
         ),
-        shinyWidgets::checkboxGroupButtons(
+        shinyWidgets::virtualSelectInput(
           inputId = ns("slctpropscale"),
           label = "Select scales:", 
           choices = scales,
           selected = scales,
-          status = "success",
-          justified = FALSE,
-          direction = "horizontal",
-          size = "normal",
-          checkIcon = base::list(yes = shiny::icon("check"))
+          multiple = TRUE, 
+          width = "100%"
         ),
-        selectitems,
-        
-        
         shiny::selectInput(
-          ns("slctproplanguage"),
-          "Select languages:",
-          choices = languages,
-          selected = languages[1]
+          ns("sortby"), "Sort by:",
+          choices = sorting_options,
+          selected = c("item"),
+          multiple = TRUE
+        ),
+        shiny::numericInput(
+          ns("itmnbr"), "Additional items:",
+          min = 1, max = 100, step = 1 ,value = 1
         )
       )
     })
     
     propositions_to_edit <- shiny::reactive({
-      shiny::req(!base::is.null(selected_propositions()))
+      shiny::req(!base::is.null(propositions()))
       shiny::req(!base::is.null(input$slctpropcode))
-      shiny::req(!base::is.null(input$slctpropdoc))
+      shiny::req(!base::is.null(input$slctpropout))
       shiny::req(!base::is.null(input$slctproptype))
       shiny::req(!base::is.null(input$slctpropvalue))
       shiny::req(!base::is.null(input$slctpropscale))
-      shiny::req(!base::is.null(input$slctitems))
       shiny::req(!base::is.null(input$sortby))
       
-      if (base::nrow(selected_propositions()) > 0){
-        toedit <- selected_propositions() |>
-          dplyr::filter(
-            code %in% input$slctpropcode | base::is.na(code) | code == "",
-            document %in% input$slctpropdoc | base::is.na(document) | document == "",
-            type %in% input$slctproptype,
-            value %in% base::as.numeric(input$slctpropvalue),
-            scale %in% input$slctpropscale,
-            item %in% input$slctitems
-          )
-        
-        dplyr::arrange(toedit, dplyr::across(dplyr::all_of(input$sortby)))
-      } else {
-        selected_propositions()
-      }
+      toedit <- propositions() |>
+        dplyr::filter(
+          code %in% input$slctpropcode | base::is.na(code) | code == "",
+          outcome %in% input$slctpropout | base::is.na(outcome) | outcome == "",
+          type %in% input$slctproptype,
+          value %in% base::as.numeric(input$slctpropvalue),
+          scale %in% input$slctpropscale
+        ) |>
+        dplyr::arrange(dplyr::across(dplyr::all_of(input$sortby)))
     })
-    
     
     output$editprop <- rhandsontable::renderRHandsontable({
       
@@ -291,20 +187,21 @@ edit_propositions_server <- function(
       existing_items <- propositions() |>
         dplyr::select(item) |> base::unlist() |>
         base::as.character() |> base::unique()
+      
       newitemid <- editR::name_new_item(existing_items, input$itmnbr)
       
       levelcode <- base::unique(filtered()$code)
       leveltype <- c("Statements","Alternatives","Computation","Essay","Problem")
       levellanguage <- filtered()$language[[1]]
       levelscale <- c("logical","percentage","qualitative")
-      leveldoc <- base::unique(course_data()$documents$code)
+      levelout <- base::unique(course_data()$outcomes$outcome)
       
       tmprow <- tibble::tibble(
         item = newitemid,
         language = base::factor(levellanguage[[1]], levels = levellanguage),
         code = base::factor(levelcode[[1]], levels = levelcode),
         type = base::factor(filtered()$type[[1]], levels = leveltype),
-        document = base::factor(NA, levels = leveldoc),
+        outcome = base::factor(NA, levels = levelout),
         modifications = 1,
         proposition = base::as.character(NA),
         value = 0,
@@ -322,7 +219,7 @@ edit_propositions_server <- function(
           dplyr::mutate(
             code = base::factor(code, levels = levelcode),
             type = base::factor(type, levels = leveltype),
-            document = base::factor(document, levels = leveldoc),
+            outcome = base::factor(outcome, levels = levelout),
             scale = base::factor(scale, levels = levelscale)
           )
         
@@ -332,7 +229,7 @@ edit_propositions_server <- function(
           #  by = c("item","language")
           #) |>
           dplyr::select(
-            item, language, code, type, document, modifications, proposition,
+            item, language, code, type, outcome, modifications, proposition,
             value, scale, explanation, keywords, retire#, answers, success, discrimination
           ) |>
           dplyr::bind_rows(tmprow)
