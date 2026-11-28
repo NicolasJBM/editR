@@ -275,7 +275,11 @@ edit_propositions_server <- function(
     shiny::observeEvent(input$saveprop, {
       shiny::req(!base::is.null(input$editprop))
       modified <- rhandsontable::hot_to_r(input$editprop) |>
-        dplyr::mutate_if(base::is.factor, base::as.character)
+        dplyr::mutate_if(base::is.factor, base::as.character) |>
+        dplyr::mutate(
+          proposition = base::gsub("\\s+", " ", stringr::str_trim(proposition)),
+          explanation = base::gsub("\\s+", " ", stringr::str_trim(explanation))
+        )
       
       if (base::is.na(modified[base::nrow(modified), "proposition"])){
         modified <- modified[-base::nrow(modified),]
@@ -373,7 +377,11 @@ edit_propositions_server <- function(
     shiny::observeEvent(input$saveproptranslation, {
       shiny::req(!base::is.null(input$translateprop))
       modified <- rhandsontable::hot_to_r(input$translateprop) |>
-        dplyr::mutate_if(base::is.factor, base::as.character)
+        dplyr::mutate_if(base::is.factor, base::as.character) |>
+        dplyr::mutate(
+          proposition = base::gsub("\\s+", " ", stringr::str_trim(proposition)),
+          explanation = base::gsub("\\s+", " ", stringr::str_trim(explanation))
+        )
       
       translations <- shiny::isolate({ translations() })
       
